@@ -12,6 +12,6 @@ namespace Domain.Entities
         public string Username { get; set; } = string.Empty;
         public string PasswordHash { get; set; } = string.Empty;
 
-        public List<Bet> Bets { get; set; } = [];
+        public List<Bet> Bets { get; set; } = new List<Bet>();
     }
 }
