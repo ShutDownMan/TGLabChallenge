@@ -1,0 +1,72 @@
+@API_HostAddress = https://localhost:44354
+
+// --- Public endpoints ---
+
+// Weather forecast (no auth)
+GET {{API_HostAddress}}/weatherforecast/
+Accept: application/json
+
+###
+
+// --- Auth endpoints ---
+
+// Register
+POST {{API_HostAddress}}/api/Auth/register
+Content-Type: application/json
+
+{
+  "username": "jedson",
+  "password": "123456Sete"
+}
+
+###
+
+// Login
+POST {{API_HostAddress}}/api/Auth/login
+Content-Type: application/json
+
+{
+  "username": "jedson",
+  "password": "123456Sete"
+}
+
+###
+
+// Validate token
+POST {{API_HostAddress}}/api/Auth/validate-token
+Content-Type: application/json
+
+{
+  "token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJodHRwOi8vc2NoZW1hcy54bWxzb2FwLm9yZy93cy8yMDA1LzA1L2lkZW50aXR5L2NsYWltcy9uYW1laWRlbnRpZmllciI6IjQ3NWIwZjkyLTk3MGMtNGQ5Yi1iMzMzLTI5YWVjODdkNzlmNCIsImh0dHA6Ly9zY2hlbWFzLnhtbHNvYXAub3JnL3dzLzIwMDUvMDUvaWRlbnRpdHkvY2xhaW1zL25hbWUiOiJqZWRzb24iLCJleHAiOjE3NDg2MzU4NjEsImlzcyI6InlvdXJJc3N1ZXIiLCJhdWQiOiJ5b3VyQXVkaWVuY2UifQ.c6e4t1oDebNo-B4jB44L7NCh0Ysx6D8xGCuJ-9uFK6g"
+}
+
+###
+
+// --- User Endpoints ---
+
+// Get user profile
+GET {{API_HostAddress}}/api/User/profile
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJodHRwOi8vc2NoZW1hcy54bWxzb2FwLm9yZy93cy8yMDA1LzA1L2lkZW50aXR5L2NsYWltcy9uYW1laWRlbnRpZmllciI6IjQ3NWIwZjkyLTk3MGMtNGQ5Yi1iMzMzLTI5YWVjODdkNzlmNCIsImh0dHA6Ly9zY2hlbWFzLnhtbHNvYXAub3JnL3dzLzIwMDUvMDUvaWRlbnRpdHkvY2xhaW1zL25hbWUiOiJqZWRzb24iLCJleHAiOjE3NDg2MzU4NjEsImlzcyI6InlvdXJJc3N1ZXIiLCJhdWQiOiJ5b3VyQXVkaWVuY2UifQ.c6e4t1oDebNo-B4jB44L7NCh0Ysx6D8xGCuJ-9uFK6g
+Accept: application/json
+
+###
+
+// Update user profile
+PUT {{API_HostAddress}}/user/profile
+Authorization: Bearer {{token}}
+Content-Type: application/json
+
+{
+  // ...profile fields...
+  // "username": "jedson",
+  // Note: Changing the username may cause /profile to return an error unless you refresh your token.
+}
+
+###
+
+// Weather forecast (requires Bearer token)
+GET {{API_HostAddress}}/WeatherForecast
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJodHRwOi8vc2NoZW1hcy54bWxzb2FwLm9yZy93cy8yMDA1LzA1L2lkZW50aXR5L2NsYWltcy9uYW1laWRlbnRpZmllciI6IjQ3NWIwZjkyLTk3MGMtNGQ5Yi1iMzMzLTI5YWVjODdkNzlmNCIsImh0dHA6Ly9zY2hlbWFzLnhtbHNvYXAub3JnL3dzLzIwMDUvMDUvaWRlbnRpdHkvY2xhaW1zL25hbWUiOiJqZWRzb24iLCJleHAiOjE3NDg2MjE1OTYsImlzcyI6InlvdXJJc3N1ZXIiLCJhdWQiOiJ5b3VyQXVkaWVuY2UifQ.d9EJNqiSlSOKWqb80Hpra7BTvAlT8mpjSvMlCONY8Xw
+Accept: application/json
+
+###
