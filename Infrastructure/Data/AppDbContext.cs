@@ -51,7 +51,13 @@ namespace Infrastructure.Data
 
             // Placeholder Game entity data
             modelBuilder.Entity<Game>().HasData(
-                new Game { Id = Guid.Parse("7558398b-a987-4b88-9010-c026306d3535"), Name = "Placeholder Game", Description = "This is a placeholder game for testing purposes." }
+                new Game {
+                    Id = Guid.Parse("7558398b-a987-4b88-9010-c026306d3535"),
+                    Name = "Placeholder Game",
+                    Description = "This is a placeholder game for testing purposes.",
+                    MinimalBetAmount = 100,
+                    MinimalBetCurrencyId = 1
+                }
             );
         }
 

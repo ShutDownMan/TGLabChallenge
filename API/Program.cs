@@ -21,20 +21,22 @@ namespace API
     {
         public static void Main(string[] args)
         {
+            #region BuilderAndLogging
             var builder = WebApplication.CreateBuilder(args);
 
             // Configure Serilog
             Log.Logger = new LoggerConfiguration()
                 .ReadFrom.Configuration(builder.Configuration)
                 .Enrich.FromLogContext()
-                // Write logs to console
                 .WriteTo.Console(
                     outputTemplate: "{Timestamp:yyyy-MM-dd HH:mm:ss.fff zzz} [{Level:u3}] {Message:lj}{NewLine}{Exception}"
                 )
                 .CreateLogger();
 
             builder.Host.UseSerilog();
+            #endregion
 
+            #region ServiceRegistration
             builder.Services.AddControllers();
             builder.Services.AddFluentValidationAutoValidation();
             builder.Services.AddFluentValidationClientsideAdapters();
@@ -90,7 +92,9 @@ namespace API
             builder.Services.AddScoped<IWalletTransactionService, WalletTransactionService>();
             builder.Services.AddScoped<IBetService, BetService>();
             builder.Services.AddScoped<IGameService, GameService>();
+            #endregion
 
+            #region Authentication
             builder.Services.AddAuthentication("Bearer")
                 .AddJwtBearer("Bearer", options =>
                 {
@@ -106,8 +110,9 @@ namespace API
                         )
                     };
                 });
+            #endregion
 
-
+            #region AppPipeline
             var app = builder.Build();
 
             if (app.Environment.IsDevelopment())
@@ -124,6 +129,7 @@ namespace API
             app.MapControllers();
 
             app.Run();
+            #endregion
         }
     }
 }
