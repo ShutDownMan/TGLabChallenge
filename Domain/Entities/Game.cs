@@ -8,6 +8,8 @@ namespace Domain.Entities
         public Guid Id { get; set; }
         public string Name { get; set; } = string.Empty;
         public string? Description { get; set; }
+        public decimal MinimalBetAmount { get; set; } = 0.00m;
+        public int MinimalBetCurrencyId { get; set; }
         public DateTime CreatedAt { get; set; }
 
         public List<Bet> Bets { get; set; } = new();

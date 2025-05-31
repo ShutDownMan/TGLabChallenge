@@ -31,5 +31,22 @@ namespace Infrastructure.Repositories
                 .Where(w => w.PlayerId == playerId)
                 .ToListAsync();
         }
+
+        public async Task UpdateAsync(Wallet wallet)
+        {
+            _context.Wallets.Update(wallet);
+            await _context.SaveChangesAsync();
+        }
+
+        public async Task<Guid?> GetPlayerByWalletIdAsync(Guid walletId)
+        {
+            var wallet = await _context.Wallets
+                .Where(w => w.Id == walletId)
+                .Select(w => w.PlayerId)
+                .FirstOrDefaultAsync();
+
+            // If not found, FirstOrDefaultAsync returns default(Guid) which is Guid.Empty
+            return wallet == Guid.Empty ? (Guid?)null : wallet;
+        }
     }
 }

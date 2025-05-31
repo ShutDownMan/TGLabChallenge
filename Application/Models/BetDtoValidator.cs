@@ -6,26 +6,20 @@ namespace Application.Models
     {
         public BetDtoValidator()
         {
-            // Check if amount is non-negative
             RuleFor(x => x.Amount)
                 .GreaterThan(0)
                 .WithMessage("Amount must be greater than 0.")
                 .WithErrorCode("AMOUNT_GREATER_THAN_ZERO");
 
-            RuleFor(x => x.PlayerId)
+            RuleFor(x => x.WalletId)
                 .NotEmpty()
-                .WithMessage("PlayerId is required.")
-                .WithErrorCode("PLAYERID_REQUIRED");
+                .WithMessage("WalletId is required.")
+                .WithErrorCode("WALLETID_REQUIRED");
 
             RuleFor(x => x.CurrencyId)
                 .GreaterThan(0)
                 .WithMessage("CurrencyId must be greater than 0.")
                 .WithErrorCode("CURRENCYID_GREATER_THAN_ZERO");
-
-            RuleFor(x => x.StatusId)
-                .GreaterThan(0)
-                .WithMessage("StatusId must be greater than 0.")
-                .WithErrorCode("STATUSID_GREATER_THAN_ZERO");
 
             RuleFor(x => x.Prize)
                 .GreaterThanOrEqualTo(0)
@@ -37,6 +31,11 @@ namespace Application.Models
                 .LessThanOrEqualTo(DateTime.UtcNow)
                 .WithMessage("CreatedAt must be in the past or present.")
                 .WithErrorCode("CREATEDAT_PAST_OR_PRESENT");
+
+            RuleFor(x => x.GameId)
+                .NotEmpty()
+                .WithMessage("GameId is required.")
+                .WithErrorCode("GAMEID_REQUIRED");
         }
     }
 }

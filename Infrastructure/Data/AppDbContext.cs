@@ -30,6 +30,17 @@ namespace Infrastructure.Data
                 new Currency { Id = 2, Code = "EUR", Name = "Euro" },
                 new Currency { Id = 3, Code = "BRL", Name = "Brazilian Real" }
             );
+
+            modelBuilder.Entity<BetStatus>().HasData(
+                new BetStatus { Id = 1, Name = "Created" },
+                new BetStatus { Id = 2, Name = "Cancelled" },
+                new BetStatus { Id = 3, Name = "Settled" }
+            );
+
+            modelBuilder.Entity<TransactionType>().HasData(
+                new TransactionType { Id = 1, Name = "Deposit" },
+                new TransactionType { Id = 2, Name = "Withdrawal" }
+            );
         }
 
         protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)

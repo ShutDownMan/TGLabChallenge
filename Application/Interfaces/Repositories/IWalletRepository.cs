@@ -9,5 +9,7 @@ namespace Application.Interfaces.Repositories
     {
         Task AddAsync(Wallet wallet);
         Task<List<Wallet>> GetWalletsByPlayerIdAsync(Guid playerId);
+        Task UpdateAsync(Wallet wallet);
+        Task<Guid?> GetPlayerByWalletIdAsync(Guid walletId);
     }
 }

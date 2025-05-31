@@ -43,6 +43,8 @@ namespace Infrastructure.Migrations
                     Id = table.Column<Guid>(type: "TEXT", nullable: false),
                     Name = table.Column<string>(type: "TEXT", nullable: false),
                     Description = table.Column<string>(type: "TEXT", nullable: true),
+                    MinimalBetAmount = table.Column<decimal>(type: "TEXT", nullable: false),
+                    MinimalBetCurrencyId = table.Column<int>(type: "INTEGER", nullable: false),
                     CreatedAt = table.Column<DateTime>(type: "TEXT", nullable: false)
                 },
                 constraints: table =>
@@ -174,6 +176,21 @@ namespace Infrastructure.Migrations
                 });
 
             migrationBuilder.InsertData(
+                table: "BetStatuses",
+                columns: new[] { "Id", "Name" },
+                values: new object[] { 1, "Created" });
+
+            migrationBuilder.InsertData(
+                table: "BetStatuses",
+                columns: new[] { "Id", "Name" },
+                values: new object[] { 2, "Cancelled" });
+
+            migrationBuilder.InsertData(
+                table: "BetStatuses",
+                columns: new[] { "Id", "Name" },
+                values: new object[] { 3, "Settled" });
+
+            migrationBuilder.InsertData(
                 table: "Currencies",
                 columns: new[] { "Id", "Code", "Name" },
                 values: new object[] { 1, "USD", "US Dollar" });
@@ -187,6 +204,16 @@ namespace Infrastructure.Migrations
                 table: "Currencies",
                 columns: new[] { "Id", "Code", "Name" },
                 values: new object[] { 3, "BRL", "Brazilian Real" });
+
+            migrationBuilder.InsertData(
+                table: "TransactionTypes",
+                columns: new[] { "Id", "Name" },
+                values: new object[] { 1, "Deposit" });
+
+            migrationBuilder.InsertData(
+                table: "TransactionTypes",
+                columns: new[] { "Id", "Name" },
+                values: new object[] { 2, "Withdrawal" });
 
             migrationBuilder.CreateIndex(
                 name: "IX_Bets_GameId",

@@ -75,31 +75,43 @@ namespace Application.Services
 
             // Use a transaction scope to ensure atomicity
             using var scope = new TransactionScope(TransactionScopeAsyncFlowOption.Enabled);
-
-            // Create the user
-            var player = new Player
+            try
             {
-                Id = Guid.NewGuid(),
-                Username = username,
-                PasswordHash = hashedPassword,
-                Email = email,
-                CreatedAt = DateTime.UtcNow
-            };
-            await _userRepository.AddAsync(player);
+                // Create the user
+                var player = new Player
+                {
+                    Id = Guid.NewGuid(),
+                    Username = username,
+                    PasswordHash = hashedPassword,
+                    Email = email,
+                    CreatedAt = DateTime.UtcNow
+                };
+                await _userRepository.AddAsync(player);
 
-            // Create wallet for the user with initial balance
-            var wallet = new Wallet
+                // Create wallet for the user with initial balance
+                var wallet = new Wallet
+                {
+                    Id = Guid.NewGuid(),
+                    PlayerId = player.Id,
+                    CurrencyId = currencyId.Value,
+                    Balance = initialBalance ?? 0m,
+                    CreatedAt = DateTime.UtcNow
+                };
+                await _walletRepository.AddAsync(wallet);
+
+                // Commit the transaction
+                scope.Complete();
+            }
+            catch
             {
-                Id = Guid.NewGuid(),
-                PlayerId = player.Id,
-                CurrencyId = currencyId.Value,
-                Balance = initialBalance ?? 0m,
-                CreatedAt = DateTime.UtcNow
-            };
-            await _walletRepository.AddAsync(wallet);
-
-            // Commit the transaction
-            scope.Complete();
+                // Transaction will be rolled back if not completed
+                throw;
+            }
+            finally
+            {
+                // Ensure the transaction scope is disposed
+                scope.Dispose();
+            }
         }
 
         public async Task<bool> ValidateTokenAsync(string token)

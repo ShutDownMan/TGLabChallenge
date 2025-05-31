@@ -20,5 +20,10 @@ namespace Application.Services
         {
             return await _walletRepository.GetWalletsByPlayerIdAsync(playerId);
         }
+
+        public async Task<Guid?> GetPlayerByWalletIdAsync(Guid walletId)
+        {
+            return await _walletRepository.GetPlayerByWalletIdAsync(walletId);
+        }
     }
 }

@@ -65,6 +65,23 @@ namespace Infrastructure.Migrations
                     b.HasKey("Id");
 
                     b.ToTable("BetStatuses");
+
+                    b.HasData(
+                        new
+                        {
+                            Id = 1,
+                            Name = "Created"
+                        },
+                        new
+                        {
+                            Id = 2,
+                            Name = "Cancelled"
+                        },
+                        new
+                        {
+                            Id = 3,
+                            Name = "Settled"
+                        });
                 });
 
             modelBuilder.Entity("Domain.Entities.Currency", b =>
@@ -118,6 +135,12 @@ namespace Infrastructure.Migrations
                     b.Property<string>("Description")
                         .HasColumnType("TEXT");
 
+                    b.Property<decimal>("MinimalBetAmount")
+                        .HasColumnType("TEXT");
+
+                    b.Property<int>("MinimalBetCurrencyId")
+                        .HasColumnType("INTEGER");
+
                     b.Property<string>("Name")
                         .IsRequired()
                         .HasColumnType("TEXT");
@@ -166,6 +189,18 @@ namespace Infrastructure.Migrations
                     b.HasKey("Id");
 
                     b.ToTable("TransactionTypes");
+
+                    b.HasData(
+                        new
+                        {
+                            Id = 1,
+                            Name = "Deposit"
+                        },
+                        new
+                        {
+                            Id = 2,
+                            Name = "Withdrawal"
+                        });
                 });
 
             modelBuilder.Entity("Domain.Entities.Wallet", b =>
