@@ -11,5 +11,6 @@ namespace Application.Interfaces.Services
         Task CancelBetAsync(Guid betId, string? cancelReason);
         Task<BetDTO?> GetBetByIdAsync(Guid id);
         Task<IEnumerable<BetDTO>> GetBetsByUserAsync(Guid userId);
+        Task<BetDTO> SettleBetAsync(Guid betId);
     }
 }

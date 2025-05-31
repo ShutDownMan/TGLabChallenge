@@ -71,11 +71,22 @@ namespace API.Controllers
             return Ok(betDTO);
         }
 
-        [HttpGet("user/{userId}")]
-        public async Task<IActionResult> GetBetsByUser(Guid userId)
+        [HttpPost("{id}/settle")]
+        public async Task<IActionResult> SettleBet(Guid id)
         {
-            var bets = await _betService.GetBetsByUserAsync(userId);
-            return Ok(bets);
+            try
+            {
+                var result = await _betService.SettleBetAsync(id);
+                return Ok(new { message = "Bet settled successfully.", betId = id, result });
+            }
+            catch (InvalidOperationException ex)
+            {
+                return BadRequest(new { message = ex.Message });
+            }
+            catch (KeyNotFoundException)
+            {
+                return NotFound(new { message = "Bet not found." });
+            }
         }
     }
 }

@@ -36,6 +36,12 @@ namespace Application.Services
             return await _walletRepository.GetByIdAsync(walletId);
         }
 
+        public async Task<bool> WalletExistsAsync(Guid walletId)
+        {
+            var wallet = await _walletRepository.GetByIdAsync(walletId);
+            return wallet != null;
+        }
+
         public async Task UpdateWalletAsync(Wallet wallet)
         {
             await _walletRepository.UpdateAsync(wallet);

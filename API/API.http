@@ -1,13 +1,5 @@
 @API_HostAddress = https://localhost:44354
-@JWTToken = eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJodHRwOi8vc2NoZW1hcy54bWxzb2FwLm9yZy93cy8yMDA1LzA1L2lkZW50aXR5L2NsYWltcy9uYW1laWRlbnRpZmllciI6IjliYjNiYzJhLTYzNDUtNDZkNi05OWE3LTI2NDdhYzYxYzY0NCIsImh0dHA6Ly9zY2hlbWFzLnhtbHNvYXAub3JnL3dzLzIwMDUvMDUvaWRlbnRpdHkvY2xhaW1zL25hbWUiOiJqZXN1aXNqZWRpIiwiZXhwIjoxNzQ4NzI0NzE5LCJpc3MiOiJ5b3VySXNzdWVyIiwiYXVkIjoieW91ckF1ZGllbmNlIn0.OqP_FizPH2DZ5aa3WnTeYtV7f4i94pMeyjP4CENI3T4
-
-// --- Public endpoints ---
-
-// Weather forecast (no auth)
-GET {{API_HostAddress}}/weatherforecast/
-Accept: application/json
-
-###
+@JWTToken = eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJodHRwOi8vc2NoZW1hcy54bWxzb2FwLm9yZy93cy8yMDA1LzA1L2lkZW50aXR5L2NsYWltcy9uYW1laWRlbnRpZmllciI6IjBmNDYzODIxLTRiM2ItNGMzZC1iZDJiLTMyOThkYTU5YWFjZSIsImh0dHA6Ly9zY2hlbWFzLnhtbHNvYXAub3JnL3dzLzIwMDUvMDUvaWRlbnRpdHkvY2xhaW1zL25hbWUiOiJqZXN1aXNqZWRpIiwiZXhwIjoxNzQ4NzMwNjk2LCJpc3MiOiJ5b3VySXNzdWVyIiwiYXVkIjoieW91ckF1ZGllbmNlIn0.CB0D9J-K4-U87pyT5JXV5an4B_XDkiF3C5mbTXtPtzw
 
 // --- Auth endpoints ---
 
@@ -77,7 +69,7 @@ Authorization: Bearer {{JWTToken}}
 Content-Type: application/json
 
 {
-  "walletId": "9c66a8e7-6192-48f9-abd8-f573a3848818",
+  "walletId": "dbeb174e-fa26-47ea-8122-3c2b2cc8f3b9",
   "gameId": "7558398b-a987-4b88-9010-c026306d3535",
   "amount": 100,
   "currencyId": 1,
@@ -86,8 +78,9 @@ Content-Type: application/json
 
 ###
 
+@BetId = 3a715eb0-3ea8-49b3-b543-05b692f51d0b
+
 // Cancel a bet
-@BetId = abe39a2a-ae53-4029-9182-debee18ba170
 POST {{API_HostAddress}}/api/Bet/{{BetId}}/cancel
 Authorization: Bearer {{JWTToken}}
 Content-Type: application/json
@@ -99,16 +92,15 @@ Content-Type: application/json
 ###
 
 // Get a bet by id
-GET {{API_HostAddress}}/api/Bet/{{betId}}
+GET {{API_HostAddress}}/api/Bet/{{BetId}}
 Authorization: Bearer {{JWTToken}}
 Accept: application/json
 
 ###
 
-// Get bets by user
-GET {{API_HostAddress}}/api/Bet/user/{{userId}}
+// Settle a bet
+POST {{API_HostAddress}}/api/Bet/{{BetId}}/settle
 Authorization: Bearer {{JWTToken}}
 Accept: application/json
 
 ###
-

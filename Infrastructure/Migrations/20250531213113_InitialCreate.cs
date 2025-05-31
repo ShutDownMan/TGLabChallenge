@@ -218,7 +218,7 @@ namespace Infrastructure.Migrations
             migrationBuilder.InsertData(
                 table: "Games",
                 columns: new[] { "Id", "CancelTaxPercentage", "CreatedAt", "Description", "MinimalBetAmount", "MinimalBetCurrencyId", "Name" },
-                values: new object[] { new Guid("7558398b-a987-4b88-9010-c026306d3535"), 0.00m, new DateTime(1, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified), "This is a placeholder game for testing purposes.", 0.00m, 0, "Placeholder Game" });
+                values: new object[] { new Guid("7558398b-a987-4b88-9010-c026306d3535"), 0.00m, new DateTime(1, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified), "This is a placeholder game for testing purposes.", 100m, 1, "Placeholder Game" });
 
             migrationBuilder.InsertData(
                 table: "TransactionTypes",

@@ -170,8 +170,8 @@ namespace Infrastructure.Migrations
                             CancelTaxPercentage = 0.00m,
                             CreatedAt = new DateTime(1, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified),
                             Description = "This is a placeholder game for testing purposes.",
-                            MinimalBetAmount = 0.00m,
-                            MinimalBetCurrencyId = 0,
+                            MinimalBetAmount = 100m,
+                            MinimalBetCurrencyId = 1,
                             Name = "Placeholder Game"
                         });
                 });

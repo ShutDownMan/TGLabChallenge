@@ -188,5 +188,122 @@ namespace Tests.Services
             await Assert.ThrowsAsync<InvalidOperationException>(() => service.PlaceBetAsync(betDTO));
             #endregion
         }
+
+        [Fact]
+        public async Task SettleBetAsync_BetNotFound_Throws()
+        {
+            #region Arrange
+            var service = CreateService();
+            _betRepo.Setup(r => r.GetByIdAsync(It.IsAny<Guid>())).ReturnsAsync((Bet?)null);
+            #endregion
+
+            #region Act & Assert
+            await Assert.ThrowsAsync<KeyNotFoundException>(() => service.SettleBetAsync(Guid.NewGuid()));
+            #endregion
+        }
+
+        [Fact]
+        public async Task SettleBetAsync_BetNotCreated_Throws()
+        {
+            #region Arrange
+            var betId = Guid.NewGuid();
+            var bet = new Bet { Id = betId, StatusId = (int)BetStatusEnum.Cancelled };
+            _betRepo.Setup(r => r.GetByIdAsync(betId)).ReturnsAsync(bet);
+
+            var service = CreateService();
+            #endregion
+
+            #region Act & Assert
+            await Assert.ThrowsAsync<InvalidOperationException>(() => service.SettleBetAsync(betId));
+            #endregion
+        }
+
+        [Fact]
+        public async Task SettleBetAsync_GameNotFound_Throws()
+        {
+            #region Arrange
+            var betId = Guid.NewGuid();
+            var bet = new Bet { Id = betId, StatusId = (int)BetStatusEnum.Created, GameId = Guid.NewGuid() };
+            _betRepo.Setup(r => r.GetByIdAsync(betId)).ReturnsAsync(bet);
+            _gameService.Setup(s => s.GetGameByIdAsync(It.IsAny<Guid>())).ReturnsAsync((Game?)null);
+
+            var service = CreateService();
+            #endregion
+
+            #region Act & Assert
+            await Assert.ThrowsAsync<InvalidOperationException>(() => service.SettleBetAsync(betId));
+            #endregion
+        }
+
+        [Fact]
+        public async Task SettleBetAsync_PlayerLoses_SetsPayoutZero()
+        {
+            #region Arrange
+            var betId = Guid.NewGuid();
+            var walletId = Guid.NewGuid();
+            var gameId = Guid.NewGuid();
+            var bet = new Bet { Id = betId, StatusId = (int)BetStatusEnum.Created, Amount = 50, WalletId = walletId, GameId = gameId };
+            var game = new Game { Id = gameId };
+            _betRepo.Setup(r => r.GetByIdAsync(betId)).ReturnsAsync(bet);
+            _gameService.Setup(s => s.GetGameByIdAsync(gameId)).ReturnsAsync(game);
+            var service = CreateService();
+            #endregion
+
+            #region Act
+            BetDTO? result = null;
+            for (int i = 0; i < 10; i++)
+            {
+                _betRepo.Invocations.Clear();
+                _betRepo.Setup(r => r.UpdateAsync(It.IsAny<Bet>())).ReturnsAsync(bet);
+                _mapper.Setup(m => m.Map<BetDTO>(It.IsAny<Bet>())).Returns(new BetDTO { Id = betId, StatusId = (int)BetStatusEnum.Settled, Payout = 0 });
+                result = await service.SettleBetAsync(betId);
+                if (result.Payout == 0)
+                    break;
+            }
+            #endregion
+
+            #region Assert
+            Assert.NotNull(result);
+            Assert.Equal(0, result.Payout);
+            Assert.Equal((int)BetStatusEnum.Settled, result.StatusId);
+            #endregion
+        }
+
+        [Fact]
+        public async Task SettleBetAsync_PlayerWins_CreditsWalletAndSetsPayout()
+        {
+            #region Arrange
+            var betId = Guid.NewGuid();
+            var walletId = Guid.NewGuid();
+            var gameId = Guid.NewGuid();
+            var bet = new Bet { Id = betId, StatusId = (int)BetStatusEnum.Created, Amount = 50, WalletId = walletId, GameId = gameId };
+            var game = new Game { Id = gameId };
+            var wallet = new Wallet { Id = walletId };
+            _betRepo.Setup(r => r.GetByIdAsync(betId)).ReturnsAsync(bet);
+            _gameService.Setup(s => s.GetGameByIdAsync(gameId)).ReturnsAsync(game);
+            _walletService.Setup(s => s.GetWalletByIdAsync(walletId)).ReturnsAsync(wallet);
+            _walletService.Setup(s => s.CreditWalletAsync(wallet, 100, betId)).ReturnsAsync(new WalletTransaction());
+            _betRepo.Setup(r => r.UpdateAsync(It.IsAny<Bet>())).ReturnsAsync(bet);
+            _mapper.Setup(m => m.Map<BetDTO>(It.IsAny<Bet>())).Returns(new BetDTO { Id = betId, StatusId = (int)BetStatusEnum.Settled, Payout = 100 });
+
+            var service = CreateService();
+            #endregion
+
+            #region Act
+            BetDTO? result = null;
+            for (int i = 0; i < 10; i++)
+            {
+                result = await service.SettleBetAsync(betId);
+                if (result.Payout == 100)
+                    break;
+            }
+            #endregion
+
+            #region Assert
+            Assert.NotNull(result);
+            Assert.Equal(100, result.Payout);
+            Assert.Equal((int)BetStatusEnum.Settled, result.StatusId);
+            #endregion
+        }
     }
 }

@@ -109,6 +109,13 @@ namespace Application.Services
 
         private async Task<Wallet> ValidateAndGetWalletAsync(PlaceBetDTO betDTO)
         {
+            var walletExists = await _walletService.WalletExistsAsync(betDTO.WalletId);
+            if (!walletExists)
+            {
+                _logger.LogWarning("Wallet does not exist. WalletId: {WalletId}", betDTO.WalletId);
+                throw new InvalidOperationException("Wallet does not exist.");
+            }
+
             var playerId = await _walletService.GetPlayerByWalletIdAsync(betDTO.WalletId);
             if (playerId == null)
             {
@@ -249,6 +256,66 @@ namespace Application.Services
             var bet = await _betRepository.GetByIdAsync(id);
 
             return bet == null ? null : _mapper.Map<BetDTO>(bet);
+        }
+
+        public async Task<BetDTO> SettleBetAsync(Guid betId)
+        {
+            using var scope = new TransactionScope(TransactionScopeAsyncFlowOption.Enabled);
+            try
+            {
+                var bet = await _betRepository.GetByIdAsync(betId);
+                if (bet == null)
+                    throw new KeyNotFoundException("Bet not found.");
+
+                if (bet.StatusId != (int)BetStatusEnum.Created)
+                    throw new InvalidOperationException($"Cannot settle a bet with status '{((BetStatusEnum)bet.StatusId).ToString()}'.");
+
+                // Fetch game using GameService
+                var game = await _gameService.GetGameByIdAsync(bet.GameId);
+                if (game == null)
+                    throw new InvalidOperationException("Game not found for bet.");
+
+                // Dummy logic: player wins if Randomly generated number is even
+                bool playerWon = new Random().Next(0, 2) == 0;
+                if (!playerWon)
+                {
+                    bet.StatusId = (int)BetStatusEnum.Settled;
+                    bet.Payout = 0;
+                    bet.LastUpdatedAt = DateTime.UtcNow;
+                    bet.Note = "Bet settled: player lost, no payout.";
+                    _logger.LogDebug("Settling bet with ID: {BetId}, Player lost, no payout.", betId);
+                    await _betRepository.UpdateAsync(bet);
+                    scope.Complete();
+                    return _mapper.Map<BetDTO>(bet);
+                }
+
+                // For demonstration, let's assume payout is double the bet amount
+                var payout = bet.Amount * 2;
+
+                // Credit the wallet with payout
+                var wallet = await _walletService.GetWalletByIdAsync(bet.WalletId);
+                if (wallet == null)
+                    throw new InvalidOperationException("Wallet not found for bet.");
+
+                await _walletService.CreditWalletAsync(wallet, payout, bet.Id);
+
+                bet.StatusId = (int)BetStatusEnum.Settled;
+                bet.Payout = payout;
+                bet.LastUpdatedAt = DateTime.UtcNow;
+                bet.Note = $"Bet settled: player won, payout {payout}.";
+
+                _logger.LogDebug("Settling bet with ID: {BetId}, Payout: {Payout}", betId, payout);
+
+                await _betRepository.UpdateAsync(bet);
+
+                scope.Complete();
+
+                return _mapper.Map<BetDTO>(bet);
+            }
+            finally
+            {
+                scope.Dispose();
+            }
         }
 
     }

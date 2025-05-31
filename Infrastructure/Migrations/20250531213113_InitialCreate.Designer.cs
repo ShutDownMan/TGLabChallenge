@@ -11,7 +11,7 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace Infrastructure.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-    [Migration("20250531195133_InitialCreate")]
+    [Migration("20250531213113_InitialCreate")]
     partial class InitialCreate
     {
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -172,8 +172,8 @@ namespace Infrastructure.Migrations
                             CancelTaxPercentage = 0.00m,
                             CreatedAt = new DateTime(1, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified),
                             Description = "This is a placeholder game for testing purposes.",
-                            MinimalBetAmount = 0.00m,
-                            MinimalBetCurrencyId = 0,
+                            MinimalBetAmount = 100m,
+                            MinimalBetCurrencyId = 1,
                             Name = "Placeholder Game"
                         });
                 });
