@@ -4,9 +4,9 @@ using System;
 
 namespace Application.Services
 {
-    public class BetDtoValidator : AbstractValidator<Application.Models.BetDto>
+    public class BetDTOValidator : AbstractValidator<Application.Models.BetDTO>
     {
-        public BetDtoValidator()
+        public BetDTOValidator()
         {
             RuleFor(x => x.PlayerId).NotEqual(Guid.Empty);
             RuleFor(x => x.Amount).GreaterThan(0);

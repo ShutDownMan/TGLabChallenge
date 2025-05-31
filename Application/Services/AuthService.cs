@@ -47,6 +47,12 @@ namespace Application.Services
                 throw new UserAlreadyExistsException("Username already exists.");
             }
 
+            // check if email is already registered
+            if (await _userRepository.EmailExistsAsync(email))
+            {
+                throw new UserAlreadyExistsException("Email already registered.");
+            }
+
             if (currencyId == null)
             {
                 var defaultCurrency = await _currencyRepository.GetDefaultCurrencyAsync();

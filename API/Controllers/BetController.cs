@@ -13,16 +13,16 @@ namespace API.Controllers
     public class BetController : ControllerBase
     {
         private readonly BetService _betService;
-        private readonly IValidator<BetDto> _betDtoValidator;
+        private readonly IValidator<BetDTO> _betDtoValidator;
 
-        public BetController(BetService betService, IValidator<BetDto> betDtoValidator)
+        public BetController(BetService betService, IValidator<BetDTO> betDtoValidator)
         {
             _betService = betService;
             _betDtoValidator = betDtoValidator;
         }
 
         [HttpPost]
-        public async Task<IActionResult> PlaceBet([FromBody] BetDto betDto)
+        public async Task<IActionResult> PlaceBet([FromBody] BetDTO betDto)
         {
             ValidationResult validationResult = await _betDtoValidator.ValidateAsync(betDto);
             if (!validationResult.IsValid)

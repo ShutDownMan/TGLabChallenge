@@ -20,7 +20,7 @@ namespace Application.Services
             _mapper = mapper;
         }
 
-        public async Task<BetDto> PlaceBetAsync(BetDto betDto)
+        public async Task<BetDTO> PlaceBetAsync(BetDTO betDto)
         {
             // TODO: Add any additional business logic for placing a bet, such as validation or calculations
 
@@ -28,10 +28,10 @@ namespace Application.Services
 
             await _betRepository.AddAsync(betEntity);
 
-            return _mapper.Map<BetDto>(betEntity);
+            return _mapper.Map<BetDTO>(betEntity);
         }
 
-        public async Task CancelBetAsync(BetDto betDto)
+        public async Task CancelBetAsync(BetDTO betDto)
         {
             // TODO: Add any additional business logic for canceling a bet, such as validation or state checks
 
@@ -40,18 +40,18 @@ namespace Application.Services
             await _betRepository.CancelAsync(bet);
         }
 
-        public async Task<BetDto?> GetBetByIdAsync(Guid id)
+        public async Task<BetDTO?> GetBetByIdAsync(Guid id)
         {
             var bet = await _betRepository.GetByIdAsync(id);
 
-            return bet == null ? null : _mapper.Map<BetDto>(bet);
+            return bet == null ? null : _mapper.Map<BetDTO>(bet);
         }
 
-        public async Task<IEnumerable<BetDto>> GetBetsByUserAsync(Guid userId)
+        public async Task<IEnumerable<BetDTO>> GetBetsByUserAsync(Guid userId)
         {
             var bets = await _betRepository.GetByUserAsync(userId);
 
-            return _mapper.Map<IEnumerable<BetDto>>(bets);
+            return _mapper.Map<IEnumerable<BetDTO>>(bets);
         }
     }
 }

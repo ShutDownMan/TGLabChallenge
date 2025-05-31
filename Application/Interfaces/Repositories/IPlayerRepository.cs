@@ -14,6 +14,7 @@ namespace Application.Interfaces.Repositories
         Task<Player> GetByIdAsync(Guid id);
         Task AddAsync(Player user);
         Task<bool> UsernameExistsAsync(string username);
+        Task<bool> EmailExistsAsync(string email);
     }
 
 }

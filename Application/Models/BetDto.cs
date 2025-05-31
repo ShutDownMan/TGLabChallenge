@@ -1,6 +1,6 @@
 namespace Application.Models
 {
-    public record BetDto
+    public record BetDTO
     (
         Guid Id,
         Guid PlayerId,

@@ -52,5 +52,7 @@ Table Game {
   Id UUID [pk]
   Name varchar(100) [not null]
   Description varchar(255)
+  MinimalBetAmount decimal(18,2) [not null, default: 0.00]
+  MinimalBetCurrencyId int [ref: > Currency.Id, not null]
   CreatedAt datetime [not null]
 }

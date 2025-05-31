@@ -2,7 +2,7 @@ using FluentValidation;
 
 namespace Application.Models
 {
-    public class BetDtoValidator : AbstractValidator<BetDto>
+    public class BetDtoValidator : AbstractValidator<BetDTO>
     {
         public BetDtoValidator()
         {

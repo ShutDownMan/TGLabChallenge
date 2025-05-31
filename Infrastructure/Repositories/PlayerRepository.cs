@@ -45,5 +45,10 @@ namespace Infrastructure.Repositories
         {
             return await _context.Players.AnyAsync(u => u.Username == username);
         }
+
+        public async Task<bool> EmailExistsAsync(string email)
+        {
+            return await _context.Players.AnyAsync(u => u.Email == email);
+        }
     }
 }
