@@ -19,7 +19,7 @@ namespace Tests.Services
         [Fact]
         public async Task LoginAsync_WithValidCredentials_ReturnsToken()
         {
-            // Arrange
+            #region Arrange
             var userRepo = new Mock<IPlayerRepository>();
             var currencyRepo = new Mock<ICurrencyRepository>();
             var jwtGen = new Mock<IJwtTokenGenerator>();
@@ -29,18 +29,21 @@ namespace Tests.Services
             userRepo.Setup(r => r.GetByUsernameAsync("test")).ReturnsAsync(user);
             jwtGen.Setup(j => j.GenerateToken(user)).Returns("token");
             var service = new AuthService(userRepo.Object, currencyRepo.Object, jwtGen.Object, walletRepo.Object, walletTxService.Object);
+            #endregion
 
-            // Act
+            #region Act
             var token = await service.LoginAsync("test", "pass");
+            #endregion
 
-            // Assert
+            #region Assert
             Assert.Equal("token", token);
+            #endregion
         }
 
         [Fact]
         public async Task LoginAsync_WithValidEmail_ReturnsToken()
         {
-            // Arrange
+            #region Arrange
             var userRepo = new Mock<IPlayerRepository>();
             var currencyRepo = new Mock<ICurrencyRepository>();
             var jwtGen = new Mock<IJwtTokenGenerator>();
@@ -51,17 +54,21 @@ namespace Tests.Services
             userRepo.Setup(r => r.GetByEmailAsync("test@email.com")).ReturnsAsync(user);
             jwtGen.Setup(j => j.GenerateToken(user)).Returns("token");
             var service = new AuthService(userRepo.Object, currencyRepo.Object, jwtGen.Object, walletRepo.Object, walletTxService.Object);
+            #endregion
 
-            // Act
+            #region Act
             var token = await service.LoginAsync("test@email.com", "pass");
+            #endregion
 
-            // Assert
+            #region Assert
             Assert.Equal("token", token);
+            #endregion
         }
 
         [Fact]
         public async Task LoginAsync_WithInvalidCredentials_ThrowsUnauthorized()
         {
+            #region Arrange
             var userRepo = new Mock<IPlayerRepository>();
             var currencyRepo = new Mock<ICurrencyRepository>();
             var jwtGen = new Mock<IJwtTokenGenerator>();
@@ -70,13 +77,17 @@ namespace Tests.Services
             userRepo.Setup(r => r.GetByUsernameAsync("test")).ReturnsAsync((Player?)null);
             userRepo.Setup(r => r.GetByEmailAsync("test")).ReturnsAsync((Player?)null);
             var service = new AuthService(userRepo.Object, currencyRepo.Object, jwtGen.Object, walletRepo.Object, walletTxService.Object);
+            #endregion
 
+            #region Act & Assert
             await Assert.ThrowsAsync<UnauthorizedAccessException>(() => service.LoginAsync("test", "wrong"));
+            #endregion
         }
 
         [Fact]
         public async Task RegisterAsync_WithExistingUsername_ThrowsException()
         {
+            #region Arrange
             var userRepo = new Mock<IPlayerRepository>();
             var currencyRepo = new Mock<ICurrencyRepository>();
             var jwtGen = new Mock<IJwtTokenGenerator>();
@@ -84,14 +95,17 @@ namespace Tests.Services
             var walletTxService = new Mock<IWalletTransactionService>();
             userRepo.Setup(r => r.UsernameExistsAsync("test")).ReturnsAsync(true);
             var service = new AuthService(userRepo.Object, currencyRepo.Object, jwtGen.Object, walletRepo.Object, walletTxService.Object);
+            #endregion
 
+            #region Act & Assert
             await Assert.ThrowsAsync<UserAlreadyExistsException>(() => service.RegisterAsync("test", "pass", "test@email.com", 1, 1));
+            #endregion
         }
 
         [Fact]
         public async Task RegisterAsync_WithNewUsername_AddsUserWithHashedPassword()
         {
-            // Arrange
+            #region Arrange
             var userRepo = new Mock<IPlayerRepository>();
             var currencyRepo = new Mock<ICurrencyRepository>();
             var jwtGen = new Mock<IJwtTokenGenerator>();
@@ -115,22 +129,26 @@ namespace Tests.Services
                 .ReturnsAsync(new WalletTransaction());
 
             var service = new AuthService(userRepo.Object, currencyRepo.Object, jwtGen.Object, walletRepo.Object, walletTxService.Object);
+            #endregion
 
-            // Act
+            #region Act
             await service.RegisterAsync("newuser", "newpass", "new@email.com", 1, 0);
+            #endregion
 
-            // Assert
+            #region Assert
             Assert.NotNull(addedPlayer);
             Assert.Equal("newuser", addedPlayer.Username);
             Assert.Equal("new@email.com", addedPlayer.Email);
             Assert.NotNull(addedPlayer.PasswordHash);
             Assert.NotEqual("newpass", addedPlayer.PasswordHash);
             Assert.True(BCrypt.Net.BCrypt.Verify("newpass", addedPlayer.PasswordHash));
+            #endregion
         }
 
         [Fact]
         public void RegisterRequestValidator_InvalidData_ReturnsValidationErrors()
         {
+            #region Arrange
             var validator = new RegisterRequestValidator();
             var invalidRequest = new RegisterRequest
             {
@@ -139,19 +157,25 @@ namespace Tests.Services
                 Email = "not-an-email",
                 InitialBalance = -10
             };
+            #endregion
 
+            #region Act
             ValidationResult result = validator.Validate(invalidRequest);
+            #endregion
 
+            #region Assert
             Assert.False(result.IsValid);
             Assert.Contains(result.Errors, e => e.PropertyName == "Username");
             Assert.Contains(result.Errors, e => e.PropertyName == "Password");
             Assert.Contains(result.Errors, e => e.PropertyName == "Email" && e.ErrorCode == "EMAIL_INVALID");
             Assert.Contains(result.Errors, e => e.PropertyName == "InitialBalance");
+            #endregion
         }
 
         [Fact]
         public void RegisterRequestValidator_ValidData_PassesValidation()
         {
+            #region Arrange
             var validator = new RegisterRequestValidator();
             var validRequest = new RegisterRequest
             {
@@ -160,34 +184,51 @@ namespace Tests.Services
                 Email = "user1@email.com",
                 InitialBalance = 0
             };
+            #endregion
 
+            #region Act
             ValidationResult result = validator.Validate(validRequest);
+            #endregion
 
+            #region Assert
             Assert.True(result.IsValid);
+            #endregion
         }
 
         [Fact]
         public void LoginRequestValidator_InvalidData_ReturnsValidationErrors()
         {
+            #region Arrange
             var validator = new LoginRequestValidator();
             var invalidRequest = new LoginRequest("", "");
+            #endregion
 
+            #region Act
             ValidationResult result = validator.Validate(invalidRequest);
+            #endregion
 
+            #region Assert
             Assert.False(result.IsValid);
             Assert.Contains(result.Errors, e => e.PropertyName == "Identifier");
             Assert.Contains(result.Errors, e => e.PropertyName == "Password");
+            #endregion
         }
 
         [Fact]
         public void LoginRequestValidator_ValidData_PassesValidation()
         {
+            #region Arrange
             var validator = new LoginRequestValidator();
             var validRequest = new LoginRequest("user1", "pass123");
+            #endregion
 
+            #region Act
             ValidationResult result = validator.Validate(validRequest);
+            #endregion
 
+            #region Assert
             Assert.True(result.IsValid);
+            #endregion
         }
     }
 }

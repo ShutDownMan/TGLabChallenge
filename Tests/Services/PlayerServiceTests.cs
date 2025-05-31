@@ -17,6 +17,7 @@ namespace Tests.Services
         [Fact]
         public async Task GetProfileAsync_WithExistingPlayer_ReturnsProfile()
         {
+            #region Arrange
             var playerId = Guid.NewGuid();
             var playerRepo = new Mock<IPlayerRepository>();
             var walletService = new Mock<IWalletService>();
@@ -40,18 +41,24 @@ namespace Tests.Services
                 walletTransactionService.Object,
                 logger.Object
             );
+            #endregion
 
+            #region Act
             var profile = await service.GetProfileAsync(playerId);
+            #endregion
 
+            #region Assert
             Assert.NotNull(profile);
             Assert.Equal("test", profile!.Username);
             Assert.Equal(player.Email, profile.Email);
             Assert.Single(profile.Wallets);
+            #endregion
         }
 
         [Fact]
         public async Task GetProfileAsync_WithNonExistingPlayer_ReturnsNull()
         {
+            #region Arrange
             var playerRepo = new Mock<IPlayerRepository>();
             var walletService = new Mock<IWalletService>();
             var betService = new Mock<IBetService>();
@@ -67,10 +74,15 @@ namespace Tests.Services
                 walletTransactionService.Object,
                 logger.Object
             );
+            #endregion
 
+            #region Act
             var profile = await service.GetProfileAsync(Guid.NewGuid());
+            #endregion
 
+            #region Assert
             Assert.Null(profile);
+            #endregion
         }
     }
 }
