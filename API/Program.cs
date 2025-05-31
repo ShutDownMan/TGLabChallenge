@@ -21,10 +21,9 @@ namespace API
     {
         public static void Main(string[] args)
         {
-            #region BuilderAndLogging
             var builder = WebApplication.CreateBuilder(args);
 
-            // Configure Serilog
+            #region Logging
             Log.Logger = new LoggerConfiguration()
                 .ReadFrom.Configuration(builder.Configuration)
                 .Enrich.FromLogContext()
