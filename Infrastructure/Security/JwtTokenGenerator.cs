@@ -27,17 +27,19 @@ namespace Infrastructure.Security
             {
                 new Claim(ClaimTypes.NameIdentifier, user.Id.ToString()),
                 new Claim(ClaimTypes.Name, user.Username),
-                // TODO: add expiration date
             };
 
             var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_config["Jwt:Key"]!));
             var creds = new SigningCredentials(key, SecurityAlgorithms.HmacSha256);
 
+            // Read expiration from config, fallback to 1 hour if not set
+            var expiresMinutes = int.TryParse(_config["Jwt:ExpiresMinutes"], out var min) ? min : 60;
+
             var token = new JwtSecurityToken(
                 issuer: _config["Jwt:Issuer"],
                 audience: _config["Jwt:Audience"],
                 claims: claims,
-                expires: DateTime.UtcNow.AddHours(1),
+                expires: DateTime.UtcNow.AddMinutes(expiresMinutes),
                 signingCredentials: creds
             );
 

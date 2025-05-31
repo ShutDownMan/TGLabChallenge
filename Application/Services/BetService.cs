@@ -22,60 +22,40 @@ namespace Application.Services
         private readonly IMapper _mapper;
         private readonly IWalletService _walletService;
         private readonly IWalletTransactionService _walletTransactionService;
-        private readonly ILogger<BetService> _logger;
         private readonly IGameService _gameService;
+        private readonly ILogger<BetService> _logger;
 
         public BetService(
             IBetRepository betRepository,
             IMapper mapper,
             IWalletService walletService,
             IWalletTransactionService walletTransactionService,
-            ILogger<BetService> logger,
-            IGameService gameService)
+            IGameService gameService,
+            ILogger<BetService> logger)
         {
             _betRepository = betRepository;
             _mapper = mapper;
             _walletService = walletService;
             _walletTransactionService = walletTransactionService;
-            _logger = logger;
             _gameService = gameService;
+            _logger = logger;
         }
 
         public async Task<BetDTO> PlaceBetAsync(PlaceBetDTO betDTO)
         {
             _logger.LogDebug("Starting PlaceBetAsync for WalletId: {WalletId}, Amount: {Amount}", betDTO.WalletId, betDTO.Amount);
 
-            var playerId = await _walletService.GetPlayerByWalletIdAsync(betDTO.WalletId);
-            if (playerId == null)
-            {
-                _logger.LogWarning("Player not found for WalletId: {WalletId}", betDTO.WalletId);
-                throw new InvalidOperationException("Player not found.");
-            }
+            var wallet = await ValidateAndGetWalletAsync(betDTO);
+            var game = await ValidateAndGetGameAsync(betDTO);
 
-            var wallets = await _walletService.GetWalletsByPlayerIdAsync(playerId.Value);
-            var wallet = wallets.FirstOrDefault(w => w.Id == betDTO.WalletId);
-
-            if (wallet == null)
-            {
-                _logger.LogWarning("Wallet not found. WalletId: {WalletId}", betDTO.WalletId);
-                throw new InvalidOperationException("Wallet not found.");
-            }
-
-            if (wallet.Balance < betDTO.Amount)
-            {
-                _logger.LogWarning("Insufficient wallet balance. WalletId: {WalletId}, Balance: {Balance}, BetAmount: {Amount}", wallet.Id, wallet.Balance, betDTO.Amount);
-                throw new InvalidOperationException("Insufficient wallet balance.");
-            }
+            ValidateBetAmountAndCurrency(betDTO, game);
+            ValidateWalletBalance(wallet, betDTO.Amount);
 
             using var scope = new TransactionScope(TransactionScopeAsyncFlowOption.Enabled);
             try
             {
-                var betEntity = _mapper.Map<Bet>(betDTO);
+                var betEntity = CreateBetEntity(betDTO);
 
-                // Set status to Created
-                betEntity.StatusId = (int)BetStatusEnum.Created;
-
-                // Add bet to repository
                 var newBetEntity = await _betRepository.AddAsync(betEntity);
                 if (newBetEntity == null)
                 {
@@ -85,12 +65,10 @@ namespace Application.Services
 
                 _logger.LogDebug("Bet added. BetId: {BetId}, WalletId: {WalletId}", betEntity.Id, wallet.Id);
 
-                // Debit wallet using service (handles balance and transaction)
                 await _walletService.DebitWalletAsync(wallet, betDTO.Amount, newBetEntity.Id);
 
                 _logger.LogDebug("Debited wallet. WalletId: {WalletId}, NewBalance: {Balance}", wallet.Id, wallet.Balance);
 
-                // Fetch the refreshed wallet to ensure we have the latest balance
                 var refreshedWallet = await _walletService.GetWalletByIdAsync(wallet.Id);
                 if (refreshedWallet == null)
                 {
@@ -127,6 +105,68 @@ namespace Application.Services
             {
                 scope.Dispose();
             }
+        }
+
+        private async Task<Wallet> ValidateAndGetWalletAsync(PlaceBetDTO betDTO)
+        {
+            var playerId = await _walletService.GetPlayerByWalletIdAsync(betDTO.WalletId);
+            if (playerId == null)
+            {
+                _logger.LogWarning("Player not found for WalletId: {WalletId}", betDTO.WalletId);
+                throw new InvalidOperationException("Player not found.");
+            }
+
+            var wallets = await _walletService.GetWalletsByPlayerIdAsync(playerId.Value);
+            var wallet = wallets.FirstOrDefault(w => w.Id == betDTO.WalletId);
+
+            if (wallet == null)
+            {
+                _logger.LogWarning("Wallet not found. WalletId: {WalletId}", betDTO.WalletId);
+                throw new InvalidOperationException("Wallet not found.");
+            }
+
+            return wallet;
+        }
+
+        private async Task<Game> ValidateAndGetGameAsync(PlaceBetDTO betDTO)
+        {
+            var game = await _gameService.GetGameByIdAsync(betDTO.GameId);
+            if (game == null)
+            {
+                _logger.LogWarning("Game not found. GameId: {GameId}", betDTO.GameId);
+                throw new InvalidOperationException("Game not found.");
+            }
+            return game;
+        }
+
+        private void ValidateBetAmountAndCurrency(PlaceBetDTO betDTO, Game game)
+        {
+            if (betDTO.Amount < game.MinimalBetAmount)
+            {
+                _logger.LogWarning("Bet amount below minimum. GameId: {GameId}, MinimalBetAmount: {MinimalBetAmount}, BetAmount: {BetAmount}", betDTO.GameId, game.MinimalBetAmount, betDTO.Amount);
+                throw new InvalidOperationException($"Bet amount must be at least {game.MinimalBetAmount}.");
+            }
+            if (betDTO.CurrencyId != game.MinimalBetCurrencyId)
+            {
+                _logger.LogWarning("Bet currency does not match game's minimal bet currency. GameId: {GameId}, GameCurrencyId: {GameCurrencyId}, BetCurrencyId: {BetCurrencyId}", betDTO.GameId, game.MinimalBetCurrencyId, betDTO.CurrencyId);
+                throw new InvalidOperationException("Bet currency does not match game's minimal bet currency.");
+            }
+        }
+
+        private void ValidateWalletBalance(Domain.Entities.Wallet wallet, decimal amount)
+        {
+            if (wallet.Balance < amount)
+            {
+                _logger.LogWarning("Insufficient wallet balance. WalletId: {WalletId}, Balance: {Balance}, BetAmount: {Amount}", wallet.Id, wallet.Balance, amount);
+                throw new InvalidOperationException("Insufficient wallet balance.");
+            }
+        }
+
+        private Bet CreateBetEntity(PlaceBetDTO betDTO)
+        {
+            var betEntity = _mapper.Map<Bet>(betDTO);
+            betEntity.StatusId = (int)BetStatusEnum.Created;
+            return betEntity;
         }
 
         public async Task<IEnumerable<BetDTO>> GetBetsByUserAsync(Guid userId)
