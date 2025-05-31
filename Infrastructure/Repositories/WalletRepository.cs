@@ -27,6 +27,7 @@ namespace Infrastructure.Repositories
         public async Task<List<Wallet>> GetWalletsByPlayerIdAsync(Guid playerId)
         {
             return await _context.Wallets
+                .Include(w => w.Currency)
                 .Where(w => w.PlayerId == playerId)
                 .ToListAsync();
         }

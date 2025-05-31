@@ -54,7 +54,13 @@ namespace Application.Services
                     Id = wallet.Id,
                     CurrencyId = wallet.CurrencyId,
                     Balance = wallet.Balance,
-                    CreatedAt = wallet.CreatedAt
+                    CreatedAt = wallet.CreatedAt,
+                    Currency = wallet.Currency == null ? null : new CurrencyDTO
+                    {
+                        Id = wallet.Currency.Id,
+                        Code = wallet.Currency.Code,
+                        Name = wallet.Currency.Name
+                    }
                 })
             };
 

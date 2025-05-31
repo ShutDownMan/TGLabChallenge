@@ -6,5 +6,6 @@ namespace Application.Models
         public decimal Balance { get; set; }
         public int CurrencyId { get; set; }
         public DateTime CreatedAt { get; set; }
+        public CurrencyDTO? Currency { get; set; }
     }
 }
