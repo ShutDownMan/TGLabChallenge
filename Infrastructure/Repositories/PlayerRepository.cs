@@ -28,11 +28,11 @@ namespace Infrastructure.Repositories
                 .FirstOrDefaultAsync(u => u.Email == email);
         }
 
-        public async Task<Player> GetByIdAsync(Guid id)
+        public async Task<Player?> GetByIdAsync(Guid id)
         {
             return await _context.Players
                 .Include(u => u.Bets)
-                .FirstAsync(u => u.Id == id);
+                .FirstOrDefaultAsync(u => u.Id == id);
         }
 
         public async Task AddAsync(Player user)

@@ -13,45 +13,45 @@ namespace API.Controllers
     public class BetController : ControllerBase
     {
         private readonly BetService _betService;
-        private readonly IValidator<BetDTO> _betDtoValidator;
+        private readonly IValidator<BetDTO> _betDTOValidator;
 
-        public BetController(BetService betService, IValidator<BetDTO> betDtoValidator)
+        public BetController(BetService betService, IValidator<BetDTO> betDTOValidator)
         {
             _betService = betService;
-            _betDtoValidator = betDtoValidator;
+            _betDTOValidator = betDTOValidator;
         }
 
         [HttpPost]
-        public async Task<IActionResult> PlaceBet([FromBody] BetDTO betDto)
+        public async Task<IActionResult> PlaceBet([FromBody] BetDTO betDTO)
         {
-            ValidationResult validationResult = await _betDtoValidator.ValidateAsync(betDto);
+            ValidationResult validationResult = await _betDTOValidator.ValidateAsync(betDTO);
             if (!validationResult.IsValid)
             {
                 return BadRequest(validationResult.Errors);
             }
 
-            var result = await _betService.PlaceBetAsync(betDto);
+            var result = await _betService.PlaceBetAsync(betDTO);
             return Ok(result);
         }
 
         [HttpPost("{id}/cancel")]
         public async Task<IActionResult> CancelBet(Guid id)
         {
-            var betDto = await _betService.GetBetByIdAsync(id);
-            if (betDto == null)
+            var betDTO = await _betService.GetBetByIdAsync(id);
+            if (betDTO == null)
                 return NotFound();
 
-            await _betService.CancelBetAsync(betDto);
+            await _betService.CancelBetAsync(betDTO);
             return NoContent();
         }
 
         [HttpGet("{id}")]
         public async Task<IActionResult> GetBet(Guid id)
         {
-            var betDto = await _betService.GetBetByIdAsync(id);
-            if (betDto == null)
+            var betDTO = await _betService.GetBetByIdAsync(id);
+            if (betDTO == null)
                 return NotFound();
-            return Ok(betDto);
+            return Ok(betDTO);
         }
 
         [HttpGet("user/{userId}")]

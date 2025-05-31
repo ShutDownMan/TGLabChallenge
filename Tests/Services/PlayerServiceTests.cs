@@ -5,7 +5,9 @@ using Application.Interfaces.Repositories;
 using Application.Interfaces.Services;
 using Domain.Entities;
 using Application.Models;
+using Microsoft.Extensions.Logging;
 using System;
+using System.Collections.Generic;
 using System.Threading.Tasks;
 
 namespace Tests.Services
@@ -15,23 +17,40 @@ namespace Tests.Services
         [Fact]
         public async Task GetProfileAsync_WithExistingPlayer_ReturnsProfile()
         {
+            var playerId = Guid.NewGuid();
             var playerRepo = new Mock<IPlayerRepository>();
-            var player = new Player { Id = Guid.NewGuid(), Username = "test" };
-            playerRepo.Setup(r => r.GetByIdAsync(player.Id)).ReturnsAsync(player);
-            var service = new PlayerService(playerRepo.Object);
+            var walletService = new Mock<IWalletService>();
+            var logger = new Mock<ILogger<PlayerService>>();
 
-            var profile = await service.GetProfileAsync(player.Id);
+            var player = new Player { Id = playerId, Username = "test", Email = "test@email.com", CreatedAt = DateTime.UtcNow };
+            playerRepo.Setup(r => r.GetByIdAsync(playerId)).ReturnsAsync(player);
+
+            var wallets = new List<Wallet>
+            {
+                new Wallet { Id = Guid.NewGuid(), CurrencyId = 100, Balance = 100, CreatedAt = DateTime.UtcNow }
+            };
+            walletService.Setup(w => w.GetWalletsByPlayerIdAsync(playerId)).ReturnsAsync(wallets);
+
+            var service = new PlayerService(playerRepo.Object, walletService.Object, logger.Object);
+
+            var profile = await service.GetProfileAsync(playerId);
 
             Assert.NotNull(profile);
             Assert.Equal("test", profile!.Username);
+            Assert.Equal(player.Email, profile.Email);
+            Assert.Single(profile.Wallets);
         }
 
         [Fact]
         public async Task GetProfileAsync_WithNonExistingPlayer_ReturnsNull()
         {
             var playerRepo = new Mock<IPlayerRepository>();
-            playerRepo.Setup(r => r.GetByIdAsync(It.IsAny<Guid>())).ReturnsAsync((Player?)null!);
-            var service = new PlayerService(playerRepo.Object);
+            var walletService = new Mock<IWalletService>();
+            var logger = new Mock<ILogger<PlayerService>>();
+
+            playerRepo.Setup(r => r.GetByIdAsync(It.IsAny<Guid>())).ReturnsAsync((Player?)null);
+
+            var service = new PlayerService(playerRepo.Object, walletService.Object, logger.Object);
 
             var profile = await service.GetProfileAsync(Guid.NewGuid());
 

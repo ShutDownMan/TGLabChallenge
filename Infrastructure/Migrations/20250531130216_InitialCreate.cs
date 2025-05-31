@@ -114,7 +114,7 @@ namespace Infrastructure.Migrations
                 });
 
             migrationBuilder.CreateTable(
-                name: "Wallet",
+                name: "Wallets",
                 columns: table => new
                 {
                     Id = table.Column<Guid>(type: "TEXT", nullable: false),
@@ -125,15 +125,15 @@ namespace Infrastructure.Migrations
                 },
                 constraints: table =>
                 {
-                    table.PrimaryKey("PK_Wallet", x => x.Id);
+                    table.PrimaryKey("PK_Wallets", x => x.Id);
                     table.ForeignKey(
-                        name: "FK_Wallet_Currencies_CurrencyId",
+                        name: "FK_Wallets_Currencies_CurrencyId",
                         column: x => x.CurrencyId,
                         principalTable: "Currencies",
                         principalColumn: "Id",
                         onDelete: ReferentialAction.Cascade);
                     table.ForeignKey(
-                        name: "FK_Wallet_Players_PlayerId",
+                        name: "FK_Wallets_Players_PlayerId",
                         column: x => x.PlayerId,
                         principalTable: "Players",
                         principalColumn: "Id",
@@ -166,9 +166,9 @@ namespace Infrastructure.Migrations
                         principalColumn: "Id",
                         onDelete: ReferentialAction.Cascade);
                     table.ForeignKey(
-                        name: "FK_WalletTransactions_Wallet_WalletId",
+                        name: "FK_WalletTransactions_Wallets_WalletId",
                         column: x => x.WalletId,
-                        principalTable: "Wallet",
+                        principalTable: "Wallets",
                         principalColumn: "Id",
                         onDelete: ReferentialAction.Cascade);
                 });
@@ -204,13 +204,13 @@ namespace Infrastructure.Migrations
                 column: "StatusId");
 
             migrationBuilder.CreateIndex(
-                name: "IX_Wallet_CurrencyId",
-                table: "Wallet",
+                name: "IX_Wallets_CurrencyId",
+                table: "Wallets",
                 column: "CurrencyId");
 
             migrationBuilder.CreateIndex(
-                name: "IX_Wallet_PlayerId",
-                table: "Wallet",
+                name: "IX_Wallets_PlayerId",
+                table: "Wallets",
                 column: "PlayerId");
 
             migrationBuilder.CreateIndex(
@@ -241,7 +241,7 @@ namespace Infrastructure.Migrations
                 name: "TransactionTypes");
 
             migrationBuilder.DropTable(
-                name: "Wallet");
+                name: "Wallets");
 
             migrationBuilder.DropTable(
                 name: "BetStatuses");

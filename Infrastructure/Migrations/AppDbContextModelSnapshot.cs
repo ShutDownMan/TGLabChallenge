@@ -192,7 +192,7 @@ namespace Infrastructure.Migrations
 
                     b.HasIndex("PlayerId");
 
-                    b.ToTable("Wallet");
+                    b.ToTable("Wallets");
                 });
 
             modelBuilder.Entity("Domain.Entities.WalletTransaction", b =>
@@ -263,7 +263,7 @@ namespace Infrastructure.Migrations
                         .IsRequired();
 
                     b.HasOne("Domain.Entities.Player", "Player")
-                        .WithMany()
+                        .WithMany("Wallets")
                         .HasForeignKey("PlayerId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
@@ -306,6 +306,8 @@ namespace Infrastructure.Migrations
             modelBuilder.Entity("Domain.Entities.Player", b =>
                 {
                     b.Navigation("Bets");
+
+                    b.Navigation("Wallets");
                 });
 
             modelBuilder.Entity("Domain.Entities.Wallet", b =>

@@ -3,11 +3,10 @@ using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
 
-namespace Application.Interfaces.Repositories
+namespace Application.Interfaces.Services
 {
-    public interface IWalletRepository
+    public interface IWalletService
     {
-        Task AddAsync(Wallet wallet);
         Task<List<Wallet>> GetWalletsByPlayerIdAsync(Guid playerId);
     }
 }

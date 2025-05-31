@@ -17,6 +17,7 @@ namespace Infrastructure.Data
         public DbSet<BetStatus> BetStatuses { get; set; }
         public DbSet<TransactionType> TransactionTypes { get; set; }
         public DbSet<Game> Games { get; set; }
+        public DbSet<Wallet> Wallets { get; set; }
 
         public AppDbContext(DbContextOptions<AppDbContext> options) : base(options) { }
 
@@ -29,6 +30,13 @@ namespace Infrastructure.Data
                 new Currency { Id = 2, Code = "EUR", Name = "Euro" },
                 new Currency { Id = 3, Code = "BRL", Name = "Brazilian Real" }
             );
+        }
+
+        protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
+        {
+            base.OnConfiguring(optionsBuilder);
+            optionsBuilder.ConfigureWarnings(warnings =>
+                warnings.Ignore(Microsoft.EntityFrameworkCore.Diagnostics.RelationalEventId.AmbientTransactionWarning));
         }
     }
 

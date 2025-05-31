@@ -13,6 +13,7 @@ using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
 using System.Text;
 using FluentValidation;
+using Serilog;
 
 namespace API
 {
@@ -21,6 +22,18 @@ namespace API
         public static void Main(string[] args)
         {
             var builder = WebApplication.CreateBuilder(args);
+
+            // Configure Serilog
+            Log.Logger = new LoggerConfiguration()
+                .ReadFrom.Configuration(builder.Configuration)
+                .Enrich.FromLogContext()
+                // Write logs to console
+                .WriteTo.Console(
+                    outputTemplate: "{Timestamp:yyyy-MM-dd HH:mm:ss.fff zzz} [{Level:u3}] {Message:lj}{NewLine}{Exception}"
+                )
+                .CreateLogger();
+
+            builder.Host.UseSerilog();
 
             builder.Services.AddControllers();
             builder.Services.AddFluentValidationAutoValidation();
@@ -69,6 +82,7 @@ namespace API
 
             builder.Services.AddScoped<IAuthService, AuthService>();
             builder.Services.AddScoped<IPlayerService, PlayerService>();
+            builder.Services.AddScoped<IWalletService, WalletService>();
 
             builder.Services.AddScoped<IBetService, BetService>();
 
