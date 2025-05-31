@@ -23,8 +23,6 @@ namespace Application.Services
                 Id = player.Id,
                 Username = player.Username,
                 Email = player.Email,
-                CurrencyId = player.CurrencyId,
-                Balance = player.Balance,
                 CreatedAt = player.CreatedAt
             };
         }

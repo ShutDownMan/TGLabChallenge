@@ -3,8 +3,6 @@ Table Player {
   Name varchar(100)
   Email varchar(255) [unique, not null]
   PasswordHash varchar(255) [not null]
-  CurrencyId int [ref: > Currency.Id]
-  Balance decimal(18,2) [not null, default: 0.00]
   CreatedAt datetime [not null]
 }
 
@@ -16,20 +14,18 @@ Table Currency {
 
 Table Bet {
   Id UUID [pk]
-  PlayerId UUID [ref: > Player.Id]
   Amount decimal(18,2) [not null]
   StatusId int [ref: > BetStatus.Id]
   Prize decimal(18,2)
-  CurrencyId int [ref: > Currency.Id]
   CreatedAt datetime [not null]
 }
 
 Table WalletTransaction {
   Id UUID [pk]
-  PlayerId UUID [ref: > Player.Id]
+  BetId UUID [ref: > Bet.Id]
+  WalletId UUID [ref: > Wallet.Id]
   TransactionTypeId int [ref: > TransactionType.Id]
   Amount decimal(18,2) [not null]
-  CurrencyId int [ref: > Currency.Id]
   CreatedAt datetime [not null]
 }
 
@@ -41,4 +37,12 @@ Table BetStatus {
 Table TransactionType {
   Id int [pk]
   Name varchar(20) [not null]
+}
+
+Table Wallet {
+  Id UUID [pk]
+  PlayerId UUID [ref: > Player.Id]
+  CurrencyId int [ref: > Currency.Id]
+  Balance decimal(18,2) [not null, default: 0.00]
+  CreatedAt datetime [not null]
 }

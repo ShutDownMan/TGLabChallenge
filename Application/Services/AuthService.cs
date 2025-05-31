@@ -39,6 +39,8 @@ namespace Application.Services
 
         public async Task RegisterAsync(string username, string password, string email, int? currencyId)
         {
+            // TODO: Add starting balance and wallet creation logic here
+
             if (await _userRepository.UsernameExistsAsync(username))
             {
                 throw new UserAlreadyExistsException("Username already exists.");
@@ -61,8 +63,6 @@ namespace Application.Services
                 Username = username,
                 PasswordHash = hashedPassword,
                 Email = email,
-                CurrencyId = currencyId.Value,
-                Balance = 0.00m,
                 CreatedAt = DateTime.UtcNow
             };
 

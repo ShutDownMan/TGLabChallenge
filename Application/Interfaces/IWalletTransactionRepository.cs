@@ -8,7 +8,6 @@ namespace Application.Interfaces
     public interface IWalletTransactionRepository
     {
         Task<WalletTransaction> GetByIdAsync(Guid id);
-        Task<IEnumerable<WalletTransaction>> GetByPlayerAsync(Guid playerId);
         Task AddAsync(WalletTransaction transaction);
     }
 }

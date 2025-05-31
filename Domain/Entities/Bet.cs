@@ -14,11 +14,9 @@ namespace Domain.Entities
         public decimal Amount { get; set; }
         public int StatusId { get; set; }
         public decimal? Prize { get; set; }
-        public int CurrencyId { get; set; }
         public DateTime CreatedAt { get; set; }
 
         public Player? Player { get; set; }
         public BetStatus? Status { get; set; }
-        public Currency? Currency { get; set; }
     }
 }

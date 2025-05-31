@@ -11,7 +11,7 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace Infrastructure.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-    [Migration("20250531010027_InitialCreate")]
+    [Migration("20250531033025_InitialCreate")]
     partial class InitialCreate
     {
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -31,9 +31,6 @@ namespace Infrastructure.Migrations
                     b.Property<DateTime>("CreatedAt")
                         .HasColumnType("TEXT");
 
-                    b.Property<int>("CurrencyId")
-                        .HasColumnType("INTEGER");
-
                     b.Property<Guid>("PlayerId")
                         .HasColumnType("TEXT");
 
@@ -44,8 +41,6 @@ namespace Infrastructure.Migrations
                         .HasColumnType("INTEGER");
 
                     b.HasKey("Id");
-
-                    b.HasIndex("CurrencyId");
 
                     b.HasIndex("PlayerId");
 
@@ -88,10 +83,24 @@ namespace Infrastructure.Migrations
                     b.ToTable("Currencies");
 
                     b.HasData(
-                        new { Id = 1, Code = "USD", Name = "US Dollar" },
-                        new { Id = 2, Code = "EUR", Name = "Euro" },
-                        new { Id = 3, Code = "BRL", Name = "Brazilian Real" }
-                    );
+                        new
+                        {
+                            Id = 1,
+                            Code = "USD",
+                            Name = "US Dollar"
+                        },
+                        new
+                        {
+                            Id = 2,
+                            Code = "EUR",
+                            Name = "Euro"
+                        },
+                        new
+                        {
+                            Id = 3,
+                            Code = "BRL",
+                            Name = "Brazilian Real"
+                        });
                 });
 
             modelBuilder.Entity("Domain.Entities.Player", b =>
@@ -100,14 +109,8 @@ namespace Infrastructure.Migrations
                         .ValueGeneratedOnAdd()
                         .HasColumnType("TEXT");
 
-                    b.Property<decimal>("Balance")
-                        .HasColumnType("TEXT");
-
                     b.Property<DateTime>("CreatedAt")
                         .HasColumnType("TEXT");
-
-                    b.Property<int>("CurrencyId")
-                        .HasColumnType("INTEGER");
 
                     b.Property<string>("Email")
                         .IsRequired()
@@ -122,8 +125,6 @@ namespace Infrastructure.Migrations
                         .HasColumnType("TEXT");
 
                     b.HasKey("Id");
-
-                    b.HasIndex("CurrencyId");
 
                     b.ToTable("Players");
                 });
@@ -143,13 +144,13 @@ namespace Infrastructure.Migrations
                     b.ToTable("TransactionTypes");
                 });
 
-            modelBuilder.Entity("Domain.Entities.WalletTransaction", b =>
+            modelBuilder.Entity("Domain.Entities.Wallet", b =>
                 {
                     b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("TEXT");
 
-                    b.Property<decimal>("Amount")
+                    b.Property<decimal>("Balance")
                         .HasColumnType("TEXT");
 
                     b.Property<DateTime>("CreatedAt")
@@ -161,28 +162,49 @@ namespace Infrastructure.Migrations
                     b.Property<Guid>("PlayerId")
                         .HasColumnType("TEXT");
 
-                    b.Property<int>("TransactionTypeId")
-                        .HasColumnType("INTEGER");
-
                     b.HasKey("Id");
 
                     b.HasIndex("CurrencyId");
 
                     b.HasIndex("PlayerId");
 
+                    b.ToTable("Wallet");
+                });
+
+            modelBuilder.Entity("Domain.Entities.WalletTransaction", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("TEXT");
+
+                    b.Property<decimal>("Amount")
+                        .HasColumnType("TEXT");
+
+                    b.Property<Guid?>("BetId")
+                        .HasColumnType("TEXT");
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("TEXT");
+
+                    b.Property<int>("TransactionTypeId")
+                        .HasColumnType("INTEGER");
+
+                    b.Property<Guid>("WalletId")
+                        .HasColumnType("TEXT");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("BetId");
+
                     b.HasIndex("TransactionTypeId");
+
+                    b.HasIndex("WalletId");
 
                     b.ToTable("WalletTransactions");
                 });
 
             modelBuilder.Entity("Domain.Entities.Bet", b =>
                 {
-                    b.HasOne("Domain.Entities.Currency", "Currency")
-                        .WithMany("Bets")
-                        .HasForeignKey("CurrencyId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
                     b.HasOne("Domain.Entities.Player", "Player")
                         .WithMany("Bets")
                         .HasForeignKey("PlayerId")
@@ -195,37 +217,35 @@ namespace Infrastructure.Migrations
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
-                    b.Navigation("Currency");
-
                     b.Navigation("Player");
 
                     b.Navigation("Status");
                 });
 
-            modelBuilder.Entity("Domain.Entities.Player", b =>
+            modelBuilder.Entity("Domain.Entities.Wallet", b =>
                 {
                     b.HasOne("Domain.Entities.Currency", "Currency")
-                        .WithMany("Players")
-                        .HasForeignKey("CurrencyId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.Navigation("Currency");
-                });
-
-            modelBuilder.Entity("Domain.Entities.WalletTransaction", b =>
-                {
-                    b.HasOne("Domain.Entities.Currency", "Currency")
-                        .WithMany("WalletTransactions")
+                        .WithMany()
                         .HasForeignKey("CurrencyId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
                     b.HasOne("Domain.Entities.Player", "Player")
-                        .WithMany("WalletTransactions")
+                        .WithMany()
                         .HasForeignKey("PlayerId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
+
+                    b.Navigation("Currency");
+
+                    b.Navigation("Player");
+                });
+
+            modelBuilder.Entity("Domain.Entities.WalletTransaction", b =>
+                {
+                    b.HasOne("Domain.Entities.Bet", "Bet")
+                        .WithMany()
+                        .HasForeignKey("BetId");
 
                     b.HasOne("Domain.Entities.TransactionType", "TransactionType")
                         .WithMany()
@@ -233,26 +253,26 @@ namespace Infrastructure.Migrations
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
-                    b.Navigation("Currency");
+                    b.HasOne("Domain.Entities.Wallet", "Wallet")
+                        .WithMany("WalletTransactions")
+                        .HasForeignKey("WalletId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
 
-                    b.Navigation("Player");
+                    b.Navigation("Bet");
 
                     b.Navigation("TransactionType");
-                });
 
-            modelBuilder.Entity("Domain.Entities.Currency", b =>
-                {
-                    b.Navigation("Bets");
-
-                    b.Navigation("Players");
-
-                    b.Navigation("WalletTransactions");
+                    b.Navigation("Wallet");
                 });
 
             modelBuilder.Entity("Domain.Entities.Player", b =>
                 {
                     b.Navigation("Bets");
+                });
 
+            modelBuilder.Entity("Domain.Entities.Wallet", b =>
+                {
                     b.Navigation("WalletTransactions");
                 });
 #pragma warning restore 612, 618

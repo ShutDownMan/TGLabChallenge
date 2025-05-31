@@ -11,12 +11,7 @@ dotnet ef database update --project infrastructure
 ### Visual Studio
 1. Abra a solução no Visual Studio.
 2. Clique com o botão direito no projeto `TGLabChallenge.API` e selecione **Definir como projeto de inicialização**.
-3. Certifique-se de que o banco de dados está atualizado:
-   - Abra o Console do Gerenciador de Pacotes e execute:
-     ```
-     Update-Database
-     ```
-4. Pressione **F5** para iniciar a aplicação.
+3. Pressione **CTRL + F5** para iniciar a aplicação.
 
 #### Rodando Testes no Visual Studio
 1. Abra a solução no Visual Studio.

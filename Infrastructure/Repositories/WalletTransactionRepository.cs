@@ -20,17 +20,8 @@ namespace Infrastructure.Repositories
         public async Task<WalletTransaction> GetByIdAsync(Guid id)
         {
             return await _context.WalletTransactions
-                .Include(wt => wt.Player)
                 .Include(wt => wt.TransactionType)
-                .Include(wt => wt.Currency)
                 .FirstAsync(wt => wt.Id == id);
-        }
-
-        public async Task<IEnumerable<WalletTransaction>> GetByPlayerAsync(Guid playerId)
-        {
-            return await _context.WalletTransactions
-                .Where(wt => wt.PlayerId == playerId)
-                .ToListAsync();
         }
 
         public async Task AddAsync(WalletTransaction transaction)

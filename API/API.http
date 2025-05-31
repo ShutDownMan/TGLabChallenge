@@ -65,3 +65,39 @@ Content-Type: application/json
 
 ###
 
+// --- Bet Endpoints ---
+
+// Place a bet
+POST {{API_HostAddress}}/api/Bet
+Authorization: Bearer {{JWTToken}}
+Content-Type: application/json
+
+{
+  // "userId": "GUID",
+  // "amount": 100,
+  // ...other BetDto fields...
+}
+
+###
+
+// Cancel a bet
+POST {{API_HostAddress}}/api/Bet/{{betId}}/cancel
+Authorization: Bearer {{JWTToken}}
+Content-Type: application/json
+
+###
+
+// Get a bet by id
+GET {{API_HostAddress}}/api/Bet/{{betId}}
+Authorization: Bearer {{JWTToken}}
+Accept: application/json
+
+###
+
+// Get bets by user
+GET {{API_HostAddress}}/api/Bet/user/{{userId}}
+Authorization: Bearer {{JWTToken}}
+Accept: application/json
+
+###
+
