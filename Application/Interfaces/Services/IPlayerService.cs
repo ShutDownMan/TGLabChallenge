@@ -1,7 +1,7 @@
 using System.Threading.Tasks;
 using Application.Models;
 
-namespace Application.Interfaces
+namespace Application.Interfaces.Services
 {
     public interface IPlayerService
     {

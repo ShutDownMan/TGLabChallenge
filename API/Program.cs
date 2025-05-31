@@ -1,7 +1,8 @@
+using Application.Interfaces.Repositories;
+using Application.Interfaces.Services;
 using Application.Interfaces;
 using Application.Models;
 using Application.Services;
-using Domain.Security;
 using FluentValidation.AspNetCore;
 using Infrastructure.Data;
 using Infrastructure.Repositories;
@@ -59,6 +60,7 @@ namespace API
             builder.Services.AddScoped<IPlayerRepository, PlayerRepository>();
             builder.Services.AddScoped<ICurrencyRepository, CurrencyRepository>();
             builder.Services.AddScoped<IBetRepository, BetRepository>();
+            builder.Services.AddScoped<IGameRepository, GameRepository>();
 
             builder.Services.AddScoped<IAuthService, AuthService>();
             builder.Services.AddScoped<IPlayerService, PlayerService>();

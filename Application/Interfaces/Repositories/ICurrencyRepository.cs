@@ -1,7 +1,7 @@
 using Domain.Entities;
 using System.Threading.Tasks;
 
-namespace Application.Interfaces
+namespace Application.Interfaces.Repositories
 {
     public interface ICurrencyRepository
     {

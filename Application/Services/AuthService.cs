@@ -1,7 +1,8 @@
-﻿using Application.Interfaces;
+﻿using Application.Interfaces.Repositories;
+using Application.Interfaces.Services;
+using Application.Interfaces;
 using Application.Exceptions;
 using Domain.Entities;
-using Domain.Security;
 using System.Security.Cryptography;
 using System.Text;
 using System.Threading.Tasks;
@@ -37,7 +38,7 @@ namespace Application.Services
             return _jwtTokenGenerator.GenerateToken(user);
         }
 
-        public async Task RegisterAsync(string username, string password, string email, int? currencyId)
+        public async Task RegisterAsync(string username, string password, string email, int? currencyId, decimal? initialBalance)
         {
             // TODO: Add starting balance and wallet creation logic here
 
@@ -67,6 +68,9 @@ namespace Application.Services
             };
 
             await _userRepository.AddAsync(user);
+
+            // Add initial balance logic here (pseudo-code, adapt as needed)
+            // await _walletRepository.CreateWalletAsync(user.Id, currencyId.Value, initialBalance ?? 0m);
         }
 
         public async Task<bool> ValidateTokenAsync(string token)

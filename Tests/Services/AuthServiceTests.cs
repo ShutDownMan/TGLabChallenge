@@ -2,8 +2,9 @@ using Xunit;
 using Moq;
 using Application.Services;
 using Application.Interfaces;
+using Application.Interfaces.Repositories;
+using Application.Interfaces.Services;
 using Domain.Entities;
-using Domain.Security;
 using Application.Exceptions;
 using System;
 using System.Threading.Tasks;
@@ -73,7 +74,7 @@ namespace Tests.Services
             userRepo.Setup(r => r.UsernameExistsAsync("test")).ReturnsAsync(true);
             var service = new AuthService(userRepo.Object, currencyRepo.Object, jwtGen.Object);
 
-            await Assert.ThrowsAsync<UserAlreadyExistsException>(() => service.RegisterAsync("test", "pass", "test@email.com", 1));
+            await Assert.ThrowsAsync<UserAlreadyExistsException>(() => service.RegisterAsync("test", "pass", "test@email.com", 1, 1));
         }
 
         [Fact]
@@ -95,7 +96,7 @@ namespace Tests.Services
             var service = new AuthService(userRepo.Object, currencyRepo.Object, jwtGen.Object);
 
             // Act
-            await service.RegisterAsync("newuser", "newpass", "new@email.com", 1);
+            await service.RegisterAsync("newuser", "newpass", "new@email.com", 1, 0);
 
             // Assert
             Assert.NotNull(addedPlayer);

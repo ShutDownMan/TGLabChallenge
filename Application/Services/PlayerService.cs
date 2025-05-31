@@ -1,4 +1,5 @@
-using Application.Interfaces;
+using Application.Interfaces.Repositories;
+using Application.Interfaces.Services;
 using Application.Models;
 using Domain.Entities;
 using System.Threading.Tasks;

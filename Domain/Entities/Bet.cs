@@ -15,8 +15,10 @@ namespace Domain.Entities
         public int StatusId { get; set; }
         public decimal? Prize { get; set; }
         public DateTime CreatedAt { get; set; }
+        public Guid GameId { get; set; }
 
         public Player? Player { get; set; }
         public BetStatus? Status { get; set; }
+        public Game? Game { get; set; }
     }
 }

@@ -14,6 +14,7 @@ Table Currency {
 
 Table Bet {
   Id UUID [pk]
+  GameId UUID [ref: > Game.Id]
   Amount decimal(18,2) [not null]
   StatusId int [ref: > BetStatus.Id]
   Prize decimal(18,2)
@@ -44,5 +45,12 @@ Table Wallet {
   PlayerId UUID [ref: > Player.Id]
   CurrencyId int [ref: > Currency.Id]
   Balance decimal(18,2) [not null, default: 0.00]
+  CreatedAt datetime [not null]
+}
+
+Table Game {
+  Id UUID [pk]
+  Name varchar(100) [not null]
+  Description varchar(255)
   CreatedAt datetime [not null]
 }

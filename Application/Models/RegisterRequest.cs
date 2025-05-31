@@ -6,5 +6,6 @@ namespace Application.Models
         public string Password { get; set; }
         public string Email { get; set; }
         public int? CurrencyId { get; set; }
+        public decimal? InitialBalance { get; set; }
     }
 }

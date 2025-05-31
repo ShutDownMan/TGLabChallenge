@@ -16,6 +16,7 @@ namespace Infrastructure.Data
         public DbSet<Currency> Currencies { get; set; }
         public DbSet<BetStatus> BetStatuses { get; set; }
         public DbSet<TransactionType> TransactionTypes { get; set; }
+        public DbSet<Game> Games { get; set; }
 
         public AppDbContext(DbContextOptions<AppDbContext> options) : base(options) { }
 
