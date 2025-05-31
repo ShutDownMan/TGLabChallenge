@@ -65,6 +65,7 @@ namespace API
             builder.Services.AddScoped<ICurrencyRepository, CurrencyRepository>();
             builder.Services.AddScoped<IBetRepository, BetRepository>();
             builder.Services.AddScoped<IGameRepository, GameRepository>();
+            builder.Services.AddScoped<IWalletRepository, WalletRepository>();
 
             builder.Services.AddScoped<IAuthService, AuthService>();
             builder.Services.AddScoped<IPlayerService, PlayerService>();

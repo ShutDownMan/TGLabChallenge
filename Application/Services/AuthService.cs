@@ -6,6 +6,7 @@ using Domain.Entities;
 using System.Security.Cryptography;
 using System.Text;
 using System.Threading.Tasks;
+using System.Transactions;
 
 namespace Application.Services
 {
@@ -14,12 +15,18 @@ namespace Application.Services
         private readonly IPlayerRepository _userRepository;
         private readonly ICurrencyRepository _currencyRepository;
         private readonly IJwtTokenGenerator _jwtTokenGenerator;
+        private readonly IWalletRepository _walletRepository;
 
-        public AuthService(IPlayerRepository userRepository, ICurrencyRepository currencyRepository, IJwtTokenGenerator jwtTokenGenerator)
+        public AuthService(
+            IPlayerRepository userRepository,
+            ICurrencyRepository currencyRepository,
+            IJwtTokenGenerator jwtTokenGenerator,
+            IWalletRepository walletRepository)
         {
             _userRepository = userRepository;
             _jwtTokenGenerator = jwtTokenGenerator;
             _currencyRepository = currencyRepository;
+            _walletRepository = walletRepository;
         }
 
         public async Task<string> LoginAsync(string identifier, string password)
@@ -40,8 +47,7 @@ namespace Application.Services
 
         public async Task RegisterAsync(string username, string password, string email, int? currencyId, decimal? initialBalance)
         {
-            // TODO: Add starting balance and wallet creation logic here
-
+            // Check if username is already taken
             if (await _userRepository.UsernameExistsAsync(username))
             {
                 throw new UserAlreadyExistsException("Username already exists.");
@@ -53,6 +59,7 @@ namespace Application.Services
                 throw new UserAlreadyExistsException("Email already registered.");
             }
 
+            // Validate currency ID
             if (currencyId == null)
             {
                 var defaultCurrency = await _currencyRepository.GetDefaultCurrencyAsync();
@@ -63,8 +70,14 @@ namespace Application.Services
                 throw new InvalidOperationException("Invalid currency ID.");
             }
 
+            // Hash the password
             var hashedPassword = BCrypt.Net.BCrypt.HashPassword(password);
-            var user = new Player
+
+            // Use a transaction scope to ensure atomicity
+            using var scope = new TransactionScope(TransactionScopeAsyncFlowOption.Enabled);
+
+            // Create the user
+            var player = new Player
             {
                 Id = Guid.NewGuid(),
                 Username = username,
@@ -72,11 +85,21 @@ namespace Application.Services
                 Email = email,
                 CreatedAt = DateTime.UtcNow
             };
+            await _userRepository.AddAsync(player);
 
-            await _userRepository.AddAsync(user);
+            // Create wallet for the user with initial balance
+            var wallet = new Wallet
+            {
+                Id = Guid.NewGuid(),
+                PlayerId = player.Id,
+                CurrencyId = currencyId.Value,
+                Balance = initialBalance ?? 0m,
+                CreatedAt = DateTime.UtcNow
+            };
+            await _walletRepository.AddAsync(wallet);
 
-            // Add initial balance logic here (pseudo-code, adapt as needed)
-            // await _walletRepository.CreateWalletAsync(user.Id, currencyId.Value, initialBalance ?? 0m);
+            // Commit the transaction
+            scope.Complete();
         }
 
         public async Task<bool> ValidateTokenAsync(string token)

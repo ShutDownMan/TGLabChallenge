@@ -12,5 +12,6 @@ namespace Domain.Entities
         public DateTime CreatedAt { get; set; }
 
         public List<Bet> Bets { get; set; } = new List<Bet>();
+        public List<Wallet> Wallets { get; set; } = new List<Wallet>();
     }
 }
