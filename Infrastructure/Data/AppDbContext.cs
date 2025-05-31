@@ -5,6 +5,12 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using Domain.Enums;
+
+using BetStatusEnum = Domain.Enums.BetStatus;
+using BetStatus = Domain.Entities.BetStatus;
+using TransactionTypeEnum = Domain.Enums.TransactionType;
+using TransactionType = Domain.Entities.TransactionType;
 
 namespace Infrastructure.Data
 {
@@ -32,14 +38,15 @@ namespace Infrastructure.Data
             );
 
             modelBuilder.Entity<BetStatus>().HasData(
-                new BetStatus { Id = 1, Name = "Created" },
-                new BetStatus { Id = 2, Name = "Cancelled" },
-                new BetStatus { Id = 3, Name = "Settled" }
+                new BetStatus { Id = (int)BetStatusEnum.Created, Name = "Created" },
+                new BetStatus { Id = (int)BetStatusEnum.Cancelled, Name = "Cancelled" },
+                new BetStatus { Id = (int)BetStatusEnum.Settled, Name = "Settled" }
             );
 
             modelBuilder.Entity<TransactionType>().HasData(
-                new TransactionType { Id = 1, Name = "Deposit" },
-                new TransactionType { Id = 2, Name = "Withdrawal" }
+                new TransactionType { Id = (int)TransactionTypeEnum.Debit, Name = "Debit" },
+                new TransactionType { Id = (int)TransactionTypeEnum.Credit, Name = "Credit" },
+                new TransactionType { Id = (int)TransactionTypeEnum.Checkpoint, Name = "Checkpoint" }
             );
         }
 

@@ -6,5 +6,4 @@
         Cancelled,
         Settled
     }
-
 }

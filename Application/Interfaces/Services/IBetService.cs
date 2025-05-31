@@ -7,9 +7,9 @@ namespace Application.Interfaces.Services
 {
     public interface IBetService
     {
-        Task<BetDTO> PlaceBetAsync(BetDTO betDto);
-        Task CancelBetAsync(BetDTO betDto);
-        Task<BetDTO?> GetBetByIdAsync(Guid id);
-        Task<IEnumerable<BetDTO>> GetBetsByUserAsync(Guid userId);
+        Task<PlaceBetDTO> PlaceBetAsync(PlaceBetDTO betDto);
+        Task CancelBetAsync(PlaceBetDTO betDto);
+        Task<PlaceBetDTO?> GetBetByIdAsync(Guid id);
+        Task<IEnumerable<PlaceBetDTO>> GetBetsByUserAsync(Guid userId);
     }
 }

@@ -84,6 +84,8 @@ namespace API
             builder.Services.AddScoped<IPlayerService, PlayerService>();
             builder.Services.AddScoped<IWalletService, WalletService>();
 
+            builder.Services.AddScoped<IWalletTransactionService, WalletTransactionService>();
+
             builder.Services.AddScoped<IBetService, BetService>();
 
             builder.Services.AddAuthentication("Bearer")

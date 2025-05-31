@@ -2,9 +2,9 @@ using FluentValidation;
 
 namespace Application.Models
 {
-    public class BetDtoValidator : AbstractValidator<BetDTO>
+    public class PlaceBetDTOValidator : AbstractValidator<PlaceBetDTO>
     {
-        public BetDtoValidator()
+        public PlaceBetDTOValidator()
         {
             RuleFor(x => x.Amount)
                 .GreaterThan(0)

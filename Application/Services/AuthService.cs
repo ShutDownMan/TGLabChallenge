@@ -16,17 +16,21 @@ namespace Application.Services
         private readonly ICurrencyRepository _currencyRepository;
         private readonly IJwtTokenGenerator _jwtTokenGenerator;
         private readonly IWalletRepository _walletRepository;
+        private readonly IWalletTransactionService _walletTransactionService;
 
+        // FIXME: use services instead of repositories directly
         public AuthService(
             IPlayerRepository userRepository,
             ICurrencyRepository currencyRepository,
             IJwtTokenGenerator jwtTokenGenerator,
-            IWalletRepository walletRepository)
+            IWalletRepository walletRepository,
+            IWalletTransactionService walletTransactionService)
         {
             _userRepository = userRepository;
             _jwtTokenGenerator = jwtTokenGenerator;
             _currencyRepository = currencyRepository;
             _walletRepository = walletRepository;
+            _walletTransactionService = walletTransactionService;
         }
 
         public async Task<string> LoginAsync(string identifier, string password)
@@ -98,6 +102,9 @@ namespace Application.Services
                     CreatedAt = DateTime.UtcNow
                 };
                 await _walletRepository.AddAsync(wallet);
+
+                // Create initial checkpoint transaction for the wallet
+                await _walletTransactionService.CheckpointWalletAsync(wallet, wallet.Balance);
 
                 // Commit the transaction
                 scope.Complete();

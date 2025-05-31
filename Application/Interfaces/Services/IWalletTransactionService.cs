@@ -5,14 +5,13 @@ using System.Threading.Tasks;
 
 namespace Application.Interfaces.Services
 {
-    public interface IWalletService
+    public interface IWalletTransactionService
     {
-        Task<List<Wallet>> GetWalletsByPlayerIdAsync(Guid playerId);
-        Task<Guid?> GetPlayerByWalletIdAsync(Guid walletId);
-        Task UpdateWalletAsync(Wallet wallet);
+        Task AddAsync(WalletTransaction transaction);
+        Task<IEnumerable<WalletTransaction>> GetByWalletIdAsync(Guid walletId);
 
         Task<WalletTransaction> DebitWalletAsync(Wallet wallet, decimal amount, Guid? betId = null);
         Task<WalletTransaction> CreditWalletAsync(Wallet wallet, decimal amount, Guid? betId = null);
-        Task<WalletTransaction> CalculateWalletCheckpointAsync(Wallet wallet);
+        Task<WalletTransaction> CheckpointWalletAsync(Wallet wallet, decimal checkpointAmount);
     }
 }

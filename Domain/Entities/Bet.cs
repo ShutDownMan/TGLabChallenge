@@ -13,7 +13,6 @@ namespace Domain.Entities
         public Guid PlayerId { get; set; }
         public decimal Amount { get; set; }
         public int StatusId { get; set; }
-        public decimal? Prize { get; set; }
         public DateTime CreatedAt { get; set; }
         public Guid GameId { get; set; }
 

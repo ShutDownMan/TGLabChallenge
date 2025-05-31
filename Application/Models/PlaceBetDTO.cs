@@ -1,12 +1,11 @@
 namespace Application.Models
 {
-    public record BetDTO
+    public record PlaceBetDTO
     (
         Guid Id,
         Guid WalletId,
         Guid GameId,
         decimal Amount,
-        decimal? Prize,
         int CurrencyId,
         DateTime CreatedAt
     );
