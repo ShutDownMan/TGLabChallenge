@@ -18,7 +18,7 @@ namespace Tests.Services
             // Arrange
             var userRepo = new Mock<IUserRepository>();
             var jwtGen = new Mock<IJwtTokenGenerator>();
-            var user = new User { Id = Guid.NewGuid(), Username = "test", PasswordHash = BCrypt.Net.BCrypt.HashPassword("pass") };
+            var user = new Player { Id = Guid.NewGuid(), Username = "test", PasswordHash = BCrypt.Net.BCrypt.HashPassword("pass") };
             userRepo.Setup(r => r.GetByUsernameAsync("test")).ReturnsAsync(user);
             jwtGen.Setup(j => j.GenerateToken(user)).Returns("token");
             var service = new AuthService(userRepo.Object, jwtGen.Object);
@@ -35,7 +35,7 @@ namespace Tests.Services
         {
             var userRepo = new Mock<IUserRepository>();
             var jwtGen = new Mock<IJwtTokenGenerator>();
-            userRepo.Setup(r => r.GetByUsernameAsync("test")).ReturnsAsync((User?)null);
+            userRepo.Setup(r => r.GetByUsernameAsync("test")).ReturnsAsync((Player?)null);
             var service = new AuthService(userRepo.Object, jwtGen.Object);
 
             await Assert.ThrowsAsync<UnauthorizedAccessException>(() => service.LoginAsync("test", "wrong"));

@@ -9,9 +9,9 @@ namespace Application.Interfaces
 {
     public interface IUserRepository
     {
-        Task<User?> GetByUsernameAsync(string username);
-        Task<User> GetByIdAsync(Guid id);
-        Task AddAsync(User user);
+        Task<Player?> GetByUsernameAsync(string username);
+        Task<Player> GetByIdAsync(Guid id);
+        Task AddAsync(Player user);
         Task<bool> UsernameExistsAsync(string username);
     }
 

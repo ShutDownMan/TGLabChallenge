@@ -48,7 +48,7 @@ namespace API
             });
 
             builder.Services.AddDbContext<AppDbContext>(options =>
-                options.UseSqlite(builder.Configuration.GetConnectionString("Default")));
+                options.UseSqlite(builder.Configuration.GetConnectionString("Default") ?? string.Empty));
 
             builder.Services.AddScoped<IUserRepository, UserRepository>();
             builder.Services.AddScoped<IAuthService, AuthService>();

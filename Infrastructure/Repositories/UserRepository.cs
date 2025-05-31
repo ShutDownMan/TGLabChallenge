@@ -14,29 +14,29 @@ namespace Infrastructure.Repositories
             _context = context;
         }
 
-        public async Task<User?> GetByUsernameAsync(string username)
+        public async Task<Player?> GetByUsernameAsync(string username)
         {
-            return await _context.Users
+            return await _context.Players
                 .Include(u => u.Bets)
                 .FirstOrDefaultAsync(u => u.Username == username);
         }
 
-        public async Task<User> GetByIdAsync(Guid id)
+        public async Task<Player> GetByIdAsync(Guid id)
         {
-            return await _context.Users
+            return await _context.Players
                 .Include(u => u.Bets)
                 .FirstAsync(u => u.Id == id);
         }
 
-        public async Task AddAsync(User user)
+        public async Task AddAsync(Player user)
         {
-            _context.Users.Add(user);
+            _context.Players.Add(user);
             await _context.SaveChangesAsync();
         }
 
         public async Task<bool> UsernameExistsAsync(string username)
         {
-            return await _context.Users.AnyAsync(u => u.Username == username);
+            return await _context.Players.AnyAsync(u => u.Username == username);
         }
     }
 }

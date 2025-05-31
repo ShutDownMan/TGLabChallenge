@@ -15,7 +15,7 @@ namespace Tests.Services
         public async Task GetProfileAsync_WithExistingUser_ReturnsProfile()
         {
             var userRepo = new Mock<IUserRepository>();
-            var user = new User { Id = Guid.NewGuid(), Username = "test" };
+            var user = new Player { Id = Guid.NewGuid(), Username = "test" };
             userRepo.Setup(r => r.GetByIdAsync(user.Id)).ReturnsAsync(user);
             var service = new UserService(userRepo.Object);
 
@@ -29,7 +29,7 @@ namespace Tests.Services
         public async Task GetProfileAsync_WithNonExistingUser_ReturnsNull()
         {
             var userRepo = new Mock<IUserRepository>();
-            userRepo.Setup(r => r.GetByIdAsync(It.IsAny<Guid>())).ReturnsAsync((User?)null!);
+            userRepo.Setup(r => r.GetByIdAsync(It.IsAny<Guid>())).ReturnsAsync((Player?)null!);
             var service = new UserService(userRepo.Object);
 
             var profile = await service.GetProfileAsync(Guid.NewGuid());

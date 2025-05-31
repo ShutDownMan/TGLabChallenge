@@ -10,7 +10,12 @@ namespace Infrastructure.Data
 {
     public class AppDbContext : DbContext
     {
-        public DbSet<User> Users { get; set; }
+        public DbSet<Player> Players { get; set; }
+        public DbSet<Bet> Bets { get; set; }
+        public DbSet<WalletTransaction> WalletTransactions { get; set; }
+        public DbSet<Currency> Currencies { get; set; }
+        public DbSet<BetStatus> BetStatuses { get; set; }
+        public DbSet<TransactionType> TransactionTypes { get; set; }
 
         public AppDbContext(DbContextOptions<AppDbContext> options) : base(options) { }
     }

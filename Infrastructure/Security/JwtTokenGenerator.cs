@@ -22,7 +22,7 @@ namespace Infrastructure.Security
             _config = config;
         }
 
-        public string GenerateToken(User user)
+        public string GenerateToken(Player user)
         {
             var claims = new[]
             {

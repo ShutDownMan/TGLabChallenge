@@ -38,7 +38,7 @@ namespace Application.Services
             }
 
             var hashedPassword = BCrypt.Net.BCrypt.HashPassword(password);
-            var user = new User
+            var user = new Player
             {
                 Id = Guid.NewGuid(),
                 Username = username,

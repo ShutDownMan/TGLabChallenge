@@ -9,7 +9,7 @@ namespace Domain.Security
 {
     public interface IJwtTokenGenerator
     {
-        string GenerateToken(User user);
+        string GenerateToken(Player user);
         bool ValidateToken(string token);
     }
 
