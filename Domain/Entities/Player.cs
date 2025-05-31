@@ -8,11 +8,6 @@ namespace Domain.Entities
         public Guid Id { get; set; }
         public string Username { get; set; } = string.Empty;
         public string PasswordHash { get; set; } = string.Empty;
-        public string Name
-        {
-            get => Username;
-            set => Username = value;
-        }
         public string Email { get; set; } = string.Empty;
         public int CurrencyId { get; set; }
         public decimal Balance { get; set; } = 0.00m;

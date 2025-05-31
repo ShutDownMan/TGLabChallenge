@@ -21,6 +21,13 @@ namespace Infrastructure.Repositories
                 .FirstOrDefaultAsync(u => u.Username == username);
         }
 
+        public async Task<Player?> GetByEmailAsync(string email)
+        {
+            return await _context.Players
+                .Include(u => u.Bets)
+                .FirstOrDefaultAsync(u => u.Email == email);
+        }
+
         public async Task<Player> GetByIdAsync(Guid id)
         {
             return await _context.Players

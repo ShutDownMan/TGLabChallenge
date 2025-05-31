@@ -31,11 +31,11 @@ namespace API.Controllers
         }
 
         [HttpPost("register")]
-        public async Task<IActionResult> Register([FromBody] LoginRequest request)
+        public async Task<IActionResult> Register([FromBody] RegisterRequest request)
         {
             try
             {
-                await _authService.RegisterAsync(request.Username, request.Password);
+                await _authService.RegisterAsync(request.Username, request.Password, request.Email, request.CurrencyId);
                 return Ok();
             }
             catch (UserAlreadyExistsException ex)

@@ -2,6 +2,12 @@
 
 ## 🚀 Como executar
 
+### Migração do Banco de Dados
+Para garantir que o banco de dados esteja atualizado, execute a migração antes de iniciar a aplicação.
+```bash
+dotnet ef database update --project infrastructure
+```
+
 ### Visual Studio
 1. Abra a solução no Visual Studio.
 2. Clique com o botão direito no projeto `TGLabChallenge.API` e selecione **Definir como projeto de inicialização**.

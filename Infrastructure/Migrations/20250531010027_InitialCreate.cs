@@ -36,6 +36,17 @@ namespace Infrastructure.Migrations
                     table.PrimaryKey("PK_Currencies", x => x.Id);
                 });
 
+            // Seed currencies
+            migrationBuilder.InsertData(
+                table: "Currencies",
+                columns: new[] { "Id", "Code", "Name" },
+                values: new object[,]
+                {
+                    { 1, "USD", "US Dollar" },
+                    { 2, "EUR", "Euro" },
+                    { 3, "BRL", "Brazilian Real" }
+                });
+
             migrationBuilder.CreateTable(
                 name: "TransactionTypes",
                 columns: table => new
@@ -56,7 +67,6 @@ namespace Infrastructure.Migrations
                     Id = table.Column<Guid>(type: "TEXT", nullable: false),
                     Username = table.Column<string>(type: "TEXT", nullable: false),
                     PasswordHash = table.Column<string>(type: "TEXT", nullable: false),
-                    Name = table.Column<string>(type: "TEXT", nullable: false),
                     Email = table.Column<string>(type: "TEXT", nullable: false),
                     CurrencyId = table.Column<int>(type: "INTEGER", nullable: false),
                     Balance = table.Column<decimal>(type: "TEXT", nullable: false),
@@ -194,6 +204,12 @@ namespace Infrastructure.Migrations
 
             migrationBuilder.DropTable(
                 name: "TransactionTypes");
+
+            // Remove seeded currencies
+            migrationBuilder.DeleteData(
+                table: "Currencies",
+                keyColumn: "Id",
+                keyValues: new object[] { 1, 2, 3 });
 
             migrationBuilder.DropTable(
                 name: "Currencies");

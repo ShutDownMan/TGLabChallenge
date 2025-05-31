@@ -18,6 +18,17 @@ namespace Infrastructure.Data
         public DbSet<TransactionType> TransactionTypes { get; set; }
 
         public AppDbContext(DbContextOptions<AppDbContext> options) : base(options) { }
+
+        protected override void OnModelCreating(ModelBuilder modelBuilder)
+        {
+            base.OnModelCreating(modelBuilder);
+
+            modelBuilder.Entity<Currency>().HasData(
+                new Currency { Id = 1, Code = "USD", Name = "US Dollar" },
+                new Currency { Id = 2, Code = "EUR", Name = "Euro" },
+                new Currency { Id = 3, Code = "BRL", Name = "Brazilian Real" }
+            );
+        }
     }
 
 }

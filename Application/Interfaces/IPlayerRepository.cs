@@ -10,6 +10,7 @@ namespace Application.Interfaces
     public interface IPlayerRepository
     {
         Task<Player?> GetByUsernameAsync(string username);
+        Task<Player?> GetByEmailAsync(string email);
         Task<Player> GetByIdAsync(Guid id);
         Task AddAsync(Player user);
         Task<bool> UsernameExistsAsync(string username);

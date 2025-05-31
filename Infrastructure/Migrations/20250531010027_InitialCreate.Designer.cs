@@ -11,7 +11,7 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace Infrastructure.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-    [Migration("20250531002606_InitialCreate")]
+    [Migration("20250531010027_InitialCreate")]
     partial class InitialCreate
     {
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -86,6 +86,12 @@ namespace Infrastructure.Migrations
                     b.HasKey("Id");
 
                     b.ToTable("Currencies");
+
+                    b.HasData(
+                        new { Id = 1, Code = "USD", Name = "US Dollar" },
+                        new { Id = 2, Code = "EUR", Name = "Euro" },
+                        new { Id = 3, Code = "BRL", Name = "Brazilian Real" }
+                    );
                 });
 
             modelBuilder.Entity("Domain.Entities.Player", b =>
@@ -104,10 +110,6 @@ namespace Infrastructure.Migrations
                         .HasColumnType("INTEGER");
 
                     b.Property<string>("Email")
-                        .IsRequired()
-                        .HasColumnType("TEXT");
-
-                    b.Property<string>("Name")
                         .IsRequired()
                         .HasColumnType("TEXT");
 

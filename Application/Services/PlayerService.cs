@@ -7,21 +7,25 @@ namespace Application.Services
 {
     public class PlayerService : IPlayerService
     {
-        private readonly IPlayerRepository _userRepository;
-        public PlayerService(IPlayerRepository userRepository)
+        private readonly IPlayerRepository _playerRepository;
+        public PlayerService(IPlayerRepository playerRepository)
         {
-            _userRepository = userRepository;
+            _playerRepository = playerRepository;
         }
 
-        public async Task<PlayerProfileDto?> GetProfileAsync(Guid userId)
+        public async Task<PlayerProfileDto?> GetProfileAsync(Guid playerId)
         {
-            var user = await _userRepository.GetByIdAsync(userId);
-            if (user == null) return null;
+            var player = await _playerRepository.GetByIdAsync(playerId);
+            if (player == null) return null;
 
             return new PlayerProfileDto
             {
-                Username = user.Username
-                // Map other fields as needed
+                Id = player.Id,
+                Username = player.Username,
+                Email = player.Email,
+                CurrencyId = player.CurrencyId,
+                Balance = player.Balance,
+                CreatedAt = player.CreatedAt
             };
         }
     }

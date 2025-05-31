@@ -1,4 +1,5 @@
 @API_HostAddress = https://localhost:44354
+@JWTToken = eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJodHRwOi8vc2NoZW1hcy54bWxzb2FwLm9yZy93cy8yMDA1LzA1L2lkZW50aXR5L2NsYWltcy9uYW1laWRlbnRpZmllciI6IjJjMmQxZDZhLWMzZWEtNGViMC1iZmRkLTZhOTYzYTIzNWZmYiIsImh0dHA6Ly9zY2hlbWFzLnhtbHNvYXAub3JnL3dzLzIwMDUvMDUvaWRlbnRpdHkvY2xhaW1zL25hbWUiOiJqZXN1aXNqZWRpIiwiZXhwIjoxNzQ4NjU4NjI1LCJpc3MiOiJ5b3VySXNzdWVyIiwiYXVkIjoieW91ckF1ZGllbmNlIn0.uSSLSWRxTWnxuaHf-5FY-qR4JdgN8Odgq8ZagwZUIj4
 
 // --- Public endpoints ---
 
@@ -15,8 +16,9 @@ POST {{API_HostAddress}}/api/Auth/register
 Content-Type: application/json
 
 {
-  "username": "jedson",
-  "password": "123456Sete"
+  "username": "jesuisjedi",
+  "password": "123456Sete",
+  "email": "jedson@teste.com"
 }
 
 ###
@@ -26,7 +28,7 @@ POST {{API_HostAddress}}/api/Auth/login
 Content-Type: application/json
 
 {
-  "username": "jedson",
+  "username": "jesuisjedi",
   "password": "123456Sete"
 }
 
@@ -37,36 +39,29 @@ POST {{API_HostAddress}}/api/Auth/validate-token
 Content-Type: application/json
 
 {
-  "token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJodHRwOi8vc2NoZW1hcy54bWxzb2FwLm9yZy93cy8yMDA1LzA1L2lkZW50aXR5L2NsYWltcy9uYW1laWRlbnRpZmllciI6IjQ3NWIwZjkyLTk3MGMtNGQ5Yi1iMzMzLTI5YWVjODdkNzlmNCIsImh0dHA6Ly9zY2hlbWFzLnhtbHNvYXAub3JnL3dzLzIwMDUvMDUvaWRlbnRpdHkvY2xhaW1zL25hbWUiOiJqZWRzb24iLCJleHAiOjE3NDg2MzU4NjEsImlzcyI6InlvdXJJc3N1ZXIiLCJhdWQiOiJ5b3VyQXVkaWVuY2UifQ.c6e4t1oDebNo-B4jB44L7NCh0Ysx6D8xGCuJ-9uFK6g"
+  "token": "{{JWTToken}}"
 }
 
 ###
 
-// --- User Endpoints ---
+// --- Player Endpoints ---
 
-// Get user profile
-GET {{API_HostAddress}}/api/User/profile
-Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJodHRwOi8vc2NoZW1hcy54bWxzb2FwLm9yZy93cy8yMDA1LzA1L2lkZW50aXR5L2NsYWltcy9uYW1laWRlbnRpZmllciI6IjQ3NWIwZjkyLTk3MGMtNGQ5Yi1iMzMzLTI5YWVjODdkNzlmNCIsImh0dHA6Ly9zY2hlbWFzLnhtbHNvYXAub3JnL3dzLzIwMDUvMDUvaWRlbnRpdHkvY2xhaW1zL25hbWUiOiJqZWRzb24iLCJleHAiOjE3NDg2MzU4NjEsImlzcyI6InlvdXJJc3N1ZXIiLCJhdWQiOiJ5b3VyQXVkaWVuY2UifQ.c6e4t1oDebNo-B4jB44L7NCh0Ysx6D8xGCuJ-9uFK6g
+// Get Player profile
+GET {{API_HostAddress}}/api/Player/profile
+Authorization: Bearer {{JWTToken}}
 Accept: application/json
 
 ###
 
-// Update user profile
-PUT {{API_HostAddress}}/user/profile
-Authorization: Bearer {{token}}
+// Update Player profile
+PUT {{API_HostAddress}}/Player/profile
+Authorization: Bearer {{JWTToken}}
 Content-Type: application/json
 
 {
   // ...profile fields...
   // "username": "jedson",
-  // Note: Changing the username may cause /profile to return an error unless you refresh your token.
 }
 
 ###
 
-// Weather forecast (requires Bearer token)
-GET {{API_HostAddress}}/WeatherForecast
-Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJodHRwOi8vc2NoZW1hcy54bWxzb2FwLm9yZy93cy8yMDA1LzA1L2lkZW50aXR5L2NsYWltcy9uYW1laWRlbnRpZmllciI6IjQ3NWIwZjkyLTk3MGMtNGQ5Yi1iMzMzLTI5YWVjODdkNzlmNCIsImh0dHA6Ly9zY2hlbWFzLnhtbHNvYXAub3JnL3dzLzIwMDUvMDUvaWRlbnRpdHkvY2xhaW1zL25hbWUiOiJqZWRzb24iLCJleHAiOjE3NDg2MjE1OTYsImlzcyI6InlvdXJJc3N1ZXIiLCJhdWQiOiJ5b3VyQXVkaWVuY2UifQ.d9EJNqiSlSOKWqb80Hpra7BTvAlT8mpjSvMlCONY8Xw
-Accept: application/json
-
-###

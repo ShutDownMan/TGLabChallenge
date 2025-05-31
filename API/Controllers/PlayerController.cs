@@ -8,24 +8,24 @@ namespace API.Controllers
     [ApiController]
     [Route("api/[controller]")]
     [Authorize]
-    public class UserController : ControllerBase
+    public class PlayerController : ControllerBase
     {
-        private readonly IPlayerService _userService;
+        private readonly IPlayerService _playerService;
 
-        public UserController(IPlayerService userService)
+        public PlayerController(IPlayerService playerService)
         {
-            _userService = userService;
+            _playerService = playerService;
         }
 
         [HttpGet("profile")]
         public async Task<IActionResult> GetProfile()
         {
-            // Extract user id from JWT claims
-            var userIdClaim = User.FindFirst(System.Security.Claims.ClaimTypes.NameIdentifier)?.Value;
-            if (string.IsNullOrEmpty(userIdClaim) || !Guid.TryParse(userIdClaim, out var userId))
+            // Extract player id from JWT claims
+            var playerIdClaim = User.FindFirst(System.Security.Claims.ClaimTypes.NameIdentifier)?.Value;
+            if (string.IsNullOrEmpty(playerIdClaim) || !Guid.TryParse(playerIdClaim, out var playerId))
                 return Unauthorized();
 
-            var profile = await _userService.GetProfileAsync(userId);
+            var profile = await _playerService.GetProfileAsync(playerId);
             if (profile == null)
                 return NotFound();
 
