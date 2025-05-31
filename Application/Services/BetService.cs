@@ -7,6 +7,7 @@ using Domain.Enums;
 using Microsoft.Extensions.Logging;
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Threading.Tasks;
 using System.Transactions;
 
@@ -37,9 +38,9 @@ namespace Application.Services
             _logger = logger;
         }
 
-        public async Task<PlaceBetDTO> PlaceBetAsync(PlaceBetDTO betDTO)
+        public async Task<BetDTO> PlaceBetAsync(PlaceBetDTO betDTO)
         {
-            _logger.LogInformation("Starting PlaceBetAsync for WalletId: {WalletId}, Amount: {Amount}", betDTO.WalletId, betDTO.Amount);
+            _logger.LogDebug("Starting PlaceBetAsync for WalletId: {WalletId}, Amount: {Amount}", betDTO.WalletId, betDTO.Amount);
 
             var playerId = await _walletService.GetPlayerByWalletIdAsync(betDTO.WalletId);
             if (playerId == null)
@@ -66,11 +67,27 @@ namespace Application.Services
             using var scope = new TransactionScope(TransactionScopeAsyncFlowOption.Enabled);
             try
             {
+                var betEntity = _mapper.Map<Bet>(betDTO);
+
+                // Set status to Created
+                betEntity.StatusId = (int)BetStatusEnum.Created;
+
+                // Add bet to repository
+                var newBetEntity = await _betRepository.AddAsync(betEntity);
+                if (newBetEntity == null)
+                {
+                    _logger.LogError("Failed to add bet. WalletId: {WalletId}, Amount: {Amount}", betDTO.WalletId, betDTO.Amount);
+                    throw new InvalidOperationException("Failed to place bet.");
+                }
+
+                _logger.LogDebug("Bet added. BetId: {BetId}, WalletId: {WalletId}", betEntity.Id, wallet.Id);
+
                 // Debit wallet using service (handles balance and transaction)
-                await _walletService.DebitWalletAsync(wallet, betDTO.Amount, betDTO.Id);
+                await _walletService.DebitWalletAsync(wallet, betDTO.Amount, newBetEntity.Id);
 
-                _logger.LogInformation("Debited wallet. WalletId: {WalletId}, NewBalance: {Balance}", wallet.Id, wallet.Balance);
+                _logger.LogDebug("Debited wallet. WalletId: {WalletId}, NewBalance: {Balance}", wallet.Id, wallet.Balance);
 
+                // Fetch the refreshed wallet to ensure we have the latest balance
                 var refreshedWallet = await _walletService.GetWalletByIdAsync(wallet.Id);
                 if (refreshedWallet == null)
                 {
@@ -78,18 +95,23 @@ namespace Application.Services
                     throw new InvalidOperationException("Refreshed wallet not found.");
                 }
 
-                _logger.LogInformation("Fetched refreshed wallet. WalletId: {WalletId}, Balance: {Balance}", refreshedWallet.Id, refreshedWallet.Balance);
-
-                var betEntity = _mapper.Map<Bet>(betDTO);
-                betEntity.StatusId = (int)BetStatusEnum.Created;
-
-                await _betRepository.AddAsync(betEntity);
-                _logger.LogInformation("Bet added. BetId: {BetId}, WalletId: {WalletId}", betEntity.Id, wallet.Id);
+                _logger.LogDebug("Fetched refreshed wallet. WalletId: {WalletId}, Balance: {Balance}", refreshedWallet.Id, refreshedWallet.Balance);
 
                 scope.Complete();
 
                 _logger.LogInformation("PlaceBetAsync completed successfully for BetId: {BetId}", betEntity.Id);
-                return _mapper.Map<PlaceBetDTO>(betEntity);
+
+                return new BetDTO
+                {
+                    Id = newBetEntity.Id,
+                    WalletId = newBetEntity.WalletId,
+                    Amount = newBetEntity.Amount,
+                    StatusId = newBetEntity.StatusId,
+                    Status = ((BetStatusEnum)newBetEntity.StatusId).ToString(),
+                    Payout = newBetEntity.StatusId == (int)BetStatusEnum.Settled ? newBetEntity.Payout : null,
+                    CreatedAt = newBetEntity.CreatedAt,
+                    GameId = newBetEntity.GameId
+                };
             }
             catch (Exception ex)
             {
@@ -102,27 +124,43 @@ namespace Application.Services
             }
         }
 
-        public async Task CancelBetAsync(PlaceBetDTO betDto)
+        public async Task<IEnumerable<BetDTO>> GetBetsByUserAsync(Guid userId)
         {
-            // TODO: Add any additional business logic for canceling a bet, such as validation or state checks
+            _logger.LogDebug("Starting GetBetsByUserAsync for UserId: {UserId}", userId);
 
-            var bet = _mapper.Map<Bet>(betDto);
+            var bets = await _betRepository.GetByUserAsync(userId);
 
-            await _betRepository.CancelAsync(bet);
+            _logger.LogDebug("Found {BetCount} bets for UserId: {UserId}", bets.Count(), userId);
+
+            var result = bets.Select(bet => new BetDTO
+            {
+                Id = bet.Id,
+                WalletId = bet.WalletId,
+                Amount = bet.Amount,
+                StatusId = bet.StatusId,
+                Status = ((BetStatusEnum)bet.StatusId).ToString(),
+                Payout = bet.StatusId == (int)BetStatusEnum.Settled ? bet.Payout : null,
+                CreatedAt = bet.CreatedAt,
+                GameId = bet.GameId
+            });
+
+            _logger.LogDebug("Completed GetBetsByUserAsync for UserId: {UserId}", userId);
+
+            return result;
         }
 
-        public async Task<PlaceBetDTO?> GetBetByIdAsync(Guid id)
+        public async Task CancelBetAsync(Guid betId)
+        {
+            // TODO: Add any additional business logic for canceling a bet, such as validation or state checks
+            await _betRepository.CancelAsync(betId);
+        }
+
+        public async Task<BetDTO?> GetBetByIdAsync(Guid id)
         {
             var bet = await _betRepository.GetByIdAsync(id);
 
-            return bet == null ? null : _mapper.Map<PlaceBetDTO>(bet);
+            return bet == null ? null : _mapper.Map<BetDTO>(bet);
         }
 
-        public async Task<IEnumerable<PlaceBetDTO>> GetBetsByUserAsync(Guid userId)
-        {
-            var bets = await _betRepository.GetByUserAsync(userId);
-
-            return _mapper.Map<IEnumerable<PlaceBetDTO>>(bets);
-        }
     }
 }

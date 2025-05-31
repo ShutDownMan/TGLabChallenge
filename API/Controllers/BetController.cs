@@ -1,10 +1,12 @@
-using Application.Services;
+using Application.Interfaces.Services;
 using Application.Models;
-using Microsoft.AspNetCore.Mvc;
-using System;
-using System.Threading.Tasks;
+using Application.Services;
 using FluentValidation;
 using FluentValidation.Results;
+using Microsoft.AspNetCore.Mvc;
+using System;
+using System.Linq;
+using System.Threading.Tasks;
 
 namespace API.Controllers
 {
@@ -12,10 +14,10 @@ namespace API.Controllers
     [Route("api/[controller]")]
     public class BetController : ControllerBase
     {
-        private readonly BetService _betService;
+        private readonly IBetService _betService;
         private readonly IValidator<PlaceBetDTO> _betDTOValidator;
 
-        public BetController(BetService betService, IValidator<PlaceBetDTO> betDTOValidator)
+        public BetController(IBetService betService, IValidator<PlaceBetDTO> betDTOValidator)
         {
             _betService = betService;
             _betDTOValidator = betDTOValidator;
@@ -37,11 +39,9 @@ namespace API.Controllers
         [HttpPost("{id}/cancel")]
         public async Task<IActionResult> CancelBet(Guid id)
         {
-            var betDTO = await _betService.GetBetByIdAsync(id);
-            if (betDTO == null)
-                return NotFound();
-
-            await _betService.CancelBetAsync(betDTO);
+            // TODO: Add any additional business logic for canceling a bet, such as validation or state checks
+            // As well as Cancel Timestamp and other related fields if necessary
+            await _betService.CancelBetAsync(id);
             return NoContent();
         }
 

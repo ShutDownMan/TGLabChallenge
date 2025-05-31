@@ -1,9 +1,11 @@
 using Application.Interfaces.Repositories;
 using Application.Interfaces.Services;
+using Application.Models;
 using Domain.Entities;
 using Domain.Enums;
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Threading.Tasks;
 
 using TransactionTypeEnum = Domain.Enums.TransactionType;
@@ -27,6 +29,19 @@ namespace Application.Services
         public async Task<IEnumerable<WalletTransaction>> GetByWalletIdAsync(Guid walletId)
         {
             return await _walletTransactionRepository.GetByWalletIdAsync(walletId);
+        }
+
+        public async Task<IEnumerable<WalletTransactionDTO>> GetTransactionInfosByWalletIdAsync(Guid walletId)
+        {
+            var transactions = await _walletTransactionRepository.GetByWalletIdAsync(walletId);
+            return transactions.Select(tx => new WalletTransactionDTO
+            {
+                Id = tx.Id,
+                WalletId = tx.WalletId,
+                CreatedAt = tx.CreatedAt,
+                Type = tx.TransactionType?.Name ?? tx.TransactionTypeId.ToString(),
+                Amount = tx.Amount
+            });
         }
 
         public async Task<WalletTransaction> DebitWalletAsync(Wallet wallet, decimal amount, Guid? betId = null)

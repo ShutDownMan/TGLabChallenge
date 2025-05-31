@@ -11,8 +11,8 @@ namespace Application.Interfaces.Repositories
     {
         Task<Bet> GetByIdAsync(Guid id);
         Task<IEnumerable<Bet>> GetByUserAsync(Guid userId);
-        Task AddAsync(Bet bet);
-        Task CancelAsync(Bet bet);
+        Task<Bet> AddAsync(Bet bet);
+        Task CancelAsync(Guid betId);
     }
 
 }

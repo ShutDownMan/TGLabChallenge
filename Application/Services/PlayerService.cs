@@ -3,6 +3,7 @@ using Application.Interfaces.Services;
 using Application.Models;
 using Domain.Entities;
 using Microsoft.Extensions.Logging;
+using System.Collections.Generic;
 using System.Threading.Tasks;
 
 namespace Application.Services
@@ -11,12 +12,21 @@ namespace Application.Services
     {
         private readonly IPlayerRepository _playerRepository;
         private readonly IWalletService _walletService;
+        private readonly IBetService _betService;
+        private readonly IWalletTransactionService _walletTransactionService;
         private readonly ILogger<PlayerService> _logger;
 
-        public PlayerService(IPlayerRepository playerRepository, IWalletService walletService, ILogger<PlayerService> logger)
+        public PlayerService(
+            IPlayerRepository playerRepository,
+            IWalletService walletService,
+            IBetService betService,
+            IWalletTransactionService walletTransactionService,
+            ILogger<PlayerService> logger)
         {
             _playerRepository = playerRepository;
             _walletService = walletService;
+            _betService = betService;
+            _walletTransactionService = walletTransactionService;
             _logger = logger;
         }
 
@@ -66,6 +76,25 @@ namespace Application.Services
 
             _logger.LogInformation("Returning PlayerProfileDTO for playerId: {PlayerId}", playerId);
             return profile;
+        }
+
+        public async Task<IEnumerable<BetDTO>> GetBetsAsync(Guid playerId)
+        {
+            // You may want to validate the player exists, or just delegate to the bet service
+            return await _betService.GetBetsByUserAsync(playerId);
+        }
+
+        public async Task<IEnumerable<WalletTransactionDTO>> GetWalletTransactionsAsync(Guid playerId)
+        {
+            var wallets = await _walletService.GetWalletsByPlayerIdAsync(playerId);
+            var allTransactions = new List<WalletTransactionDTO>();
+            foreach (var wallet in wallets)
+            {
+                var transactions = await _walletTransactionService.GetTransactionInfosByWalletIdAsync(wallet.Id);
+                allTransactions.AddRange(transactions);
+            }
+
+            return allTransactions;
         }
     }
 }

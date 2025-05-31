@@ -3,6 +3,8 @@ using Domain.Entities;
 using Infrastructure.Data;
 using Microsoft.EntityFrameworkCore;
 
+using BetStatusEnum = Domain.Enums.BetStatus;
+
 namespace Infrastructure.Repositories
 {
     public class BetRepository : IBetRepository
@@ -17,27 +19,41 @@ namespace Infrastructure.Repositories
         public async Task<Bet> GetByIdAsync(Guid id)
         {
             return await _context.Bets
-                .Include(b => b.Player)
+                .Include(b => b.Wallet)
                 .FirstAsync(b => b.Id == id);
         }
 
         public async Task<IEnumerable<Bet>> GetByUserAsync(Guid userId)
         {
             return await _context.Bets
-                .Where(b => b.PlayerId == userId)
+                .Include(b => b.Wallet)
+                .Where(b => b.Wallet != null && b.Wallet.PlayerId == userId)
                 .ToListAsync();
         }
 
-        public async Task AddAsync(Bet bet)
+        public async Task<Bet> AddAsync(Bet bet)
         {
+            bet.Id = Guid.NewGuid();
+            bet.CreatedAt = DateTime.UtcNow;
+
             _context.Bets.Add(bet);
             await _context.SaveChangesAsync();
+
+            return bet;
         }
 
-        public async Task CancelAsync(Bet bet)
+        public async Task CancelAsync(Guid betId)
         {
-            // Assuming "Cancel" means updating the status
+            var bet = await GetByIdAsync(betId);
+            if (bet == null)
+            {
+                throw new KeyNotFoundException($"Bet with ID {betId} not found.");
+            }
+
+            bet.StatusId = (int)BetStatusEnum.Cancelled;
+
             _context.Bets.Update(bet);
+
             await _context.SaveChangesAsync();
         }
     }

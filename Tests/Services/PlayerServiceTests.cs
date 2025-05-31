@@ -20,6 +20,8 @@ namespace Tests.Services
             var playerId = Guid.NewGuid();
             var playerRepo = new Mock<IPlayerRepository>();
             var walletService = new Mock<IWalletService>();
+            var betService = new Mock<IBetService>();
+            var walletTransactionService = new Mock<IWalletTransactionService>();
             var logger = new Mock<ILogger<PlayerService>>();
 
             var player = new Player { Id = playerId, Username = "test", Email = "test@email.com", CreatedAt = DateTime.UtcNow };
@@ -31,7 +33,13 @@ namespace Tests.Services
             };
             walletService.Setup(w => w.GetWalletsByPlayerIdAsync(playerId)).ReturnsAsync(wallets);
 
-            var service = new PlayerService(playerRepo.Object, walletService.Object, logger.Object);
+            var service = new PlayerService(
+                playerRepo.Object,
+                walletService.Object,
+                betService.Object,
+                walletTransactionService.Object,
+                logger.Object
+            );
 
             var profile = await service.GetProfileAsync(playerId);
 
@@ -46,11 +54,19 @@ namespace Tests.Services
         {
             var playerRepo = new Mock<IPlayerRepository>();
             var walletService = new Mock<IWalletService>();
+            var betService = new Mock<IBetService>();
+            var walletTransactionService = new Mock<IWalletTransactionService>();
             var logger = new Mock<ILogger<PlayerService>>();
 
             playerRepo.Setup(r => r.GetByIdAsync(It.IsAny<Guid>())).ReturnsAsync((Player?)null);
 
-            var service = new PlayerService(playerRepo.Object, walletService.Object, logger.Object);
+            var service = new PlayerService(
+                playerRepo.Object,
+                walletService.Object,
+                betService.Object,
+                walletTransactionService.Object,
+                logger.Object
+            );
 
             var profile = await service.GetProfileAsync(Guid.NewGuid());
 

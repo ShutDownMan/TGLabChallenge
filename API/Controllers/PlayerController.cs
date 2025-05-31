@@ -31,5 +31,27 @@ namespace API.Controllers
 
             return Ok(profile);
         }
+
+        [HttpGet("bets")]
+        public async Task<IActionResult> GetBets()
+        {
+            var playerIdClaim = User.FindFirst(System.Security.Claims.ClaimTypes.NameIdentifier)?.Value;
+            if (string.IsNullOrEmpty(playerIdClaim) || !Guid.TryParse(playerIdClaim, out var playerId))
+                return Unauthorized();
+
+            var bets = await _playerService.GetBetsAsync(playerId);
+            return Ok(bets);
+        }
+
+        [HttpGet("wallet-transactions")]
+        public async Task<IActionResult> GetWalletTransactions()
+        {
+            var playerIdClaim = User.FindFirst(System.Security.Claims.ClaimTypes.NameIdentifier)?.Value;
+            if (string.IsNullOrEmpty(playerIdClaim) || !Guid.TryParse(playerIdClaim, out var playerId))
+                return Unauthorized();
+
+            var transactions = await _playerService.GetWalletTransactionsAsync(playerId);
+            return Ok(transactions);
+        }
     }
 }

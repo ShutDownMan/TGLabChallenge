@@ -72,20 +72,22 @@ namespace API
 
             builder.Services.AddAutoMapper(AppDomain.CurrentDomain.GetAssemblies());
 
+            // Register JWT token generator
             builder.Services.AddScoped<IJwtTokenGenerator, JwtTokenGenerator>();
 
+            // Register repositories
             builder.Services.AddScoped<IPlayerRepository, PlayerRepository>();
             builder.Services.AddScoped<ICurrencyRepository, CurrencyRepository>();
             builder.Services.AddScoped<IBetRepository, BetRepository>();
             builder.Services.AddScoped<IGameRepository, GameRepository>();
             builder.Services.AddScoped<IWalletRepository, WalletRepository>();
+            builder.Services.AddScoped<IWalletTransactionRepository, WalletTransactionRepository>();
 
+            // Register services
             builder.Services.AddScoped<IAuthService, AuthService>();
             builder.Services.AddScoped<IPlayerService, PlayerService>();
             builder.Services.AddScoped<IWalletService, WalletService>();
-
             builder.Services.AddScoped<IWalletTransactionService, WalletTransactionService>();
-
             builder.Services.AddScoped<IBetService, BetService>();
 
             builder.Services.AddAuthentication("Bearer")

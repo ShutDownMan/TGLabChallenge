@@ -81,41 +81,6 @@ namespace Infrastructure.Migrations
                 });
 
             migrationBuilder.CreateTable(
-                name: "Bets",
-                columns: table => new
-                {
-                    Id = table.Column<Guid>(type: "TEXT", nullable: false),
-                    PlayerId = table.Column<Guid>(type: "TEXT", nullable: false),
-                    Amount = table.Column<decimal>(type: "TEXT", nullable: false),
-                    StatusId = table.Column<int>(type: "INTEGER", nullable: false),
-                    Prize = table.Column<decimal>(type: "TEXT", nullable: true),
-                    CreatedAt = table.Column<DateTime>(type: "TEXT", nullable: false),
-                    GameId = table.Column<Guid>(type: "TEXT", nullable: false)
-                },
-                constraints: table =>
-                {
-                    table.PrimaryKey("PK_Bets", x => x.Id);
-                    table.ForeignKey(
-                        name: "FK_Bets_BetStatuses_StatusId",
-                        column: x => x.StatusId,
-                        principalTable: "BetStatuses",
-                        principalColumn: "Id",
-                        onDelete: ReferentialAction.Cascade);
-                    table.ForeignKey(
-                        name: "FK_Bets_Games_GameId",
-                        column: x => x.GameId,
-                        principalTable: "Games",
-                        principalColumn: "Id",
-                        onDelete: ReferentialAction.Cascade);
-                    table.ForeignKey(
-                        name: "FK_Bets_Players_PlayerId",
-                        column: x => x.PlayerId,
-                        principalTable: "Players",
-                        principalColumn: "Id",
-                        onDelete: ReferentialAction.Cascade);
-                });
-
-            migrationBuilder.CreateTable(
                 name: "Wallets",
                 columns: table => new
                 {
@@ -138,6 +103,47 @@ namespace Infrastructure.Migrations
                         name: "FK_Wallets_Players_PlayerId",
                         column: x => x.PlayerId,
                         principalTable: "Players",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Cascade);
+                });
+
+            migrationBuilder.CreateTable(
+                name: "Bets",
+                columns: table => new
+                {
+                    Id = table.Column<Guid>(type: "TEXT", nullable: false),
+                    WalletId = table.Column<Guid>(type: "TEXT", nullable: false),
+                    Amount = table.Column<decimal>(type: "TEXT", nullable: false),
+                    StatusId = table.Column<int>(type: "INTEGER", nullable: false),
+                    Payout = table.Column<decimal>(type: "TEXT", nullable: true),
+                    CreatedAt = table.Column<DateTime>(type: "TEXT", nullable: false),
+                    GameId = table.Column<Guid>(type: "TEXT", nullable: false),
+                    PlayerId = table.Column<Guid>(type: "TEXT", nullable: true)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_Bets", x => x.Id);
+                    table.ForeignKey(
+                        name: "FK_Bets_BetStatuses_StatusId",
+                        column: x => x.StatusId,
+                        principalTable: "BetStatuses",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Cascade);
+                    table.ForeignKey(
+                        name: "FK_Bets_Games_GameId",
+                        column: x => x.GameId,
+                        principalTable: "Games",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Cascade);
+                    table.ForeignKey(
+                        name: "FK_Bets_Players_PlayerId",
+                        column: x => x.PlayerId,
+                        principalTable: "Players",
+                        principalColumn: "Id");
+                    table.ForeignKey(
+                        name: "FK_Bets_Wallets_WalletId",
+                        column: x => x.WalletId,
+                        principalTable: "Wallets",
                         principalColumn: "Id",
                         onDelete: ReferentialAction.Cascade);
                 });
@@ -206,14 +212,24 @@ namespace Infrastructure.Migrations
                 values: new object[] { 3, "BRL", "Brazilian Real" });
 
             migrationBuilder.InsertData(
-                table: "TransactionTypes",
-                columns: new[] { "Id", "Name" },
-                values: new object[] { 1, "Deposit" });
+                table: "Games",
+                columns: new[] { "Id", "CreatedAt", "Description", "MinimalBetAmount", "MinimalBetCurrencyId", "Name" },
+                values: new object[] { new Guid("7558398b-a987-4b88-9010-c026306d3535"), new DateTime(1, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified), "This is a placeholder game for testing purposes.", 0.00m, 0, "Placeholder Game" });
 
             migrationBuilder.InsertData(
                 table: "TransactionTypes",
                 columns: new[] { "Id", "Name" },
-                values: new object[] { 2, "Withdrawal" });
+                values: new object[] { 1, "Debit" });
+
+            migrationBuilder.InsertData(
+                table: "TransactionTypes",
+                columns: new[] { "Id", "Name" },
+                values: new object[] { 2, "Credit" });
+
+            migrationBuilder.InsertData(
+                table: "TransactionTypes",
+                columns: new[] { "Id", "Name" },
+                values: new object[] { 3, "Checkpoint" });
 
             migrationBuilder.CreateIndex(
                 name: "IX_Bets_GameId",
@@ -229,6 +245,11 @@ namespace Infrastructure.Migrations
                 name: "IX_Bets_StatusId",
                 table: "Bets",
                 column: "StatusId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_Bets_WalletId",
+                table: "Bets",
+                column: "WalletId");
 
             migrationBuilder.CreateIndex(
                 name: "IX_Wallets_CurrencyId",
@@ -268,13 +289,13 @@ namespace Infrastructure.Migrations
                 name: "TransactionTypes");
 
             migrationBuilder.DropTable(
-                name: "Wallets");
-
-            migrationBuilder.DropTable(
                 name: "BetStatuses");
 
             migrationBuilder.DropTable(
                 name: "Games");
+
+            migrationBuilder.DropTable(
+                name: "Wallets");
 
             migrationBuilder.DropTable(
                 name: "Currencies");

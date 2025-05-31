@@ -1,5 +1,5 @@
 @API_HostAddress = https://localhost:44354
-@JWTToken = eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJodHRwOi8vc2NoZW1hcy54bWxzb2FwLm9yZy93cy8yMDA1LzA1L2lkZW50aXR5L2NsYWltcy9uYW1laWRlbnRpZmllciI6ImEzZGU0MmIxLTQyZWQtNDE3My1hY2JmLTA3MDZhYzM5NmI1ZSIsImh0dHA6Ly9zY2hlbWFzLnhtbHNvYXAub3JnL3dzLzIwMDUvMDUvaWRlbnRpdHkvY2xhaW1zL25hbWUiOiJqZXN1aXNqZWRpIiwiZXhwIjoxNzQ4NzAwODI4LCJpc3MiOiJ5b3VySXNzdWVyIiwiYXVkIjoieW91ckF1ZGllbmNlIn0.6r-laBH9HkWZCpaWp-OA7pKGrpGmcf3yHu_OjJ8G_IY
+@JWTToken = eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJodHRwOi8vc2NoZW1hcy54bWxzb2FwLm9yZy93cy8yMDA1LzA1L2lkZW50aXR5L2NsYWltcy9uYW1laWRlbnRpZmllciI6IjI2ZDFkOWZkLWEyN2ItNDNmNS1hZDYwLTM4NDYwYTM4ZTZkMiIsImh0dHA6Ly9zY2hlbWFzLnhtbHNvYXAub3JnL3dzLzIwMDUvMDUvaWRlbnRpdHkvY2xhaW1zL25hbWUiOiJqZXN1aXNqZWRpIiwiZXhwIjoxNzQ4NzE2MjcyLCJpc3MiOiJ5b3VySXNzdWVyIiwiYXVkIjoieW91ckF1ZGllbmNlIn0.5Bp0G3okOO97xEKtsxESwUuMhMtq1NI5z_HgJML39js
 
 // --- Public endpoints ---
 
@@ -18,7 +18,9 @@ Content-Type: application/json
 {
   "username": "jesuisjedi",
   "password": "123456Sete",
-  "email": "jedson@teste.com"
+  "email": "jedson@teste.com",
+  "currencyId": 1,
+  "initialBalance": "1000.00"
 }
 
 ###
@@ -53,15 +55,17 @@ Accept: application/json
 
 ###
 
-// Update Player profile
-PUT {{API_HostAddress}}/Player/profile
+// Get Player bets
+GET {{API_HostAddress}}/api/Player/bets
 Authorization: Bearer {{JWTToken}}
-Content-Type: application/json
+Accept: application/json
 
-{
-  // ...profile fields...
-  // "username": "jedson",
-}
+###
+
+// Get Player wallet transactions
+GET {{API_HostAddress}}/api/Player/wallet-transactions
+Authorization: Bearer {{JWTToken}}
+Accept: application/json
 
 ###
 
@@ -73,10 +77,19 @@ Authorization: Bearer {{JWTToken}}
 Content-Type: application/json
 
 {
-  // "userId": "GUID",
-  // "amount": 100,
-  // ...other BetDto fields...
+  "walletId": "823b9954-455f-4a0f-98ed-a32a6ae47aad",
+  "gameId": "7558398b-a987-4b88-9010-c026306d3535",
+  "amount": 100,
+  "currencyId": 1,
+  "createdAt": "2024-06-01T00:00:00Z"
 }
+
+###
+
+// Get all bets by user
+GET {{API_HostAddress}}/api/Bet/user
+Authorization: Bearer {{JWTToken}}
+Accept: application/json
 
 ###
 

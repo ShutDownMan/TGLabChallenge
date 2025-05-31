@@ -32,14 +32,17 @@ namespace Infrastructure.Migrations
                     b.Property<Guid>("GameId")
                         .HasColumnType("TEXT");
 
-                    b.Property<Guid>("PlayerId")
+                    b.Property<decimal?>("Payout")
                         .HasColumnType("TEXT");
 
-                    b.Property<decimal?>("Prize")
+                    b.Property<Guid?>("PlayerId")
                         .HasColumnType("TEXT");
 
                     b.Property<int>("StatusId")
                         .HasColumnType("INTEGER");
+
+                    b.Property<Guid>("WalletId")
+                        .HasColumnType("TEXT");
 
                     b.HasKey("Id");
 
@@ -48,6 +51,8 @@ namespace Infrastructure.Migrations
                     b.HasIndex("PlayerId");
 
                     b.HasIndex("StatusId");
+
+                    b.HasIndex("WalletId");
 
                     b.ToTable("Bets");
                 });
@@ -148,6 +153,17 @@ namespace Infrastructure.Migrations
                     b.HasKey("Id");
 
                     b.ToTable("Games");
+
+                    b.HasData(
+                        new
+                        {
+                            Id = new Guid("7558398b-a987-4b88-9010-c026306d3535"),
+                            CreatedAt = new DateTime(1, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified),
+                            Description = "This is a placeholder game for testing purposes.",
+                            MinimalBetAmount = 0.00m,
+                            MinimalBetCurrencyId = 0,
+                            Name = "Placeholder Game"
+                        });
                 });
 
             modelBuilder.Entity("Domain.Entities.Player", b =>
@@ -194,12 +210,17 @@ namespace Infrastructure.Migrations
                         new
                         {
                             Id = 1,
-                            Name = "Deposit"
+                            Name = "Debit"
                         },
                         new
                         {
                             Id = 2,
-                            Name = "Withdrawal"
+                            Name = "Credit"
+                        },
+                        new
+                        {
+                            Id = 3,
+                            Name = "Checkpoint"
                         });
                 });
 
@@ -270,11 +291,9 @@ namespace Infrastructure.Migrations
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
-                    b.HasOne("Domain.Entities.Player", "Player")
+                    b.HasOne("Domain.Entities.Player", null)
                         .WithMany("Bets")
-                        .HasForeignKey("PlayerId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
+                        .HasForeignKey("PlayerId");
 
                     b.HasOne("Domain.Entities.BetStatus", "Status")
                         .WithMany()
@@ -282,11 +301,17 @@ namespace Infrastructure.Migrations
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
+                    b.HasOne("Domain.Entities.Wallet", "Wallet")
+                        .WithMany()
+                        .HasForeignKey("WalletId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
                     b.Navigation("Game");
 
-                    b.Navigation("Player");
-
                     b.Navigation("Status");
+
+                    b.Navigation("Wallet");
                 });
 
             modelBuilder.Entity("Domain.Entities.Wallet", b =>

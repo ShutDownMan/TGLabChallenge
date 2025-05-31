@@ -48,6 +48,11 @@ namespace Infrastructure.Data
                 new TransactionType { Id = (int)TransactionTypeEnum.Credit, Name = "Credit" },
                 new TransactionType { Id = (int)TransactionTypeEnum.Checkpoint, Name = "Checkpoint" }
             );
+
+            // Placeholder Game entity data
+            modelBuilder.Entity<Game>().HasData(
+                new Game { Id = Guid.Parse("7558398b-a987-4b88-9010-c026306d3535"), Name = "Placeholder Game", Description = "This is a placeholder game for testing purposes." }
+            );
         }
 
         protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)

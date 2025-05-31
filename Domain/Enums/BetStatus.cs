@@ -2,8 +2,8 @@
 {
     public enum BetStatus
     {
-        Created,
-        Cancelled,
-        Settled
+        Created = 1,
+        Cancelled = 2,
+        Settled = 3
     }
 }
