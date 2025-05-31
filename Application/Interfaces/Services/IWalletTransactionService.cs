@@ -15,6 +15,7 @@ namespace Application.Interfaces.Services
 
         Task<WalletTransaction> DebitWalletAsync(Wallet wallet, decimal amount, Guid? betId = null);
         Task<WalletTransaction> CreditWalletAsync(Wallet wallet, decimal amount, Guid? betId = null);
-        Task<WalletTransaction> CheckpointWalletAsync(Wallet wallet, decimal checkpointAmount);
+        Task<WalletTransaction> CheckpointWalletAsync(Wallet wallet, decimal checkpointAmount, Guid? parentCheckpointId = null);
+        Task<WalletTransaction> CalculateWalletCheckpointAsync(Guid walletId);
     }
 }

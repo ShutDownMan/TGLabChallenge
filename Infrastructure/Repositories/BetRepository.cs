@@ -42,6 +42,13 @@ namespace Infrastructure.Repositories
             return bet;
         }
 
+        public async Task<Bet> UpdateAsync(Bet bet)
+        {
+            _context.Bets.Update(bet);
+            await _context.SaveChangesAsync();
+            return bet;
+        }
+
         public async Task CancelAsync(Guid betId)
         {
             var bet = await GetByIdAsync(betId);

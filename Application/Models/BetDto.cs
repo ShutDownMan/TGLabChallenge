@@ -12,5 +12,7 @@ namespace Application.Models
         public decimal? Payout { get; set; }
         public DateTime CreatedAt { get; set; }
         public Guid GameId { get; set; }
+        public string? Note { get; set; }
+        public DateTime LastUpdatedAt { get; set; }
     }
 }

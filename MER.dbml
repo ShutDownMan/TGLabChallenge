@@ -17,12 +17,15 @@ Table Bet {
   GameId UUID [ref: > Game.Id]
   Amount decimal(18,2) [not null]
   StatusId int [ref: > BetStatus.Id]
-  Prize decimal(18,2)
+  Payout decimal(18,2)
   CreatedAt datetime [not null]
+  Note varchar(255)
+  LastUpdatedAt datetime
 }
 
 Table WalletTransaction {
   Id UUID [pk]
+  ParentWalletTransactionCheckpointId UUID [ref: - WalletTransaction.Id]
   BetId UUID [ref: > Bet.Id]
   WalletId UUID [ref: > Wallet.Id]
   TransactionTypeId int [ref: > TransactionType.Id]
@@ -54,5 +57,6 @@ Table Game {
   Description varchar(255)
   MinimalBetAmount decimal(18,2) [not null, default: 0.00]
   MinimalBetCurrencyId int [ref: > Currency.Id, not null]
+  CancelTaxPercentage decimal(5,2) [not null, default: 0.00]
   CreatedAt datetime [not null]
 }

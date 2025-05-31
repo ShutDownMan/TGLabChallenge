@@ -16,11 +16,13 @@ namespace API.Controllers
     {
         private readonly IBetService _betService;
         private readonly IValidator<PlaceBetDTO> _betDTOValidator;
+        private readonly IValidator<CancelBetDTO> _cancelBetDTOValidator;
 
-        public BetController(IBetService betService, IValidator<PlaceBetDTO> betDTOValidator)
+        public BetController(IBetService betService, IValidator<PlaceBetDTO> betDTOValidator, IValidator<CancelBetDTO> cancelBetDTOValidator)
         {
             _betService = betService;
             _betDTOValidator = betDTOValidator;
+            _cancelBetDTOValidator = cancelBetDTOValidator;
         }
 
         [HttpPost]
@@ -37,12 +39,27 @@ namespace API.Controllers
         }
 
         [HttpPost("{id}/cancel")]
-        public async Task<IActionResult> CancelBet(Guid id)
+        public async Task<IActionResult> CancelBet(Guid id, [FromBody] CancelBetDTO cancelBetDTO)
         {
-            // TODO: Add any additional business logic for canceling a bet, such as validation or state checks
-            // As well as Cancel Timestamp and other related fields if necessary
-            await _betService.CancelBetAsync(id);
-            return NoContent();
+            var validationResult = await _cancelBetDTOValidator.ValidateAsync(cancelBetDTO);
+            if (!validationResult.IsValid)
+            {
+                return BadRequest(validationResult.Errors);
+            }
+
+            try
+            {
+                await _betService.CancelBetAsync(id, cancelBetDTO.CancelReason);
+                return Ok(new { message = "Bet cancelled successfully.", betId = id });
+            }
+            catch (InvalidOperationException ex)
+            {
+                return BadRequest(new { message = ex.Message });
+            }
+            catch (KeyNotFoundException)
+            {
+                return NotFound(new { message = "Bet not found." });
+            }
         }
 
         [HttpGet("{id}")]

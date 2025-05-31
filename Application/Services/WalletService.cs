@@ -4,6 +4,7 @@ using Domain.Entities;
 using Domain.Enums;
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Threading.Tasks;
 using System.Transactions;
 
@@ -87,8 +88,7 @@ namespace Application.Services
             using var scope = new TransactionScope(TransactionScopeAsyncFlowOption.Enabled);
             try
             {
-                var checkpoint = wallet.CalculateWalletCheckpoint();
-                var transaction = await _walletTransactionService.CheckpointWalletAsync(wallet, checkpoint);
+                var transaction = await _walletTransactionService.CalculateWalletCheckpointAsync(wallet.Id);
                 scope.Complete();
                 return transaction;
             }

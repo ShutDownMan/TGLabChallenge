@@ -89,6 +89,7 @@ namespace API
             builder.Services.AddScoped<IWalletService, WalletService>();
             builder.Services.AddScoped<IWalletTransactionService, WalletTransactionService>();
             builder.Services.AddScoped<IBetService, BetService>();
+            builder.Services.AddScoped<IGameService, GameService>();
 
             builder.Services.AddAuthentication("Bearer")
                 .AddJwtBearer("Bearer", options =>

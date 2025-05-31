@@ -98,6 +98,7 @@ namespace Tests.Services
             var walletRepo = new Mock<IWalletRepository>();
             var walletTxService = new Mock<IWalletTransactionService>();
             userRepo.Setup(r => r.UsernameExistsAsync("newuser")).ReturnsAsync(false);
+            userRepo.Setup(r => r.EmailExistsAsync("new@email.com")).ReturnsAsync(false);
             Player? addedPlayer = null;
             userRepo.Setup(r => r.AddAsync(It.IsAny<Player>()))
                 .Callback<Player>(p => addedPlayer = p)
@@ -110,7 +111,7 @@ namespace Tests.Services
             walletRepo.Setup(r => r.AddAsync(It.IsAny<Wallet>())).Returns(Task.CompletedTask);
 
             // Setup walletTxService to accept any checkpoint
-            walletTxService.Setup(s => s.CheckpointWalletAsync(It.IsAny<Wallet>(), It.IsAny<decimal>()))
+            walletTxService.Setup(s => s.CheckpointWalletAsync(It.IsAny<Wallet>(), It.IsAny<decimal>(), null))
                 .ReturnsAsync(new WalletTransaction());
 
             var service = new AuthService(userRepo.Object, currencyRepo.Object, jwtGen.Object, walletRepo.Object, walletTxService.Object);

@@ -11,7 +11,7 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace Infrastructure.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-    [Migration("20250531173051_InitialCreate")]
+    [Migration("20250531195133_InitialCreate")]
     partial class InitialCreate
     {
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -32,6 +32,12 @@ namespace Infrastructure.Migrations
                         .HasColumnType("TEXT");
 
                     b.Property<Guid>("GameId")
+                        .HasColumnType("TEXT");
+
+                    b.Property<DateTime>("LastUpdatedAt")
+                        .HasColumnType("TEXT");
+
+                    b.Property<string>("Note")
                         .HasColumnType("TEXT");
 
                     b.Property<decimal?>("Payout")
@@ -136,6 +142,9 @@ namespace Infrastructure.Migrations
                         .ValueGeneratedOnAdd()
                         .HasColumnType("TEXT");
 
+                    b.Property<decimal>("CancelTaxPercentage")
+                        .HasColumnType("TEXT");
+
                     b.Property<DateTime>("CreatedAt")
                         .HasColumnType("TEXT");
 
@@ -160,6 +169,7 @@ namespace Infrastructure.Migrations
                         new
                         {
                             Id = new Guid("7558398b-a987-4b88-9010-c026306d3535"),
+                            CancelTaxPercentage = 0.00m,
                             CreatedAt = new DateTime(1, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified),
                             Description = "This is a placeholder game for testing purposes.",
                             MinimalBetAmount = 0.00m,
@@ -266,6 +276,9 @@ namespace Infrastructure.Migrations
                         .HasColumnType("TEXT");
 
                     b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("TEXT");
+
+                    b.Property<Guid?>("ParentWalletTransactionCheckpointId")
                         .HasColumnType("TEXT");
 
                     b.Property<int>("TransactionTypeId")

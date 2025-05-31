@@ -32,6 +32,12 @@ namespace Infrastructure.Migrations
                     b.Property<Guid>("GameId")
                         .HasColumnType("TEXT");
 
+                    b.Property<DateTime>("LastUpdatedAt")
+                        .HasColumnType("TEXT");
+
+                    b.Property<string>("Note")
+                        .HasColumnType("TEXT");
+
                     b.Property<decimal?>("Payout")
                         .HasColumnType("TEXT");
 
@@ -134,6 +140,9 @@ namespace Infrastructure.Migrations
                         .ValueGeneratedOnAdd()
                         .HasColumnType("TEXT");
 
+                    b.Property<decimal>("CancelTaxPercentage")
+                        .HasColumnType("TEXT");
+
                     b.Property<DateTime>("CreatedAt")
                         .HasColumnType("TEXT");
 
@@ -158,6 +167,7 @@ namespace Infrastructure.Migrations
                         new
                         {
                             Id = new Guid("7558398b-a987-4b88-9010-c026306d3535"),
+                            CancelTaxPercentage = 0.00m,
                             CreatedAt = new DateTime(1, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified),
                             Description = "This is a placeholder game for testing purposes.",
                             MinimalBetAmount = 0.00m,
@@ -264,6 +274,9 @@ namespace Infrastructure.Migrations
                         .HasColumnType("TEXT");
 
                     b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("TEXT");
+
+                    b.Property<Guid?>("ParentWalletTransactionCheckpointId")
                         .HasColumnType("TEXT");
 
                     b.Property<int>("TransactionTypeId")

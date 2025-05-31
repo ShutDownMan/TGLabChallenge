@@ -45,6 +45,7 @@ namespace Infrastructure.Migrations
                     Description = table.Column<string>(type: "TEXT", nullable: true),
                     MinimalBetAmount = table.Column<decimal>(type: "TEXT", nullable: false),
                     MinimalBetCurrencyId = table.Column<int>(type: "INTEGER", nullable: false),
+                    CancelTaxPercentage = table.Column<decimal>(type: "TEXT", nullable: false),
                     CreatedAt = table.Column<DateTime>(type: "TEXT", nullable: false)
                 },
                 constraints: table =>
@@ -118,6 +119,8 @@ namespace Infrastructure.Migrations
                     Payout = table.Column<decimal>(type: "TEXT", nullable: true),
                     CreatedAt = table.Column<DateTime>(type: "TEXT", nullable: false),
                     GameId = table.Column<Guid>(type: "TEXT", nullable: false),
+                    Note = table.Column<string>(type: "TEXT", nullable: true),
+                    LastUpdatedAt = table.Column<DateTime>(type: "TEXT", nullable: false),
                     PlayerId = table.Column<Guid>(type: "TEXT", nullable: true)
                 },
                 constraints: table =>
@@ -157,7 +160,8 @@ namespace Infrastructure.Migrations
                     WalletId = table.Column<Guid>(type: "TEXT", nullable: false),
                     TransactionTypeId = table.Column<int>(type: "INTEGER", nullable: false),
                     Amount = table.Column<decimal>(type: "TEXT", nullable: false),
-                    CreatedAt = table.Column<DateTime>(type: "TEXT", nullable: false)
+                    CreatedAt = table.Column<DateTime>(type: "TEXT", nullable: false),
+                    ParentWalletTransactionCheckpointId = table.Column<Guid>(type: "TEXT", nullable: true)
                 },
                 constraints: table =>
                 {
@@ -213,8 +217,8 @@ namespace Infrastructure.Migrations
 
             migrationBuilder.InsertData(
                 table: "Games",
-                columns: new[] { "Id", "CreatedAt", "Description", "MinimalBetAmount", "MinimalBetCurrencyId", "Name" },
-                values: new object[] { new Guid("7558398b-a987-4b88-9010-c026306d3535"), new DateTime(1, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified), "This is a placeholder game for testing purposes.", 0.00m, 0, "Placeholder Game" });
+                columns: new[] { "Id", "CancelTaxPercentage", "CreatedAt", "Description", "MinimalBetAmount", "MinimalBetCurrencyId", "Name" },
+                values: new object[] { new Guid("7558398b-a987-4b88-9010-c026306d3535"), 0.00m, new DateTime(1, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified), "This is a placeholder game for testing purposes.", 0.00m, 0, "Placeholder Game" });
 
             migrationBuilder.InsertData(
                 table: "TransactionTypes",

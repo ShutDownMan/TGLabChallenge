@@ -104,7 +104,7 @@ namespace Application.Services
                 await _walletRepository.AddAsync(wallet);
 
                 // Create initial checkpoint transaction for the wallet
-                await _walletTransactionService.CheckpointWalletAsync(wallet, wallet.Balance);
+                await _walletTransactionService.CheckpointWalletAsync(wallet, wallet.Balance, null);
 
                 // Commit the transaction
                 scope.Complete();

@@ -74,7 +74,7 @@ namespace Application.Services
             return transaction;
         }
 
-        public async Task<WalletTransaction> CheckpointWalletAsync(Wallet wallet, decimal checkpointAmount)
+        public async Task<WalletTransaction> CheckpointWalletAsync(Wallet wallet, decimal checkpointAmount, Guid? parentCheckpointId = null)
         {
             var transaction = new WalletTransaction
             {
@@ -82,10 +82,57 @@ namespace Application.Services
                 WalletId = wallet.Id,
                 TransactionTypeId = (int)TransactionTypeEnum.Checkpoint,
                 Amount = checkpointAmount,
-                CreatedAt = DateTime.UtcNow
+                CreatedAt = DateTime.UtcNow,
+                ParentWalletTransactionCheckpointId = parentCheckpointId
             };
             await _walletTransactionRepository.AddAsync(transaction);
             return transaction;
+        }
+
+        public async Task<WalletTransaction> CalculateWalletCheckpointAsync(Guid walletId)
+        {
+            using var scope = new System.Transactions.TransactionScope(System.Transactions.TransactionScopeAsyncFlowOption.Enabled);
+            try
+            {
+                var transactions = (await _walletTransactionRepository.GetByWalletIdAsync(walletId)).ToList();
+
+                var lastCheckpoint = transactions
+                    .Where(tx => tx.TransactionTypeId == (int)TransactionTypeEnum.Checkpoint)
+                    .OrderByDescending(tx => tx.CreatedAt)
+                    .FirstOrDefault();
+
+                DateTime? lastCheckpointTime = lastCheckpoint?.CreatedAt;
+
+                var checkpoint = transactions
+                    .Where(tx => lastCheckpointTime == null || tx.CreatedAt > lastCheckpointTime)
+                    .Sum(tx =>
+                        tx.TransactionTypeId == (int)TransactionTypeEnum.Credit ? tx.Amount :
+                        tx.TransactionTypeId == (int)TransactionTypeEnum.Debit ? -tx.Amount : 0m
+                    );
+
+                var checkpointTransaction = new WalletTransaction
+                {
+                    Id = Guid.NewGuid(),
+                    WalletId = walletId,
+                    TransactionTypeId = (int)TransactionTypeEnum.Checkpoint,
+                    Amount = checkpoint,
+                    CreatedAt = DateTime.UtcNow,
+                    ParentWalletTransactionCheckpointId = lastCheckpoint?.Id
+                };
+
+                await _walletTransactionRepository.AddAsync(checkpointTransaction);
+
+                scope.Complete();
+                return checkpointTransaction;
+            }
+            catch
+            {
+                throw;
+            }
+            finally
+            {
+                scope.Dispose();
+            }
         }
     }
 }

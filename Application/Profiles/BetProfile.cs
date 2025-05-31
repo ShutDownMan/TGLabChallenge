@@ -16,6 +16,9 @@ namespace Application.Profiles
                 .ForMember(dest => dest.Payout, opt => opt.Ignore());
 
             CreateMap<Bet, PlaceBetDTO>();
+
+            CreateMap<Bet, BetDTO>()
+                .ForMember(dest => dest.Status, opt => opt.Ignore());
         }
     }
 }

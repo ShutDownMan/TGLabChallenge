@@ -23,19 +23,22 @@ namespace Application.Services
         private readonly IWalletService _walletService;
         private readonly IWalletTransactionService _walletTransactionService;
         private readonly ILogger<BetService> _logger;
+        private readonly IGameService _gameService;
 
         public BetService(
             IBetRepository betRepository,
             IMapper mapper,
             IWalletService walletService,
             IWalletTransactionService walletTransactionService,
-            ILogger<BetService> logger)
+            ILogger<BetService> logger,
+            IGameService gameService)
         {
             _betRepository = betRepository;
             _mapper = mapper;
             _walletService = walletService;
             _walletTransactionService = walletTransactionService;
             _logger = logger;
+            _gameService = gameService;
         }
 
         public async Task<BetDTO> PlaceBetAsync(PlaceBetDTO betDTO)
@@ -110,7 +113,9 @@ namespace Application.Services
                     Status = ((BetStatusEnum)newBetEntity.StatusId).ToString(),
                     Payout = newBetEntity.StatusId == (int)BetStatusEnum.Settled ? newBetEntity.Payout : null,
                     CreatedAt = newBetEntity.CreatedAt,
-                    GameId = newBetEntity.GameId
+                    GameId = newBetEntity.GameId,
+                    Note = newBetEntity.Note,
+                    LastUpdatedAt = newBetEntity.LastUpdatedAt
                 };
             }
             catch (Exception ex)
@@ -141,7 +146,9 @@ namespace Application.Services
                 Status = ((BetStatusEnum)bet.StatusId).ToString(),
                 Payout = bet.StatusId == (int)BetStatusEnum.Settled ? bet.Payout : null,
                 CreatedAt = bet.CreatedAt,
-                GameId = bet.GameId
+                GameId = bet.GameId,
+                Note = bet.Note,
+                LastUpdatedAt = bet.LastUpdatedAt
             });
 
             _logger.LogDebug("Completed GetBetsByUserAsync for UserId: {UserId}", userId);
@@ -149,10 +156,52 @@ namespace Application.Services
             return result;
         }
 
-        public async Task CancelBetAsync(Guid betId)
+        public async Task CancelBetAsync(Guid betId, string? cancelReason)
         {
-            // TODO: Add any additional business logic for canceling a bet, such as validation or state checks
-            await _betRepository.CancelAsync(betId);
+            using var scope = new TransactionScope(TransactionScopeAsyncFlowOption.Enabled);
+            try
+            {
+                // Get bet
+                var bet = await _betRepository.GetByIdAsync(betId);
+                if (bet == null)
+                    throw new KeyNotFoundException("Bet not found.");
+
+                if (bet.StatusId != (int)BetStatusEnum.Created)
+                    throw new InvalidOperationException($"Cannot cancel a bet with status '{((BetStatusEnum)bet.StatusId).ToString()}'.");
+
+                // Fetch game using GameService
+                var game = await _gameService.GetGameByIdAsync(bet.GameId);
+                if (game == null)
+                    throw new InvalidOperationException("Game not found for bet.");
+
+                var taxPercentage = game.CancelTaxPercentage;
+                var taxAmount = Math.Round(bet.Amount * taxPercentage / 100m, 2);
+                var refundAmount = bet.Amount - taxAmount;
+
+                // Refund the wallet (credit)
+                var wallet = await _walletService.GetWalletByIdAsync(bet.WalletId);
+                if (wallet == null)
+                    throw new InvalidOperationException("Wallet not found for bet.");
+
+                // No need to credit if refund amount is zero
+                if (refundAmount > 0)
+                {
+                    await _walletService.CreditWalletAsync(wallet, refundAmount, bet.Id);
+                }
+
+                bet.StatusId = (int)BetStatusEnum.Cancelled;
+                bet.Note = cancelReason;
+                bet.LastUpdatedAt = DateTime.UtcNow;
+                _logger.LogDebug("Cancelling bet with ID: {BetId}, Reason: {CancelReason}, Tax: {TaxAmount}, Refund: {RefundAmount}", betId, cancelReason, taxAmount, refundAmount);
+
+                await _betRepository.UpdateAsync(bet);
+
+                scope.Complete();
+            }
+            finally
+            {
+                scope.Dispose();
+            }
         }
 
         public async Task<BetDTO?> GetBetByIdAsync(Guid id)

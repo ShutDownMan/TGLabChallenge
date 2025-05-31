@@ -10,6 +10,7 @@ namespace Domain.Entities
         public int TransactionTypeId { get; set; }
         public decimal Amount { get; set; }
         public DateTime CreatedAt { get; set; }
+        public Guid? ParentWalletTransactionCheckpointId { get; set; }
 
         public Wallet? Wallet { get; set; }
         public Bet? Bet { get; set; }
