@@ -50,10 +50,10 @@ namespace API
             builder.Services.AddDbContext<AppDbContext>(options =>
                 options.UseSqlite(builder.Configuration.GetConnectionString("Default") ?? string.Empty));
 
-            builder.Services.AddScoped<IUserRepository, UserRepository>();
+            builder.Services.AddScoped<IPlayerRepository, PlayerRepository>();
             builder.Services.AddScoped<IAuthService, AuthService>();
             builder.Services.AddScoped<IJwtTokenGenerator, JwtTokenGenerator>();
-            builder.Services.AddScoped<IUserService, UserService>();
+            builder.Services.AddScoped<IPlayerService, PlayerService>();
 
             builder.Services.AddAuthentication("Bearer")
                 .AddJwtBearer("Bearer", options =>

@@ -5,11 +5,11 @@ using Microsoft.EntityFrameworkCore;
 
 namespace Infrastructure.Repositories
 {
-    public class UserRepository : IUserRepository
+    public class PlayerRepository : IPlayerRepository
     {
         private readonly AppDbContext _context;
 
-        public UserRepository(AppDbContext context)
+        public PlayerRepository(AppDbContext context)
         {
             _context = context;
         }

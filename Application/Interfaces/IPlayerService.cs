@@ -3,8 +3,8 @@ using Application.Models;
 
 namespace Application.Interfaces
 {
-    public interface IUserService
+    public interface IPlayerService
     {
-        Task<UserProfileDto?> GetProfileAsync(Guid userId);
+        Task<PlayerProfileDto?> GetProfileAsync(Guid userId);
     }
 }

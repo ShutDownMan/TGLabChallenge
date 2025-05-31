@@ -10,10 +10,10 @@ namespace Application.Services
 {
     public class AuthService : IAuthService
     {
-        private readonly IUserRepository _userRepository;
+        private readonly IPlayerRepository _userRepository;
         private readonly IJwtTokenGenerator _jwtTokenGenerator;
 
-        public AuthService(IUserRepository userRepository, IJwtTokenGenerator jwtTokenGenerator)
+        public AuthService(IPlayerRepository userRepository, IJwtTokenGenerator jwtTokenGenerator)
         {
             _userRepository = userRepository;
             _jwtTokenGenerator = jwtTokenGenerator;

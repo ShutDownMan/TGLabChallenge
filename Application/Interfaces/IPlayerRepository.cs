@@ -7,7 +7,7 @@ using System.Threading.Tasks;
 
 namespace Application.Interfaces
 {
-    public interface IUserRepository
+    public interface IPlayerRepository
     {
         Task<Player?> GetByUsernameAsync(string username);
         Task<Player> GetByIdAsync(Guid id);

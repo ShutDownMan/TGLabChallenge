@@ -16,7 +16,7 @@ namespace Tests.Services
         public async Task LoginAsync_WithValidCredentials_ReturnsToken()
         {
             // Arrange
-            var userRepo = new Mock<IUserRepository>();
+            var userRepo = new Mock<IPlayerRepository>();
             var jwtGen = new Mock<IJwtTokenGenerator>();
             var user = new Player { Id = Guid.NewGuid(), Username = "test", PasswordHash = BCrypt.Net.BCrypt.HashPassword("pass") };
             userRepo.Setup(r => r.GetByUsernameAsync("test")).ReturnsAsync(user);
@@ -33,7 +33,7 @@ namespace Tests.Services
         [Fact]
         public async Task LoginAsync_WithInvalidCredentials_ThrowsUnauthorized()
         {
-            var userRepo = new Mock<IUserRepository>();
+            var userRepo = new Mock<IPlayerRepository>();
             var jwtGen = new Mock<IJwtTokenGenerator>();
             userRepo.Setup(r => r.GetByUsernameAsync("test")).ReturnsAsync((Player?)null);
             var service = new AuthService(userRepo.Object, jwtGen.Object);
@@ -44,12 +44,37 @@ namespace Tests.Services
         [Fact]
         public async Task RegisterAsync_WithExistingUsername_ThrowsException()
         {
-            var userRepo = new Mock<IUserRepository>();
+            var userRepo = new Mock<IPlayerRepository>();
             var jwtGen = new Mock<IJwtTokenGenerator>();
             userRepo.Setup(r => r.UsernameExistsAsync("test")).ReturnsAsync(true);
             var service = new AuthService(userRepo.Object, jwtGen.Object);
 
             await Assert.ThrowsAsync<UserAlreadyExistsException>(() => service.RegisterAsync("test", "pass"));
+        }
+
+        [Fact]
+        public async Task RegisterAsync_WithNewUsername_AddsUserWithHashedPassword()
+        {
+            // Arrange
+            var userRepo = new Mock<IPlayerRepository>();
+            var jwtGen = new Mock<IJwtTokenGenerator>();
+            userRepo.Setup(r => r.UsernameExistsAsync("newuser")).ReturnsAsync(false);
+            Player? addedPlayer = null;
+            userRepo.Setup(r => r.AddAsync(It.IsAny<Player>()))
+                .Callback<Player>(p => addedPlayer = p)
+                .Returns(Task.CompletedTask);
+
+            var service = new AuthService(userRepo.Object, jwtGen.Object);
+
+            // Act
+            await service.RegisterAsync("newuser", "newpass");
+
+            // Assert
+            Assert.NotNull(addedPlayer);
+            Assert.Equal("newuser", addedPlayer.Username);
+            Assert.NotNull(addedPlayer.PasswordHash);
+            Assert.NotEqual("newpass", addedPlayer.PasswordHash);
+            Assert.True(BCrypt.Net.BCrypt.Verify("newpass", addedPlayer.PasswordHash));
         }
     }
 }

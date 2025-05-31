@@ -10,9 +10,9 @@ namespace API.Controllers
     [Authorize]
     public class UserController : ControllerBase
     {
-        private readonly IUserService _userService;
+        private readonly IPlayerService _userService;
 
-        public UserController(IUserService userService)
+        public UserController(IPlayerService userService)
         {
             _userService = userService;
         }

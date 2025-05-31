@@ -5,20 +5,20 @@ using System.Threading.Tasks;
 
 namespace Application.Services
 {
-    public class UserService : IUserService
+    public class PlayerService : IPlayerService
     {
-        private readonly IUserRepository _userRepository;
-        public UserService(IUserRepository userRepository)
+        private readonly IPlayerRepository _userRepository;
+        public PlayerService(IPlayerRepository userRepository)
         {
             _userRepository = userRepository;
         }
 
-        public async Task<UserProfileDto?> GetProfileAsync(Guid userId)
+        public async Task<PlayerProfileDto?> GetProfileAsync(Guid userId)
         {
             var user = await _userRepository.GetByIdAsync(userId);
             if (user == null) return null;
 
-            return new UserProfileDto
+            return new PlayerProfileDto
             {
                 Username = user.Username
                 // Map other fields as needed
