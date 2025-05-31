@@ -24,10 +24,11 @@ namespace Tests.Services
             var currencyRepo = new Mock<ICurrencyRepository>();
             var jwtGen = new Mock<IJwtTokenGenerator>();
             var walletRepo = new Mock<IWalletRepository>();
+            var walletTxService = new Mock<IWalletTransactionService>();
             var user = new Player { Id = Guid.NewGuid(), Username = "test", Email = "test@email.com", PasswordHash = BCrypt.Net.BCrypt.HashPassword("pass") };
             userRepo.Setup(r => r.GetByUsernameAsync("test")).ReturnsAsync(user);
             jwtGen.Setup(j => j.GenerateToken(user)).Returns("token");
-            var service = new AuthService(userRepo.Object, currencyRepo.Object, jwtGen.Object, walletRepo.Object);
+            var service = new AuthService(userRepo.Object, currencyRepo.Object, jwtGen.Object, walletRepo.Object, walletTxService.Object);
 
             // Act
             var token = await service.LoginAsync("test", "pass");
@@ -44,11 +45,12 @@ namespace Tests.Services
             var currencyRepo = new Mock<ICurrencyRepository>();
             var jwtGen = new Mock<IJwtTokenGenerator>();
             var walletRepo = new Mock<IWalletRepository>();
+            var walletTxService = new Mock<IWalletTransactionService>();
             var user = new Player { Id = Guid.NewGuid(), Username = "test", Email = "test@email.com", PasswordHash = BCrypt.Net.BCrypt.HashPassword("pass") };
             userRepo.Setup(r => r.GetByUsernameAsync("test@email.com")).ReturnsAsync((Player?)null);
             userRepo.Setup(r => r.GetByEmailAsync("test@email.com")).ReturnsAsync(user);
             jwtGen.Setup(j => j.GenerateToken(user)).Returns("token");
-            var service = new AuthService(userRepo.Object, currencyRepo.Object, jwtGen.Object, walletRepo.Object);
+            var service = new AuthService(userRepo.Object, currencyRepo.Object, jwtGen.Object, walletRepo.Object, walletTxService.Object);
 
             // Act
             var token = await service.LoginAsync("test@email.com", "pass");
@@ -64,9 +66,10 @@ namespace Tests.Services
             var currencyRepo = new Mock<ICurrencyRepository>();
             var jwtGen = new Mock<IJwtTokenGenerator>();
             var walletRepo = new Mock<IWalletRepository>();
+            var walletTxService = new Mock<IWalletTransactionService>();
             userRepo.Setup(r => r.GetByUsernameAsync("test")).ReturnsAsync((Player?)null);
             userRepo.Setup(r => r.GetByEmailAsync("test")).ReturnsAsync((Player?)null);
-            var service = new AuthService(userRepo.Object, currencyRepo.Object, jwtGen.Object, walletRepo.Object);
+            var service = new AuthService(userRepo.Object, currencyRepo.Object, jwtGen.Object, walletRepo.Object, walletTxService.Object);
 
             await Assert.ThrowsAsync<UnauthorizedAccessException>(() => service.LoginAsync("test", "wrong"));
         }
@@ -78,8 +81,9 @@ namespace Tests.Services
             var currencyRepo = new Mock<ICurrencyRepository>();
             var jwtGen = new Mock<IJwtTokenGenerator>();
             var walletRepo = new Mock<IWalletRepository>();
+            var walletTxService = new Mock<IWalletTransactionService>();
             userRepo.Setup(r => r.UsernameExistsAsync("test")).ReturnsAsync(true);
-            var service = new AuthService(userRepo.Object, currencyRepo.Object, jwtGen.Object, walletRepo.Object);
+            var service = new AuthService(userRepo.Object, currencyRepo.Object, jwtGen.Object, walletRepo.Object, walletTxService.Object);
 
             await Assert.ThrowsAsync<UserAlreadyExistsException>(() => service.RegisterAsync("test", "pass", "test@email.com", 1, 1));
         }
@@ -92,6 +96,7 @@ namespace Tests.Services
             var currencyRepo = new Mock<ICurrencyRepository>();
             var jwtGen = new Mock<IJwtTokenGenerator>();
             var walletRepo = new Mock<IWalletRepository>();
+            var walletTxService = new Mock<IWalletTransactionService>();
             userRepo.Setup(r => r.UsernameExistsAsync("newuser")).ReturnsAsync(false);
             Player? addedPlayer = null;
             userRepo.Setup(r => r.AddAsync(It.IsAny<Player>()))
@@ -104,7 +109,11 @@ namespace Tests.Services
             // Setup walletRepo to accept any wallet
             walletRepo.Setup(r => r.AddAsync(It.IsAny<Wallet>())).Returns(Task.CompletedTask);
 
-            var service = new AuthService(userRepo.Object, currencyRepo.Object, jwtGen.Object, walletRepo.Object);
+            // Setup walletTxService to accept any checkpoint
+            walletTxService.Setup(s => s.CheckpointWalletAsync(It.IsAny<Wallet>(), It.IsAny<decimal>()))
+                .ReturnsAsync(new WalletTransaction());
+
+            var service = new AuthService(userRepo.Object, currencyRepo.Object, jwtGen.Object, walletRepo.Object, walletTxService.Object);
 
             // Act
             await service.RegisterAsync("newuser", "newpass", "new@email.com", 1, 0);

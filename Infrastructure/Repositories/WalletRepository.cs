@@ -48,5 +48,12 @@ namespace Infrastructure.Repositories
             // If not found, FirstOrDefaultAsync returns default(Guid) which is Guid.Empty
             return wallet == Guid.Empty ? (Guid?)null : wallet;
         }
+
+        public async Task<Wallet?> GetByIdAsync(Guid walletId)
+        {
+            return await _context.Wallets
+                .Include(w => w.Currency)
+                .FirstOrDefaultAsync(w => w.Id == walletId);
+        }
     }
 }

@@ -9,5 +9,6 @@ namespace Application.Interfaces.Repositories
     {
         Task<WalletTransaction> GetByIdAsync(Guid id);
         Task AddAsync(WalletTransaction transaction);
+        Task<List<WalletTransaction>> GetByWalletIdAsync(Guid walletId); // Added method
     }
 }

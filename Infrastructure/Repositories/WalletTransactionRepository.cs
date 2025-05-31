@@ -29,5 +29,13 @@ namespace Infrastructure.Repositories
             _context.WalletTransactions.Add(transaction);
             await _context.SaveChangesAsync();
         }
+
+        public async Task<List<WalletTransaction>> GetByWalletIdAsync(Guid walletId)
+        {
+            return await _context.WalletTransactions
+                .Include(wt => wt.TransactionType)
+                .Where(wt => wt.WalletId == walletId)
+                .ToListAsync();
+        }
     }
 }

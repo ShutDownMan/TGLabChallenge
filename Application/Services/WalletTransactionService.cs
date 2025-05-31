@@ -6,6 +6,8 @@ using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
 
+using TransactionTypeEnum = Domain.Enums.TransactionType;
+
 namespace Application.Services
 {
     public class WalletTransactionService : IWalletTransactionService
@@ -34,7 +36,7 @@ namespace Application.Services
                 Id = Guid.NewGuid(),
                 WalletId = wallet.Id,
                 BetId = betId,
-                TransactionTypeId = (int)TransactionType.Debit,
+                TransactionTypeId = (int)TransactionTypeEnum.Debit,
                 Amount = Math.Abs(amount),
                 CreatedAt = DateTime.UtcNow
             };
@@ -49,7 +51,7 @@ namespace Application.Services
                 Id = Guid.NewGuid(),
                 WalletId = wallet.Id,
                 BetId = betId,
-                TransactionTypeId = (int)TransactionType.Credit,
+                TransactionTypeId = (int)TransactionTypeEnum.Credit,
                 Amount = Math.Abs(amount),
                 CreatedAt = DateTime.UtcNow
             };
@@ -63,7 +65,7 @@ namespace Application.Services
             {
                 Id = Guid.NewGuid(),
                 WalletId = wallet.Id,
-                TransactionTypeId = (int)TransactionType.Checkpoint,
+                TransactionTypeId = (int)TransactionTypeEnum.Checkpoint,
                 Amount = checkpointAmount,
                 CreatedAt = DateTime.UtcNow
             };

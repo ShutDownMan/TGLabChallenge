@@ -71,9 +71,14 @@ namespace Application.Services
 
                 _logger.LogInformation("Debited wallet. WalletId: {WalletId}, NewBalance: {Balance}", wallet.Id, wallet.Balance);
 
-                // Update wallet
-                await _walletService.UpdateWalletAsync(wallet);
-                _logger.LogInformation("Wallet updated. WalletId: {WalletId}", wallet.Id);
+                var refreshedWallet = await _walletService.GetWalletByIdAsync(wallet.Id);
+                if (refreshedWallet == null)
+                {
+                    _logger.LogWarning("Refreshed wallet not found. WalletId: {WalletId}", wallet.Id);
+                    throw new InvalidOperationException("Refreshed wallet not found.");
+                }
+
+                _logger.LogInformation("Fetched refreshed wallet. WalletId: {WalletId}, Balance: {Balance}", refreshedWallet.Id, refreshedWallet.Balance);
 
                 var betEntity = _mapper.Map<Bet>(betDTO);
                 betEntity.StatusId = (int)BetStatusEnum.Created;

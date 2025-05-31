@@ -11,5 +11,6 @@ namespace Application.Interfaces.Repositories
         Task<List<Wallet>> GetWalletsByPlayerIdAsync(Guid playerId);
         Task UpdateAsync(Wallet wallet);
         Task<Guid?> GetPlayerByWalletIdAsync(Guid walletId);
+        Task<Wallet?> GetByIdAsync(Guid walletId);
     }
 }

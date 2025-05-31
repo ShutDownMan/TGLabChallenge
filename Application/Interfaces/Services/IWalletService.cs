@@ -9,6 +9,7 @@ namespace Application.Interfaces.Services
     {
         Task<List<Wallet>> GetWalletsByPlayerIdAsync(Guid playerId);
         Task<Guid?> GetPlayerByWalletIdAsync(Guid walletId);
+        Task<Wallet?> GetWalletByIdAsync(Guid walletId);
         Task UpdateWalletAsync(Wallet wallet);
 
         Task<WalletTransaction> DebitWalletAsync(Wallet wallet, decimal amount, Guid? betId = null);

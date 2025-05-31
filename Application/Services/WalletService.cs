@@ -30,6 +30,11 @@ namespace Application.Services
             return await _walletRepository.GetPlayerByWalletIdAsync(walletId);
         }
 
+        public async Task<Wallet?> GetWalletByIdAsync(Guid walletId)
+        {
+            return await _walletRepository.GetByIdAsync(walletId);
+        }
+
         public async Task UpdateWalletAsync(Wallet wallet)
         {
             await _walletRepository.UpdateAsync(wallet);

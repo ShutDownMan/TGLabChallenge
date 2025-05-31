@@ -21,12 +21,6 @@ namespace Application.Models
                 .WithMessage("CurrencyId must be greater than 0.")
                 .WithErrorCode("CURRENCYID_GREATER_THAN_ZERO");
 
-            RuleFor(x => x.Prize)
-                .GreaterThanOrEqualTo(0)
-                .When(x => x.Prize.HasValue)
-                .WithMessage("Prize must be non-negative.")
-                .WithErrorCode("PRIZE_NON_NEGATIVE");
-
             RuleFor(x => x.CreatedAt)
                 .LessThanOrEqualTo(DateTime.UtcNow)
                 .WithMessage("CreatedAt must be in the past or present.")
