@@ -1,5 +1,5 @@
 @API_HostAddress = https://localhost:44354
-@JWTToken = eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJodHRwOi8vc2NoZW1hcy54bWxzb2FwLm9yZy93cy8yMDA1LzA1L2lkZW50aXR5L2NsYWltcy9uYW1laWRlbnRpZmllciI6IjJjMmQxZDZhLWMzZWEtNGViMC1iZmRkLTZhOTYzYTIzNWZmYiIsImh0dHA6Ly9zY2hlbWFzLnhtbHNvYXAub3JnL3dzLzIwMDUvMDUvaWRlbnRpdHkvY2xhaW1zL25hbWUiOiJqZXN1aXNqZWRpIiwiZXhwIjoxNzQ4NjU4NjI1LCJpc3MiOiJ5b3VySXNzdWVyIiwiYXVkIjoieW91ckF1ZGllbmNlIn0.uSSLSWRxTWnxuaHf-5FY-qR4JdgN8Odgq8ZagwZUIj4
+@JWTToken = eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJodHRwOi8vc2NoZW1hcy54bWxzb2FwLm9yZy93cy8yMDA1LzA1L2lkZW50aXR5L2NsYWltcy9uYW1laWRlbnRpZmllciI6IjRhYjhlMDk3LWE2NWEtNGJlNS05YzYyLTkzYWMxZGM1NGFmMiIsImh0dHA6Ly9zY2hlbWFzLnhtbHNvYXAub3JnL3dzLzIwMDUvMDUvaWRlbnRpdHkvY2xhaW1zL25hbWUiOiJqZXN1aXNqZWRpIiwiZXhwIjoxNzQ4NjcwMzU4LCJpc3MiOiJ5b3VySXNzdWVyIiwiYXVkIjoieW91ckF1ZGllbmNlIn0.uLIwXaUueEmfT7U3N8qzro56xKHwtJLY3o61z6jQTPc
 
 // --- Public endpoints ---
 
@@ -28,7 +28,7 @@ POST {{API_HostAddress}}/api/Auth/login
 Content-Type: application/json
 
 {
-  "username": "jesuisjedi",
+  "identifier": "jesuisjedi",
   "password": "123456Sete"
 }
 

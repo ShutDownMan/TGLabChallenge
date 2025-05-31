@@ -11,7 +11,7 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace Infrastructure.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-    [Migration("20250531033025_InitialCreate")]
+    [Migration("20250531044326_InitialCreate")]
     partial class InitialCreate
     {
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -31,6 +31,9 @@ namespace Infrastructure.Migrations
                     b.Property<DateTime>("CreatedAt")
                         .HasColumnType("TEXT");
 
+                    b.Property<Guid>("GameId")
+                        .HasColumnType("TEXT");
+
                     b.Property<Guid>("PlayerId")
                         .HasColumnType("TEXT");
 
@@ -41,6 +44,8 @@ namespace Infrastructure.Migrations
                         .HasColumnType("INTEGER");
 
                     b.HasKey("Id");
+
+                    b.HasIndex("GameId");
 
                     b.HasIndex("PlayerId");
 
@@ -101,6 +106,27 @@ namespace Infrastructure.Migrations
                             Code = "BRL",
                             Name = "Brazilian Real"
                         });
+                });
+
+            modelBuilder.Entity("Domain.Entities.Game", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("TEXT");
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("TEXT");
+
+                    b.Property<string>("Description")
+                        .HasColumnType("TEXT");
+
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasColumnType("TEXT");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("Games");
                 });
 
             modelBuilder.Entity("Domain.Entities.Player", b =>
@@ -205,6 +231,12 @@ namespace Infrastructure.Migrations
 
             modelBuilder.Entity("Domain.Entities.Bet", b =>
                 {
+                    b.HasOne("Domain.Entities.Game", "Game")
+                        .WithMany("Bets")
+                        .HasForeignKey("GameId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
                     b.HasOne("Domain.Entities.Player", "Player")
                         .WithMany("Bets")
                         .HasForeignKey("PlayerId")
@@ -216,6 +248,8 @@ namespace Infrastructure.Migrations
                         .HasForeignKey("StatusId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
+
+                    b.Navigation("Game");
 
                     b.Navigation("Player");
 
@@ -264,6 +298,11 @@ namespace Infrastructure.Migrations
                     b.Navigation("TransactionType");
 
                     b.Navigation("Wallet");
+                });
+
+            modelBuilder.Entity("Domain.Entities.Game", b =>
+                {
+                    b.Navigation("Bets");
                 });
 
             modelBuilder.Entity("Domain.Entities.Player", b =>

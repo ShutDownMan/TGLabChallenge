@@ -22,13 +22,13 @@ namespace Application.Services
             _currencyRepository = currencyRepository;
         }
 
-        public async Task<string> LoginAsync(string usernameOrEmail, string password)
+        public async Task<string> LoginAsync(string identifier, string password)
         {
-            Player? user = await _userRepository.GetByUsernameAsync(usernameOrEmail);
+            Player? user = await _userRepository.GetByUsernameAsync(identifier);
             if (user == null)
             {
                 // Try by email if not found by username
-                user = await _userRepository.GetByEmailAsync(usernameOrEmail);
+                user = await _userRepository.GetByEmailAsync(identifier);
             }
             if (user == null || !BCrypt.Net.BCrypt.Verify(password, user.PasswordHash))
             {

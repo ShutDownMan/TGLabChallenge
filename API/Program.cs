@@ -12,6 +12,7 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
 using System.Text;
+using FluentValidation;
 
 namespace API
 {
@@ -22,6 +23,9 @@ namespace API
             var builder = WebApplication.CreateBuilder(args);
 
             builder.Services.AddControllers();
+            builder.Services.AddFluentValidationAutoValidation();
+            builder.Services.AddFluentValidationClientsideAdapters();
+            builder.Services.AddValidatorsFromAssemblyContaining<RegisterRequest>();
             builder.Services.AddEndpointsApiExplorer();
             builder.Services.AddSwaggerGen(setup =>
             {
@@ -66,8 +70,6 @@ namespace API
             builder.Services.AddScoped<IPlayerService, PlayerService>();
 
             builder.Services.AddScoped<IBetService, BetService>();
-
-            builder.Services.AddFluentValidationAutoValidation();
 
             builder.Services.AddAuthentication("Bearer")
                 .AddJwtBearer("Bearer", options =>

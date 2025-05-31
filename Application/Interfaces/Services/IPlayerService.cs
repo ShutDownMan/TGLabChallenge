@@ -5,6 +5,6 @@ namespace Application.Interfaces.Services
 {
     public interface IPlayerService
     {
-        Task<PlayerProfileDto?> GetProfileAsync(Guid userId);
+        Task<PlayerProfileDto?> GetProfileAsync(Guid playerId);
     }
 }

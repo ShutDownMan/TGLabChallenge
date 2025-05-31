@@ -35,12 +35,12 @@ namespace API.Controllers
             ValidationResult validationResult = await _loginValidator.ValidateAsync(request);
             if (!validationResult.IsValid)
             {
-                return BadRequest(validationResult.Errors);
+                return BadRequest(validationResult);
             }
 
             try
             {
-                var token = await _authService.LoginAsync(request.UsernameOrEmail, request.Password);
+                var token = await _authService.LoginAsync(request.Identifier, request.Password);
                 return Ok(new { token });
             }
             catch (UnauthorizedAccessException ex)
