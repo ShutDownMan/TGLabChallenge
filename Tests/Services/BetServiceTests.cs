@@ -363,18 +363,22 @@ namespace Tests.Services
             var betId = Guid.NewGuid();
             var walletId = Guid.NewGuid();
             var gameId = Guid.NewGuid();
-            var bet = new Bet { Id = betId, StatusId = (int)BetStatusEnum.Created, Amount = 50, WalletId = walletId, GameId = gameId };
-            var game = new Game { Id = gameId };
+            var betAmount = 50m;
+            var odds = 2.00m;
+            var expectedPayout = betAmount / (1 / odds);
+
+            var bet = new Bet { Id = betId, StatusId = (int)BetStatusEnum.Created, Amount = betAmount, WalletId = walletId, GameId = gameId };
+            var game = new Game { Id = gameId, Odds = odds };
             var wallet = new Wallet { Id = walletId };
             var currency = new Currency { Id = 1, Code = "USD" };
 
             _betRepo.Setup(r => r.GetByIdAsync(betId)).ReturnsAsync(bet);
             _gameService.Setup(s => s.GetGameByIdAsync(gameId)).ReturnsAsync(game);
             _walletService.Setup(s => s.GetWalletByIdAsync(walletId)).ReturnsAsync(wallet);
-            _walletService.Setup(s => s.CreditWalletAsync(wallet, 100, betId)).ReturnsAsync(new WalletTransaction());
+            _walletService.Setup(s => s.CreditWalletAsync(wallet, expectedPayout, betId)).ReturnsAsync(new WalletTransaction());
             _walletService.Setup(s => s.GetCurrencyByWalletIdAsync(walletId)).ReturnsAsync(currency);
             _betRepo.Setup(r => r.UpdateAsync(It.IsAny<Bet>())).ReturnsAsync(bet);
-            _mapper.Setup(m => m.Map<BetDTO>(It.IsAny<Bet>())).Returns(new BetDTO { Id = betId, StatusId = (int)BetStatusEnum.Settled, Payout = 100 });
+            _mapper.Setup(m => m.Map<BetDTO>(It.IsAny<Bet>())).Returns(new BetDTO { Id = betId, StatusId = (int)BetStatusEnum.Settled, Payout = expectedPayout });
             _randomService.Setup(s => s.GetRandomBoolean()).Returns(true);
 
             var service = CreateService();
@@ -386,7 +390,7 @@ namespace Tests.Services
 
             #region Assert
             Assert.NotNull(result);
-            Assert.Equal(100, result.Payout);
+            Assert.Equal(expectedPayout, result.Payout);
             Assert.Equal((int)BetStatusEnum.Settled, result.StatusId);
             #endregion
         }

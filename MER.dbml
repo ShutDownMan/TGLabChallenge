@@ -47,8 +47,8 @@ Table TransactionType {
 
 Table Wallet {
   Id UUID [pk]
-  PlayerId UUID [ref: > Player.Id]
   CurrencyId int [ref: > Currency.Id]
+  PlayerId UUID [ref: > Player.Id]
   Balance decimal(18,2) [not null, default: 0.00]
   CreatedAt datetime [not null]
 }
@@ -62,4 +62,5 @@ Table Game {
   CancelTaxPercentage decimal(5,2) [not null, default: 0.00]
   CreatedAt datetime [not null]
   ConsecutiveLossBonusThreshold int [default: null]
+  Odds decimal(18,2) [not null, default: 1.00]
 }

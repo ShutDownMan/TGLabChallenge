@@ -301,8 +301,8 @@ namespace Application.Services
                     return _mapper.Map<BetDTO>(bet);
                 }
 
-                // For demonstration, let's assume payout is double the bet amount
-                var payout = bet.Amount * 2;
+                // Calculate payout based on game's Odds attribute
+                var payout = bet.Amount / (1 / game.Odds);
 
                 // Credit the wallet with payout
                 var wallet = await _walletService.GetWalletByIdAsync(bet.WalletId);

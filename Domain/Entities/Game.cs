@@ -14,6 +14,7 @@ namespace Domain.Entities
         public DateTime CreatedAt { get; set; }
         public int? ConsecutiveLossBonusThreshold { get; set; }
         public decimal ConsecutiveLossBonusPercentage { get; set; } = 0.10m;
+        public decimal Odds { get; set; } = 2.00m;
 
         public List<Bet> Bets { get; set; } = new();
     }
