@@ -35,11 +35,13 @@ ENV ASPNETCORE_Kestrel__Certificates__Default__Password=${CERTIFICATE_PASSWORD}
 
 RUN printenv
 
+# Install dos2unix
+RUN apt-get update && apt-get install -y dos2unix && rm -rf /var/lib/apt/lists/*
+
 # Copy entrypoint script
 COPY ./API/entrypoint.sh /app/entrypoint.sh
+RUN dos2unix /app/entrypoint.sh
 RUN chmod +x /app/entrypoint.sh
 
 # Use entrypoint script
 ENTRYPOINT ["/app/entrypoint.sh"]
-
-# ENTRYPOINT ["dotnet", "API.dll"]
