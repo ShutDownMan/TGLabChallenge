@@ -7,6 +7,7 @@ using System.Security.Cryptography;
 using System.Text;
 using System.Threading.Tasks;
 using System.Transactions;
+using Microsoft.Extensions.Logging;
 
 namespace Application.Services
 {
@@ -20,19 +21,22 @@ namespace Application.Services
         private readonly IJwtTokenGenerator _jwtTokenGenerator;
         private readonly IWalletRepository _walletRepository;
         private readonly IWalletTransactionService _walletTransactionService;
+        private readonly ILogger<AuthService> _logger;
 
         public AuthService(
             IPlayerService playerService,
             ICurrencyService currencyService,
             IJwtTokenGenerator jwtTokenGenerator,
             IWalletRepository walletRepository,
-            IWalletTransactionService walletTransactionService)
+            IWalletTransactionService walletTransactionService,
+            ILogger<AuthService> logger)
         {
             _playerService = playerService;
             _currencyService = currencyService;
             _jwtTokenGenerator = jwtTokenGenerator;
             _walletRepository = walletRepository;
             _walletTransactionService = walletTransactionService;
+            _logger = logger;
         }
 
         /// <summary>
@@ -44,17 +48,22 @@ namespace Application.Services
         /// <exception cref="UnauthorizedAccessException">Thrown if the credentials are invalid.</exception>
         public async Task<string> LoginAsync(string identifier, string password)
         {
+            _logger.LogDebug("Starting LoginAsync for Identifier: {Identifier}", identifier);
+
             Player? user = await _playerService.GetByUsernameAsync(identifier);
             if (user == null)
             {
-                // Try by email if not found by username
+                _logger.LogDebug("User not found by username. Trying email for Identifier: {Identifier}", identifier);
                 user = await _playerService.GetByEmailAsync(identifier);
             }
+
             if (user == null || !BCrypt.Net.BCrypt.Verify(password, user.PasswordHash))
             {
+                _logger.LogWarning("Invalid credentials for Identifier: {Identifier}", identifier);
                 throw new UnauthorizedAccessException("Invalid credentials.");
             }
 
+            _logger.LogInformation("Login successful for UserId: {UserId}", user.Id);
             return _jwtTokenGenerator.GenerateToken(user);
         }
 
@@ -70,26 +79,32 @@ namespace Application.Services
         /// <exception cref="InvalidOperationException">Thrown if the provided currency ID is invalid.</exception>
         public async Task RegisterAsync(string username, string password, string email, int? currencyId, decimal? initialBalance)
         {
+            _logger.LogDebug("Starting RegisterAsync for Username: {Username}, Email: {Email}", username, email);
+
             // Check if username is already taken
             if (await _playerService.UsernameExistsAsync(username))
             {
+                _logger.LogWarning("Username already exists: {Username}", username);
                 throw new UserAlreadyExistsException("Username already exists.");
             }
 
             // check if email is already registered
             if (await _playerService.EmailExistsAsync(email))
             {
+                _logger.LogWarning("Email already registered: {Email}", email);
                 throw new UserAlreadyExistsException("Email already registered.");
             }
 
             // Validate currency ID
             if (currencyId == null)
             {
+                _logger.LogDebug("CurrencyId not provided. Fetching default currency.");
                 var defaultCurrency = await _currencyService.GetDefaultCurrencyAsync();
                 currencyId = defaultCurrency.Id;
             }
             else if (!await _currencyService.CurrencyExistsAsync(currencyId.Value))
             {
+                _logger.LogWarning("Invalid currency ID: {CurrencyId}", currencyId);
                 throw new InvalidOperationException("Invalid currency ID.");
             }
 
@@ -110,6 +125,7 @@ namespace Application.Services
                     CreatedAt = DateTime.UtcNow
                 };
                 await _playerService.AddAsync(player);
+                _logger.LogDebug("Player created with ID: {PlayerId}", player.Id);
 
                 // Create wallet for the user with initial balance
                 var wallet = new Wallet
@@ -121,16 +137,19 @@ namespace Application.Services
                     CreatedAt = DateTime.UtcNow
                 };
                 await _walletRepository.AddAsync(wallet);
+                _logger.LogDebug("Wallet created with ID: {WalletId} for PlayerId: {PlayerId}", wallet.Id, player.Id);
 
                 // Create initial checkpoint transaction for the wallet
                 await _walletTransactionService.CheckpointWalletAsync(wallet, wallet.Balance, null);
+                _logger.LogDebug("Initial checkpoint transaction created for WalletId: {WalletId}", wallet.Id);
 
                 // Commit the transaction
                 scope.Complete();
+                _logger.LogInformation("RegisterAsync completed successfully for Username: {Username}, Email: {Email}", username, email);
             }
-            catch
+            catch (Exception ex)
             {
-                // Transaction will be rolled back if not completed
+                _logger.LogError(ex, "Error occurred during RegisterAsync for Username: {Username}, Email: {Email}", username, email);
                 throw;
             }
             finally
@@ -147,7 +166,10 @@ namespace Application.Services
         /// <returns>True if the token is valid; otherwise, false.</returns>
         public async Task<bool> ValidateTokenAsync(string token)
         {
-            return _jwtTokenGenerator.ValidateToken(token);
+            _logger.LogDebug("Starting ValidateTokenAsync for Token: {Token}", token);
+            var isValid = _jwtTokenGenerator.ValidateToken(token);
+            _logger.LogDebug("Token validation result for Token: {Token} is {IsValid}", token, isValid);
+            return isValid;
         }
     }
 }

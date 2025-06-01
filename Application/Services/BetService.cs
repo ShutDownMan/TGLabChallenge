@@ -26,9 +26,9 @@ namespace Application.Services
         private readonly IWalletService _walletService;
         private readonly IWalletTransactionService _walletTransactionService;
         private readonly IGameService _gameService;
-        private readonly ILogger<BetService> _logger;
         private readonly IUserNotificationService _userNotificationService;
         private readonly IRandomService _randomService;
+        private readonly ILogger<BetService> _logger;
 
         public BetService(
             IBetRepository betRepository,
@@ -36,18 +36,18 @@ namespace Application.Services
             IWalletService walletService,
             IWalletTransactionService walletTransactionService,
             IGameService gameService,
-            ILogger<BetService> logger,
             IUserNotificationService userNotificationService,
-            IRandomService randomService)
+            IRandomService randomService,
+            ILogger<BetService> logger)
         {
             _betRepository = betRepository;
             _mapper = mapper;
             _walletService = walletService;
             _walletTransactionService = walletTransactionService;
             _gameService = gameService;
-            _logger = logger;
             _userNotificationService = userNotificationService;
             _randomService = randomService;
+            _logger = logger;
         }
 
         /// <summary>
@@ -91,7 +91,11 @@ namespace Application.Services
                     throw new InvalidOperationException("Refreshed wallet not found.");
                 }
 
-                _logger.LogDebug("Fetched refreshed wallet. WalletId: {WalletId}, Balance: {Balance}", refreshedWallet.Id, refreshedWallet.Balance);
+                _logger.LogDebug(
+                    "Fetched refreshed wallet. WalletId: {WalletId}, Balance: {Balance}",
+                    refreshedWallet.Id,
+                    refreshedWallet.Balance
+                );
 
                 _logger.LogInformation("PlaceBetAsync completed successfully for BetId: {BetId}", betEntity.Id);
 
@@ -180,7 +184,9 @@ namespace Application.Services
                     throw new KeyNotFoundException("Bet not found.");
 
                 if (bet.StatusId != (int)BetStatusEnum.Created)
-                    throw new InvalidOperationException($"Cannot cancel a bet with status '{((BetStatusEnum)bet.StatusId).ToString()}'.");
+                    throw new InvalidOperationException(
+                        $"Cannot cancel a bet with status '{((BetStatusEnum)bet.StatusId).ToString()}'."
+                    );
 
                 // Fetch game using GameService
                 var game = await _gameService.GetGameByIdAsync(bet.GameId);
@@ -205,7 +211,13 @@ namespace Application.Services
                 bet.StatusId = (int)BetStatusEnum.Cancelled;
                 bet.Note = cancelReason;
                 bet.LastUpdatedAt = DateTime.UtcNow;
-                _logger.LogDebug("Cancelling bet with ID: {BetId}, Reason: {CancelReason}, Tax: {TaxAmount}, Refund: {RefundAmount}", betId, cancelReason, taxAmount, refundAmount);
+                _logger.LogDebug(
+                    "Cancelling bet with ID: {BetId}, Reason: {CancelReason}, Tax: {TaxAmount}, Refund: {RefundAmount}",
+                    betId,
+                    cancelReason,
+                    taxAmount,
+                    refundAmount
+                );
 
                 await _betRepository.UpdateAsync(bet);
 
@@ -253,7 +265,9 @@ namespace Application.Services
                     throw new KeyNotFoundException("Bet not found.");
 
                 if (bet.StatusId != (int)BetStatusEnum.Created)
-                    throw new InvalidOperationException($"Cannot settle a bet with status '{((BetStatusEnum)bet.StatusId).ToString()}'.");
+                    throw new InvalidOperationException(
+                        $"Cannot settle a bet with status '{((BetStatusEnum)bet.StatusId).ToString()}'."
+                    );
 
                 var game = await _gameService.GetGameByIdAsync(bet.GameId);
                 if (game == null)
@@ -298,7 +312,11 @@ namespace Application.Services
                 if (currency == null)
                     throw new InvalidOperationException("Currency not found for wallet.");
 
-                bet.Note = $"Bet settled: player won, payout {payout.ToString("F2", System.Globalization.CultureInfo.InvariantCulture)} {currency.Code}.";
+                bet.Note = string.Format(
+                    "Bet settled: player won, payout {0} {1}.",
+                    payout.ToString("F2", System.Globalization.CultureInfo.InvariantCulture),
+                    currency.Code
+                );
 
                 _logger.LogDebug("Settling bet with ID: {BetId}, Payout: {Payout}", betId, payout);
 
@@ -383,12 +401,23 @@ namespace Application.Services
         {
             if (betDTO.Amount < game.MinimalBetAmount)
             {
-                _logger.LogWarning("Bet amount below minimum. GameId: {GameId}, MinimalBetAmount: {MinimalBetAmount}, BetAmount: {BetAmount}", betDTO.GameId, game.MinimalBetAmount, betDTO.Amount);
+                _logger.LogWarning(
+                    "Bet amount below minimum. GameId: {GameId}, MinimalBetAmount: {MinimalBetAmount}, BetAmount: {BetAmount}",
+                    betDTO.GameId,
+                    game.MinimalBetAmount,
+                    betDTO.Amount
+                );
                 throw new InvalidOperationException($"Bet amount must be at least {game.MinimalBetAmount}.");
             }
             if (betDTO.CurrencyId != game.MinimalBetCurrencyId)
             {
-                _logger.LogWarning("Bet currency does not match game's minimal bet currency. GameId: {GameId}, GameCurrencyId: {GameCurrencyId}, BetCurrencyId: {BetCurrencyId}", betDTO.GameId, game.MinimalBetCurrencyId, betDTO.CurrencyId);
+                _logger.LogWarning(
+                    "Bet currency does not match game's minimal bet currency. " +
+                    "GameId: {GameId}, GameCurrencyId: {GameCurrencyId}, BetCurrencyId: {BetCurrencyId}",
+                    betDTO.GameId,
+                    game.MinimalBetCurrencyId,
+                    betDTO.CurrencyId
+                );
                 throw new InvalidOperationException("Bet currency does not match game's minimal bet currency.");
             }
         }
@@ -403,7 +432,12 @@ namespace Application.Services
         {
             if (wallet.Balance < amount)
             {
-                _logger.LogWarning("Insufficient wallet balance. WalletId: {WalletId}, Balance: {Balance}, BetAmount: {Amount}", wallet.Id, wallet.Balance, amount);
+                _logger.LogWarning(
+                    "Insufficient wallet balance. WalletId: {WalletId}, Balance: {Balance}, BetAmount: {Amount}",
+                    wallet.Id,
+                    wallet.Balance,
+                    amount
+                );
                 throw new InvalidOperationException("Insufficient wallet balance.");
             }
         }

@@ -50,6 +50,7 @@ namespace API.Controllers
         [SwaggerResponse(401, "Unauthorized")]
         public async Task<IActionResult> GetBets()
         {
+            // Extract player id from JWT claims
             var playerIdClaim = User.FindFirst(System.Security.Claims.ClaimTypes.NameIdentifier)?.Value;
             if (string.IsNullOrEmpty(playerIdClaim) || !Guid.TryParse(playerIdClaim, out var playerId))
                 return Unauthorized();
@@ -67,6 +68,7 @@ namespace API.Controllers
         [SwaggerResponse(401, "Unauthorized")]
         public async Task<IActionResult> GetWalletTransactions()
         {
+            // Extract player id from JWT claims
             var playerIdClaim = User.FindFirst(System.Security.Claims.ClaimTypes.NameIdentifier)?.Value;
             if (string.IsNullOrEmpty(playerIdClaim) || !Guid.TryParse(playerIdClaim, out var playerId))
                 return Unauthorized();
