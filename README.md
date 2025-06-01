@@ -1,56 +1,64 @@
 # TGLabChallenge API
 
-## 📖 Sobre o Projeto
+## 📖 About the Project
 
-O TGLabChallenge API é uma aplicação desenvolvida em .NET 6 que implementa funcionalidades de gerenciamento de jogadores, apostas e carteiras. A aplicação utiliza Entity Framework Core para persistência de dados e SignalR para notificações em tempo real.
+The TGLabChallenge API is an application developed in .NET 6 that implements functionalities for managing players, bets, and wallets. The application uses Entity Framework Core for data persistence and SignalR for real-time notifications.
 
-## 📊 Modelo Entidade-Relacionamento
+## 📊 Entity-Relationship Model
 
-O diagrama abaixo representa o modelo entidade-relacionamento (MER) da aplicação:
+The diagram below represents the entity-relationship model (ERM) of the application:
 
-![Modelo Entidade-Relacionamento](MER.svg)
+![Entity-Relationship Model](MER.svg)
 
-## 🚀 Como executar
+## 🚀 How to Run
 
-### Pré-requisitos
+### Prerequisites
 
 - [.NET 6 SDK](https://dotnet.microsoft.com/download/dotnet/6.0)
 - [Docker](https://www.docker.com/)
-- [Visual Studio](https://visualstudio.microsoft.com/) (opcional)
+- [Visual Studio](https://visualstudio.microsoft.com/) (optional)
 
-### Configuração do Banco de Dados
+### Database Configuration
 
-Certifique-se de configurar as variáveis de ambiente no arquivo `.env` para o banco de dados PostgreSQL. Para desenvolvimento local, o banco de dados SQLite será utilizado automaticamente.
+Make sure to configure the environment variables in the `.env` file for the PostgreSQL database. For local development, the SQLite database will be used automatically.
 
-### Migração do Banco de Dados
+### Database Migration
 
-Antes de iniciar a aplicação, execute as migrações para garantir que o banco de dados esteja atualizado:
+Before starting the application, you need to run the migrations to ensure the database is up to date.
+
+You can do this by first **setting the required environment variables** in the `.env` file and then running the following command:
 
 ```bash
 dotnet ef database update --project Infrastructure
 ```
 
-## 🛠️ Modos de Execução
+Or, if using Docker, run the migration service:
 
-### Desenvolvimento
+```bash
+docker compose run --rm migrations
+```
 
-Execute a aplicação localmente com o seguinte comando:
+## 🛠️ Execution Modes
+
+### Development
+
+Run the application locally with the following command:
 
 ```bash
 dotnet run --project API
 ```
 
-### Produção
+### Production
 
-Utilize Docker Compose para executar a aplicação em produção:
+Use Docker Compose to run the application in production:
 
 ```bash
 docker compose up -d
 ```
 
-### Testes
+### Tests
 
-Execute os testes automatizados com o seguinte comando:
+Run automated tests with the following command:
 
 ```bash
 dotnet test
@@ -58,52 +66,108 @@ dotnet test
 
 ### Visual Studio
 
-1. Abra a solução no Visual Studio.
-2. Clique com o botão direito no projeto `API` e selecione **Definir como projeto de inicialização**.
-3. Pressione **CTRL + F5** para iniciar a aplicação.
+1. Open the solution in Visual Studio.
+2. Right-click on the `API` project and select **Set as Startup Project**.
+3. Press **CTRL + F5** to start the application.
 
-#### Rodando Testes no Visual Studio
+#### Running Tests in Visual Studio
 
-1. No menu, vá em **Testar > Executar Todos os Testes** ou pressione **Ctrl + R, A**.
-2. Visualize os resultados na janela **Test Explorer**.
+1. In the menu, go to **Test > Run All Tests** or press **Ctrl + R, A**.
+2. View the results in the **Test Explorer** window.
 
-## 📦 Estrutura do Projeto
+## 📦 Project Structure
 
-- **API**: Contém os controladores e configurações da aplicação.
-- **Application**: Contém os serviços e modelos de negócio.
-- **Domain**: Define as entidades e enums do domínio.
-- **Infrastructure**: Implementa a persistência de dados e configurações do banco de dados.
-- **Tests**: Contém os testes unitários e de integração.
+- **API**: Contains the controllers and application configurations.
+- **Application**: Contains the services and business models.
+- **Domain**: Defines the domain entities and enums.
+- **Infrastructure**: Implements data persistence and database configurations.
+- **Tests**: Contains unit and integration tests.
 
-## 🛡️ Segurança
+### WebDashboard
 
-A aplicação utiliza autenticação JWT para proteger as APIs. Certifique-se de configurar as chaves e parâmetros JWT no arquivo `appsettings.json`.
+The `WebDashboard` is a React application that serves as a dashboard for testing the API endpoints. It allows users to input a JWT token and interact with authentication, player, and bet endpoints.
 
-### Certificado HTTPS para Produção
+#### Prerequisites
 
-Para testes de deploy em produção, o arquivo `localhost.pfx` é utilizado como certificado HTTPS. O caminho e a senha do certificado são configurados por meio de variáveis de ambiente no arquivo `.env`:
+- [Node.js](https://nodejs.org/)
+- [npm](https://www.npmjs.com/)
+
+#### How to Run
+
+1. Navigate to the `WebDashboard` directory:
+   ```bash
+   cd WebDashboard
+   ```
+
+2. Install dependencies:
+   ```bash
+   npm install
+   ```
+
+3. Start the development server:
+   ```bash
+   npm start
+   ```
+
+4. Access the dashboard in the browser at `http://localhost:3000`.
+
+#### Docker
+
+The application can also be run using Docker. Make sure Docker is installed and run the following commands:
+
+1. Build the Docker image:
+   ```bash
+   docker build -t web-dashboard .
+   ```
+
+2. Run the container:
+   ```bash
+   docker run -p 80:80 web-dashboard
+   ```
+
+Access the dashboard in the browser at `http://localhost`.
+
+## 🛡️ Security
+
+The application uses JWT authentication to protect the APIs. Make sure to configure the JWT keys and parameters in the `appsettings.json` file.
+
+### HTTPS Certificate for Production
+
+For production deployment testing, the `localhost.pfx` file is used as the HTTPS certificate. The path and password for the certificate are configured via environment variables in the `.env` file:
 
 ```env
 CERTIFICATE_PATH=./localhost.pfx
 CERTIFICATE_PASSWORD=123456Sete
 ```
 
-Certifique-se de substituir essas variáveis por valores seguros antes de realizar o deploy em produção real. Além disso, configure o uso do certificado no pipeline da aplicação no arquivo `Program.cs`.
+Make sure to replace these variables with secure values before deploying to real production. Additionally, configure the certificate usage in the application pipeline in the `Program.cs` file.
 
-Certifique-se de armazenar o certificado e a senha em um local seguro e configurar variáveis de ambiente apropriadas para produção.
+Ensure the certificate and password are stored securely and appropriate environment variables are set for production.
 
-## 📚 Documentação da API
+## 📚 API Documentation
 
-A documentação da API pode ser acessada em `/swagger` quando a aplicação estiver em execução (no modo de desenvolvimento).
+The API documentation can be accessed at `/swagger` when the application is running (in development mode).
+
+The development flag is present in the `launchSettings.json` file and can be activated to enable Swagger:
+
+```json
+"profiles": {
+  "API": {
+    "environmentVariables": {
+      "ASPNETCORE_ENVIRONMENT": "Development"
+    }
+  }
+}
+```
 
 ## 🐳 Docker Compose
 
-O arquivo `docker-compose.yml` configura os serviços necessários para execução em produção, incluindo:
+The `docker-compose.yml` file configures the services required for production execution, including:
 
-- **API**: Serviço principal da aplicação.
-- **Migrations**: Serviço para aplicar migrações no banco de dados.
-- **PostgreSQL**: Banco de dados relacional.
+- **API**: Main application service.
+- **Migrations**: Service for applying database migrations.
+- **PostgreSQL**: Relational database.
 
-## 📝 Licença
+## 📝 License
 
-Este projeto está sob a licença MIT. Consulte o arquivo `LICENSE` para mais detalhes.
+This project is licensed under the MIT License. See the `LICENSE` file for more details.
