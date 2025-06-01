@@ -16,11 +16,11 @@ namespace Infrastructure.Repositories
             _context = context;
         }
 
-        public async Task<Bet> GetByIdAsync(Guid id)
+        public async Task<Bet?> GetByIdAsync(Guid id)
         {
             return await _context.Bets
                 .Include(b => b.Wallet)
-                .FirstAsync(b => b.Id == id);
+                .FirstOrDefaultAsync(b => b.Id == id);
         }
 
         public async Task<IEnumerable<Bet>> GetByUserAsync(Guid userId)
