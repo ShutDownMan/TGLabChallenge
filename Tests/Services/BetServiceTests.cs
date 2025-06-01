@@ -476,6 +476,90 @@ namespace Tests.Services
             #endregion
         }
 
+        [Fact]
+        public async Task SettleBetAsync_CorrectBonusAmountCalculation()
+        {
+            // Arrange
+            var walletId = Guid.NewGuid();
+            var gameId = Guid.NewGuid();
+            var betAmount = 100m;
+            var bonusPercentage = 0.25m; // 25% bonus
+
+            var bet = new Bet {
+                Id = Guid.NewGuid(),
+                StatusId = (int)BetStatusEnum.Created,
+                Amount = betAmount,
+                WalletId = walletId,
+                GameId = gameId
+            };
+            var game = new Game {
+                Id = gameId,
+                ConsecutiveLossBonusThreshold = 1,
+                ConsecutiveLossBonusPercentage = bonusPercentage
+            };
+            var wallet = new Wallet { Id = walletId };
+            var expectedBonusAmount = Math.Round(betAmount * bonusPercentage, 2); // 25.00
+
+            _betRepo.Setup(r => r.GetByIdAsync(bet.Id)).ReturnsAsync(bet);
+            _gameService.Setup(s => s.GetGameByIdAsync(gameId)).ReturnsAsync(game);
+            _walletService.Setup(s => s.GetWalletByIdAsync(walletId)).ReturnsAsync(wallet);
+            _walletService.Setup(s => s.GetBetsByWalletIdAsync(walletId))
+                         .ReturnsAsync(new List<Bet> { bet });
+            _randomService.Setup(s => s.GetRandomBoolean()).Returns(false);
+
+            var service = CreateService();
+
+            // Act
+            await service.SettleBetAsync(bet.Id);
+
+            // Assert
+            _walletService.Verify(s => s.CreditWalletAsync(
+                wallet,
+                expectedBonusAmount,
+                It.IsAny<Guid>()
+            ), Times.Once);
+        }
+
+        [Fact]
+        public async Task SettleBetAsync_ZeroBonusPercentage_NoBonus()
+        {
+            // Arrange
+            var walletId = Guid.NewGuid();
+            var gameId = Guid.NewGuid();
+            var bet = new Bet {
+                Id = Guid.NewGuid(),
+                StatusId = (int)BetStatusEnum.Created,
+                Amount = 100,
+                WalletId = walletId,
+                GameId = gameId
+            };
+            var game = new Game {
+                Id = gameId,
+                ConsecutiveLossBonusThreshold = 3,
+                ConsecutiveLossBonusPercentage = 0 // 0% bonus
+            };
+            var wallet = new Wallet { Id = walletId };
+
+            _betRepo.Setup(r => r.GetByIdAsync(bet.Id)).ReturnsAsync(bet);
+            _gameService.Setup(s => s.GetGameByIdAsync(gameId)).ReturnsAsync(game);
+            _walletService.Setup(s => s.GetWalletByIdAsync(walletId)).ReturnsAsync(wallet);
+            _walletService.Setup(s => s.GetBetsByWalletIdAsync(walletId))
+                         .ReturnsAsync(new List<Bet> { bet });
+            _randomService.Setup(s => s.GetRandomBoolean()).Returns(false);
+
+            var service = CreateService();
+
+            // Act
+            await service.SettleBetAsync(bet.Id);
+
+            // Assert
+            _walletService.Verify(s => s.CreditWalletAsync(
+                It.IsAny<Wallet>(),
+                It.IsAny<decimal>(),
+                It.IsAny<Guid>()
+            ), Times.Never);
+        }
+
         #endregion
 
         #endregion

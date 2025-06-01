@@ -64,6 +64,22 @@ services:
       - db-data:/var/lib/postgresql/data
     restart: always
 
+  webdashboard:
+    build:
+      context: .
+      dockerfile: WebDashboard/Dockerfile
+    container_name: webdashboard
+    networks:
+      - intra-service-network
+    ports:
+      - "3000:3000"
+    environment:
+      NODE_ENV: ${NODE_ENV}
+    volumes:
+      - ./WebDashboard:/app:ro
+    # depends_on:
+    #   - api
+
 volumes:
   db-data:
     driver: local

@@ -13,6 +13,7 @@ namespace Domain.Entities
         public decimal CancelTaxPercentage { get; set; } = 0.00m;
         public DateTime CreatedAt { get; set; }
         public int? ConsecutiveLossBonusThreshold { get; set; }
+        public decimal ConsecutiveLossBonusPercentage { get; set; } = 0.10m;
 
         public List<Bet> Bets { get; set; } = new();
     }

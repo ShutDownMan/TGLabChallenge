@@ -58,6 +58,7 @@ namespace Infrastructure.Data
                     MinimalBetAmount = 100,
                     MinimalBetCurrencyId = 1,
                     ConsecutiveLossBonusThreshold = 5,
+                    ConsecutiveLossBonusPercentage = 0.10m,
                     CancelTaxPercentage = 0.05m,
                     CreatedAt = DateTime.UtcNow
                 }

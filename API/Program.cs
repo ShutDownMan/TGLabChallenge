@@ -138,6 +138,18 @@ namespace API
                 });
             #endregion
 
+            #region CORS
+            builder.Services.AddCors(options =>
+            {
+                options.AddDefaultPolicy(policy => policy
+                    .WithOrigins(builder.Configuration.GetSection("Cors:AllowedOrigins").Get<string[]>() ?? Array.Empty<string>())
+                    .AllowAnyHeader()
+                    .AllowAnyMethod()
+                    .AllowCredentials()
+                );
+            });
+            #endregion
+
             #region AppPipeline
             var app = builder.Build();
 
@@ -149,13 +161,14 @@ namespace API
                 app.UseSwaggerUI();
             }
 
-            app.UseHttpsRedirection();
-
+            app.UseCors();
             app.UseAuthentication();
             app.UseAuthorization();
 
             app.MapControllers();
 
+            // Redirection is causing CORS issues
+            // app.UseHttpsRedirection();
             app.Run();
             #endregion
         }

@@ -7,3 +7,6 @@ obj/
 *.tmp
 *.log
 db-data/
+
+node_modules/
+package-lock.json
