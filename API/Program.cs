@@ -73,16 +73,17 @@ namespace API
 
             builder.Services.AddDbContext<AppDbContext>(options =>
             {
-                var connectionString = builder.Environment.IsDevelopment()
+                var environment = Environment.GetEnvironmentVariable("ASPNETCORE_ENVIRONMENT") ?? "Development";
+                var connectionString = environment == "Development"
                     ? builder.Configuration.GetConnectionString("Default")
-                    : builder.Configuration.GetConnectionString("Production");
+                    : $"Host={Environment.GetEnvironmentVariable("POSTGRES_HOST")};Port={Environment.GetEnvironmentVariable("POSTGRES_PORT")};Database={Environment.GetEnvironmentVariable("POSTGRES_DB")};Username={Environment.GetEnvironmentVariable("POSTGRES_USER")};Password={Environment.GetEnvironmentVariable("POSTGRES_PASSWORD")}";
 
                 if (string.IsNullOrEmpty(connectionString))
                 {
-                    throw new InvalidOperationException($"Connection string for environment '{builder.Environment.EnvironmentName}' is not configured.");
+                    throw new InvalidOperationException($"Connection string for environment '{environment}' is not configured.");
                 }
 
-                if (builder.Environment.IsDevelopment())
+                if (environment == "Development")
                 {
                     options.UseSqlite(connectionString);
                 }
@@ -113,6 +114,7 @@ namespace API
             builder.Services.AddScoped<IBetService, BetService>();
             builder.Services.AddScoped<IGameService, GameService>();
             builder.Services.AddScoped<IUserNotificationService, UserNotificationService<UserHub>>();
+            builder.Services.AddScoped<IRandomService, RandomService>();
             #endregion
 
             #region Authentication

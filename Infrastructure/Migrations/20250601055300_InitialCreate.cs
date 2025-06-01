@@ -1,5 +1,6 @@
 ﻿using System;
 using Microsoft.EntityFrameworkCore.Migrations;
+using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 
 #nullable disable
 
@@ -13,9 +14,9 @@ namespace Infrastructure.Migrations
                 name: "BetStatuses",
                 columns: table => new
                 {
-                    Id = table.Column<int>(type: "INTEGER", nullable: false)
-                        .Annotation("Sqlite:Autoincrement", true),
-                    Name = table.Column<string>(type: "TEXT", nullable: false)
+                    Id = table.Column<int>(type: "integer", nullable: false)
+                        .Annotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn),
+                    Name = table.Column<string>(type: "text", nullable: false)
                 },
                 constraints: table =>
                 {
@@ -26,10 +27,10 @@ namespace Infrastructure.Migrations
                 name: "Currencies",
                 columns: table => new
                 {
-                    Id = table.Column<int>(type: "INTEGER", nullable: false)
-                        .Annotation("Sqlite:Autoincrement", true),
-                    Code = table.Column<string>(type: "TEXT", nullable: false),
-                    Name = table.Column<string>(type: "TEXT", nullable: false)
+                    Id = table.Column<int>(type: "integer", nullable: false)
+                        .Annotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn),
+                    Code = table.Column<string>(type: "text", nullable: false),
+                    Name = table.Column<string>(type: "text", nullable: false)
                 },
                 constraints: table =>
                 {
@@ -40,13 +41,13 @@ namespace Infrastructure.Migrations
                 name: "Games",
                 columns: table => new
                 {
-                    Id = table.Column<Guid>(type: "TEXT", nullable: false),
-                    Name = table.Column<string>(type: "TEXT", nullable: false),
-                    Description = table.Column<string>(type: "TEXT", nullable: true),
-                    MinimalBetAmount = table.Column<decimal>(type: "TEXT", nullable: false),
-                    MinimalBetCurrencyId = table.Column<int>(type: "INTEGER", nullable: false),
-                    CancelTaxPercentage = table.Column<decimal>(type: "TEXT", nullable: false),
-                    CreatedAt = table.Column<DateTime>(type: "TEXT", nullable: false)
+                    Id = table.Column<Guid>(type: "uuid", nullable: false),
+                    Name = table.Column<string>(type: "text", nullable: false),
+                    Description = table.Column<string>(type: "text", nullable: true),
+                    MinimalBetAmount = table.Column<decimal>(type: "numeric", nullable: false),
+                    MinimalBetCurrencyId = table.Column<int>(type: "integer", nullable: false),
+                    CancelTaxPercentage = table.Column<decimal>(type: "numeric", nullable: false),
+                    CreatedAt = table.Column<DateTime>(type: "timestamp with time zone", nullable: false)
                 },
                 constraints: table =>
                 {
@@ -57,11 +58,11 @@ namespace Infrastructure.Migrations
                 name: "Players",
                 columns: table => new
                 {
-                    Id = table.Column<Guid>(type: "TEXT", nullable: false),
-                    Username = table.Column<string>(type: "TEXT", nullable: false),
-                    PasswordHash = table.Column<string>(type: "TEXT", nullable: false),
-                    Email = table.Column<string>(type: "TEXT", nullable: false),
-                    CreatedAt = table.Column<DateTime>(type: "TEXT", nullable: false)
+                    Id = table.Column<Guid>(type: "uuid", nullable: false),
+                    Username = table.Column<string>(type: "text", nullable: false),
+                    PasswordHash = table.Column<string>(type: "text", nullable: false),
+                    Email = table.Column<string>(type: "text", nullable: false),
+                    CreatedAt = table.Column<DateTime>(type: "timestamp with time zone", nullable: false)
                 },
                 constraints: table =>
                 {
@@ -72,9 +73,9 @@ namespace Infrastructure.Migrations
                 name: "TransactionTypes",
                 columns: table => new
                 {
-                    Id = table.Column<int>(type: "INTEGER", nullable: false)
-                        .Annotation("Sqlite:Autoincrement", true),
-                    Name = table.Column<string>(type: "TEXT", nullable: false)
+                    Id = table.Column<int>(type: "integer", nullable: false)
+                        .Annotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn),
+                    Name = table.Column<string>(type: "text", nullable: false)
                 },
                 constraints: table =>
                 {
@@ -85,11 +86,11 @@ namespace Infrastructure.Migrations
                 name: "Wallets",
                 columns: table => new
                 {
-                    Id = table.Column<Guid>(type: "TEXT", nullable: false),
-                    PlayerId = table.Column<Guid>(type: "TEXT", nullable: false),
-                    CurrencyId = table.Column<int>(type: "INTEGER", nullable: false),
-                    Balance = table.Column<decimal>(type: "TEXT", nullable: false),
-                    CreatedAt = table.Column<DateTime>(type: "TEXT", nullable: false)
+                    Id = table.Column<Guid>(type: "uuid", nullable: false),
+                    PlayerId = table.Column<Guid>(type: "uuid", nullable: false),
+                    CurrencyId = table.Column<int>(type: "integer", nullable: false),
+                    Balance = table.Column<decimal>(type: "numeric", nullable: false),
+                    CreatedAt = table.Column<DateTime>(type: "timestamp with time zone", nullable: false)
                 },
                 constraints: table =>
                 {
@@ -112,16 +113,16 @@ namespace Infrastructure.Migrations
                 name: "Bets",
                 columns: table => new
                 {
-                    Id = table.Column<Guid>(type: "TEXT", nullable: false),
-                    WalletId = table.Column<Guid>(type: "TEXT", nullable: false),
-                    Amount = table.Column<decimal>(type: "TEXT", nullable: false),
-                    StatusId = table.Column<int>(type: "INTEGER", nullable: false),
-                    Payout = table.Column<decimal>(type: "TEXT", nullable: true),
-                    CreatedAt = table.Column<DateTime>(type: "TEXT", nullable: false),
-                    GameId = table.Column<Guid>(type: "TEXT", nullable: false),
-                    Note = table.Column<string>(type: "TEXT", nullable: true),
-                    LastUpdatedAt = table.Column<DateTime>(type: "TEXT", nullable: false),
-                    PlayerId = table.Column<Guid>(type: "TEXT", nullable: true)
+                    Id = table.Column<Guid>(type: "uuid", nullable: false),
+                    WalletId = table.Column<Guid>(type: "uuid", nullable: false),
+                    Amount = table.Column<decimal>(type: "numeric", nullable: false),
+                    StatusId = table.Column<int>(type: "integer", nullable: false),
+                    Payout = table.Column<decimal>(type: "numeric", nullable: true),
+                    CreatedAt = table.Column<DateTime>(type: "timestamp with time zone", nullable: false),
+                    GameId = table.Column<Guid>(type: "uuid", nullable: false),
+                    Note = table.Column<string>(type: "text", nullable: true),
+                    LastUpdatedAt = table.Column<DateTime>(type: "timestamp with time zone", nullable: false),
+                    PlayerId = table.Column<Guid>(type: "uuid", nullable: true)
                 },
                 constraints: table =>
                 {
@@ -155,13 +156,13 @@ namespace Infrastructure.Migrations
                 name: "WalletTransactions",
                 columns: table => new
                 {
-                    Id = table.Column<Guid>(type: "TEXT", nullable: false),
-                    BetId = table.Column<Guid>(type: "TEXT", nullable: true),
-                    WalletId = table.Column<Guid>(type: "TEXT", nullable: false),
-                    TransactionTypeId = table.Column<int>(type: "INTEGER", nullable: false),
-                    Amount = table.Column<decimal>(type: "TEXT", nullable: false),
-                    CreatedAt = table.Column<DateTime>(type: "TEXT", nullable: false),
-                    ParentWalletTransactionCheckpointId = table.Column<Guid>(type: "TEXT", nullable: true)
+                    Id = table.Column<Guid>(type: "uuid", nullable: false),
+                    BetId = table.Column<Guid>(type: "uuid", nullable: true),
+                    WalletId = table.Column<Guid>(type: "uuid", nullable: false),
+                    TransactionTypeId = table.Column<int>(type: "integer", nullable: false),
+                    Amount = table.Column<decimal>(type: "numeric", nullable: false),
+                    CreatedAt = table.Column<DateTime>(type: "timestamp with time zone", nullable: false),
+                    ParentWalletTransactionCheckpointId = table.Column<Guid>(type: "uuid", nullable: true)
                 },
                 constraints: table =>
                 {
@@ -188,32 +189,22 @@ namespace Infrastructure.Migrations
             migrationBuilder.InsertData(
                 table: "BetStatuses",
                 columns: new[] { "Id", "Name" },
-                values: new object[] { 1, "Created" });
-
-            migrationBuilder.InsertData(
-                table: "BetStatuses",
-                columns: new[] { "Id", "Name" },
-                values: new object[] { 2, "Cancelled" });
-
-            migrationBuilder.InsertData(
-                table: "BetStatuses",
-                columns: new[] { "Id", "Name" },
-                values: new object[] { 3, "Settled" });
+                values: new object[,]
+                {
+                    { 1, "Created" },
+                    { 2, "Cancelled" },
+                    { 3, "Settled" }
+                });
 
             migrationBuilder.InsertData(
                 table: "Currencies",
                 columns: new[] { "Id", "Code", "Name" },
-                values: new object[] { 1, "USD", "US Dollar" });
-
-            migrationBuilder.InsertData(
-                table: "Currencies",
-                columns: new[] { "Id", "Code", "Name" },
-                values: new object[] { 2, "EUR", "Euro" });
-
-            migrationBuilder.InsertData(
-                table: "Currencies",
-                columns: new[] { "Id", "Code", "Name" },
-                values: new object[] { 3, "BRL", "Brazilian Real" });
+                values: new object[,]
+                {
+                    { 1, "USD", "US Dollar" },
+                    { 2, "EUR", "Euro" },
+                    { 3, "BRL", "Brazilian Real" }
+                });
 
             migrationBuilder.InsertData(
                 table: "Games",
@@ -223,17 +214,12 @@ namespace Infrastructure.Migrations
             migrationBuilder.InsertData(
                 table: "TransactionTypes",
                 columns: new[] { "Id", "Name" },
-                values: new object[] { 1, "Debit" });
-
-            migrationBuilder.InsertData(
-                table: "TransactionTypes",
-                columns: new[] { "Id", "Name" },
-                values: new object[] { 2, "Credit" });
-
-            migrationBuilder.InsertData(
-                table: "TransactionTypes",
-                columns: new[] { "Id", "Name" },
-                values: new object[] { 3, "Checkpoint" });
+                values: new object[,]
+                {
+                    { 1, "Debit" },
+                    { 2, "Credit" },
+                    { 3, "Checkpoint" }
+                });
 
             migrationBuilder.CreateIndex(
                 name: "IX_Bets_GameId",

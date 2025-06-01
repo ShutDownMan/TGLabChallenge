@@ -1,0 +1,76 @@
+services:
+  api:
+    build:
+      context: .
+      dockerfile: API/Dockerfile
+    container_name: api
+    networks:
+      - intra-service-network
+    ports:
+      - "8080:${ASPNETCORE_HTTP_PORTS}"
+      - "8081:${ASPNETCORE_HTTPS_PORTS}"
+    environment:
+      ASPNETCORE_ENVIRONMENT: ${ASPNETCORE_ENVIRONMENT}
+      ASPNETCORE_HTTPS_PORTS: ${ASPNETCORE_HTTPS_PORTS}
+      ASPNETCORE_HTTP_PORTS: ${ASPNETCORE_HTTP_PORTS}
+      POSTGRES_USER: ${POSTGRES_USER}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+      POSTGRES_DB: ${POSTGRES_DB}
+      POSTGRES_HOST: ${POSTGRES_HOST}
+      POSTGRES_PORT: ${POSTGRES_PORT}
+    volumes:
+      - ./API/appsettings.json:/app/appsettings.json:ro
+      - ./Infrastructure/appsettings.Infrastructure.json:/app/appsettings.Infrastructure.json:ro
+      - ./aspnetapp.pfx:/https/aspnetapp.pfx:ro
+    depends_on:
+      - db
+      - migrations
+
+  migrations:
+    build:
+      context: .
+      dockerfile: Migrations/Dockerfile
+    container_name: migrations
+    networks:
+      - intra-service-network
+    environment:
+      ASPNETCORE_ENVIRONMENT: ${ASPNETCORE_ENVIRONMENT}
+      POSTGRES_USER: ${POSTGRES_USER}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+      POSTGRES_DB: ${POSTGRES_DB}
+      POSTGRES_HOST: ${POSTGRES_HOST}
+      POSTGRES_PORT: ${POSTGRES_PORT}
+    depends_on:
+      - db
+    volumes:
+      - ./Infrastructure:/app/Infrastructure
+      - ./API:/app/API:ro
+
+  db:
+    image: postgres:14
+    container_name: postgres-db
+    environment:
+      POSTGRES_USER: ${POSTGRES_USER}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+      POSTGRES_DB: ${POSTGRES_DB}
+      POSTGRES_HOST: ${POSTGRES_HOST}
+      POSTGRES_PORT: ${POSTGRES_PORT}
+    networks:
+      - intra-service-network
+    ports:
+      - "5432:${POSTGRES_PORT}"
+    volumes:
+      - db-data:/var/lib/postgresql/data
+    restart: always
+
+volumes:
+  db-data:
+    driver: local
+    driver_opts:
+      type: none
+      device: ./db-data
+      o: bind
+
+networks:
+  intra-service-network:
+    driver: bridge

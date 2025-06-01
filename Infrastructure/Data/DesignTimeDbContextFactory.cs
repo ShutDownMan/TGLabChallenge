@@ -14,14 +14,16 @@ namespace Infrastructure.Data
 
             var configuration = new ConfigurationBuilder()
                 .SetBasePath(Directory.GetCurrentDirectory())
-                .AddJsonFile("appsettings.json", optional: false, reloadOnChange: true)
+                .AddJsonFile("appsettings.Infrastructure.json", optional: false, reloadOnChange: true)
                 .Build();
 
             var builder = new DbContextOptionsBuilder<AppDbContext>();
             var environment = Environment.GetEnvironmentVariable("ASPNETCORE_ENVIRONMENT") ?? "Development";
             var connectionString = environment == "Development"
                 ? configuration.GetConnectionString("Default")
-                : configuration.GetConnectionString("Production");
+                : $"Host={Environment.GetEnvironmentVariable("POSTGRES_HOST")};Port={Environment.GetEnvironmentVariable("POSTGRES_PORT")};Database={Environment.GetEnvironmentVariable("POSTGRES_DB")};Username={Environment.GetEnvironmentVariable("POSTGRES_USER")};Password={Environment.GetEnvironmentVariable("POSTGRES_PASSWORD")}";
+
+            Console.WriteLine($"Using connection string: {connectionString}");
 
             if (string.IsNullOrEmpty(connectionString))
             {
