@@ -1,8 +1,10 @@
+using API.Hubs;
+using Application.Interfaces;
 using Application.Interfaces.Repositories;
 using Application.Interfaces.Services;
-using Application.Interfaces;
 using Application.Models;
 using Application.Services;
+using FluentValidation;
 using FluentValidation.AspNetCore;
 using Infrastructure.Data;
 using Infrastructure.Repositories;
@@ -11,10 +13,9 @@ using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
-using System.Text;
-using FluentValidation;
 using Serilog;
-using API.Hubs;
+using System;
+using System.Text;
 
 namespace API
 {
@@ -71,7 +72,25 @@ namespace API
             });
 
             builder.Services.AddDbContext<AppDbContext>(options =>
-                options.UseSqlite(builder.Configuration.GetConnectionString("Default") ?? string.Empty));
+            {
+                var connectionString = builder.Environment.IsDevelopment()
+                    ? builder.Configuration.GetConnectionString("Default")
+                    : builder.Configuration.GetConnectionString("Production");
+
+                if (string.IsNullOrEmpty(connectionString))
+                {
+                    throw new InvalidOperationException($"Connection string for environment '{builder.Environment.EnvironmentName}' is not configured.");
+                }
+
+                if (builder.Environment.IsDevelopment())
+                {
+                    options.UseSqlite(connectionString);
+                }
+                else
+                {
+                    options.UseNpgsql(connectionString);
+                }
+            });
 
             builder.Services.AddAutoMapper(AppDomain.CurrentDomain.GetAssemblies());
 

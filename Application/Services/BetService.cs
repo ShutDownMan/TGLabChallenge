@@ -25,6 +25,7 @@ namespace Application.Services
         private readonly IGameService _gameService;
         private readonly ILogger<BetService> _logger;
         private readonly IUserNotificationService _userNotificationService;
+        private readonly IRandomService _randomService;
 
         public BetService(
             IBetRepository betRepository,
@@ -33,7 +34,8 @@ namespace Application.Services
             IWalletTransactionService walletTransactionService,
             IGameService gameService,
             ILogger<BetService> logger,
-            IUserNotificationService userNotificationService)
+            IUserNotificationService userNotificationService,
+            IRandomService randomService)
         {
             _betRepository = betRepository;
             _mapper = mapper;
@@ -42,6 +44,7 @@ namespace Application.Services
             _gameService = gameService;
             _logger = logger;
             _userNotificationService = userNotificationService;
+            _randomService = randomService;
         }
 
         public async Task<BetDTO> PlaceBetAsync(PlaceBetDTO betDTO)
@@ -220,7 +223,6 @@ namespace Application.Services
             using var scope = new TransactionScope(TransactionScopeAsyncFlowOption.Enabled);
             try
             {
-                // Get bet
                 var bet = await _betRepository.GetByIdAsync(betId);
                 if (bet == null)
                     throw new KeyNotFoundException("Bet not found.");
@@ -290,13 +292,11 @@ namespace Application.Services
                 if (bet.StatusId != (int)BetStatusEnum.Created)
                     throw new InvalidOperationException($"Cannot settle a bet with status '{((BetStatusEnum)bet.StatusId).ToString()}'.");
 
-                // Fetch game using GameService
                 var game = await _gameService.GetGameByIdAsync(bet.GameId);
                 if (game == null)
                     throw new InvalidOperationException("Game not found for bet.");
 
-                // Dummy logic: player wins if Randomly generated number is even
-                bool playerWon = new Random().Next(0, 2) == 0;
+                bool playerWon = DeterminePlayerWin();
                 if (!playerWon)
                 {
                     bet.StatusId = (int)BetStatusEnum.Settled;
@@ -359,5 +359,10 @@ namespace Application.Services
             }
         }
 
+        // Dummy logic: player wins if Randomly generated number is even
+        private bool DeterminePlayerWin()
+        {
+            return _randomService.GetRandomBoolean();
+        }
     }
 }

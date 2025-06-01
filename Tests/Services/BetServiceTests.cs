@@ -28,6 +28,7 @@ namespace Tests.Services
         private readonly Mock<IGameService> _gameService = new();
         private readonly Mock<ILogger<BetService>> _logger = new();
         private readonly Mock<IUserNotificationService> _userNotificationService = new();
+        private readonly Mock<IRandomService> _randomService = new();
 
         private BetService CreateService() =>
             new BetService(
@@ -37,7 +38,8 @@ namespace Tests.Services
                 _walletTxService.Object,
                 _gameService.Object,
                 _logger.Object,
-                _userNotificationService.Object);
+                _userNotificationService.Object,
+                _randomService.Object);
 
         [Fact]
         public async Task PlaceBetAsync_WithValidData_PlacesBetAndDebitsWallet()
@@ -56,11 +58,13 @@ namespace Tests.Services
 
             _walletService.Setup(s => s.GetPlayerByWalletIdAsync(walletId)).ReturnsAsync(playerId);
             _walletService.Setup(s => s.GetWalletsByPlayerIdAsync(playerId)).ReturnsAsync(new List<Wallet> { wallet });
+            _walletService.Setup(s => s.GetWalletByIdAsync(walletId)).ReturnsAsync(wallet);
+            _walletService.Setup(s => s.WalletExistsAsync(walletId)).ReturnsAsync(true);
             _gameService.Setup(s => s.GetGameByIdAsync(gameId)).ReturnsAsync(game);
             _mapper.Setup(m => m.Map<Bet>(betDTO)).Returns(betEntity);
             _betRepo.Setup(r => r.AddAsync(It.IsAny<Bet>())).ReturnsAsync(newBetEntity);
-            _walletService.Setup(s => s.DebitWalletAsync(wallet, betDTO.Amount, betId)).ReturnsAsync(new WalletTransaction());
-            _walletService.Setup(s => s.GetWalletByIdAsync(walletId)).ReturnsAsync(wallet);
+            _walletService.Setup(s => s.DebitWalletAsync(wallet, betDTO.Amount, betId))
+                          .ReturnsAsync(new WalletTransaction { WalletId = walletId, Amount = betDTO.Amount });
 
             var service = CreateService();
             #endregion
@@ -252,22 +256,20 @@ namespace Tests.Services
             var gameId = Guid.NewGuid();
             var bet = new Bet { Id = betId, StatusId = (int)BetStatusEnum.Created, Amount = 50, WalletId = walletId, GameId = gameId };
             var game = new Game { Id = gameId };
+            var wallet = new Wallet { Id = walletId };
+
             _betRepo.Setup(r => r.GetByIdAsync(betId)).ReturnsAsync(bet);
             _gameService.Setup(s => s.GetGameByIdAsync(gameId)).ReturnsAsync(game);
+            _walletService.Setup(s => s.GetWalletByIdAsync(walletId)).ReturnsAsync(wallet);
+            _betRepo.Setup(r => r.UpdateAsync(It.IsAny<Bet>())).ReturnsAsync(bet);
+            _mapper.Setup(m => m.Map<BetDTO>(It.IsAny<Bet>())).Returns(new BetDTO { Id = betId, StatusId = (int)BetStatusEnum.Settled, Payout = 0 });
+            _randomService.Setup(s => s.GetRandomBoolean()).Returns(false);
+
             var service = CreateService();
             #endregion
 
             #region Act
-            BetDTO? result = null;
-            for (int i = 0; i < 10; i++)
-            {
-                _betRepo.Invocations.Clear();
-                _betRepo.Setup(r => r.UpdateAsync(It.IsAny<Bet>())).ReturnsAsync(bet);
-                _mapper.Setup(m => m.Map<BetDTO>(It.IsAny<Bet>())).Returns(new BetDTO { Id = betId, StatusId = (int)BetStatusEnum.Settled, Payout = 0 });
-                result = await service.SettleBetAsync(betId);
-                if (result.Payout == 0)
-                    break;
-            }
+            var result = await service.SettleBetAsync(betId);
             #endregion
 
             #region Assert
@@ -287,30 +289,175 @@ namespace Tests.Services
             var bet = new Bet { Id = betId, StatusId = (int)BetStatusEnum.Created, Amount = 50, WalletId = walletId, GameId = gameId };
             var game = new Game { Id = gameId };
             var wallet = new Wallet { Id = walletId };
+            var currency = new Currency { Id = 1, Code = "USD" };
+
             _betRepo.Setup(r => r.GetByIdAsync(betId)).ReturnsAsync(bet);
             _gameService.Setup(s => s.GetGameByIdAsync(gameId)).ReturnsAsync(game);
             _walletService.Setup(s => s.GetWalletByIdAsync(walletId)).ReturnsAsync(wallet);
             _walletService.Setup(s => s.CreditWalletAsync(wallet, 100, betId)).ReturnsAsync(new WalletTransaction());
+            _walletService.Setup(s => s.GetCurrencyByWalletIdAsync(walletId)).ReturnsAsync(currency);
             _betRepo.Setup(r => r.UpdateAsync(It.IsAny<Bet>())).ReturnsAsync(bet);
             _mapper.Setup(m => m.Map<BetDTO>(It.IsAny<Bet>())).Returns(new BetDTO { Id = betId, StatusId = (int)BetStatusEnum.Settled, Payout = 100 });
+            _randomService.Setup(s => s.GetRandomBoolean()).Returns(true);
 
             var service = CreateService();
             #endregion
 
             #region Act
-            BetDTO? result = null;
-            for (int i = 0; i < 10; i++)
-            {
-                result = await service.SettleBetAsync(betId);
-                if (result.Payout == 100)
-                    break;
-            }
+            var result = await service.SettleBetAsync(betId);
             #endregion
 
             #region Assert
             Assert.NotNull(result);
             Assert.Equal(100, result.Payout);
             Assert.Equal((int)BetStatusEnum.Settled, result.StatusId);
+            #endregion
+        }
+
+        [Fact]
+        public async Task CancelBetAsync_BetNotFound_Throws()
+        {
+            #region Arrange
+            var betId = Guid.NewGuid();
+            _betRepo.Setup(r => r.GetByIdAsync(betId)).ReturnsAsync((Bet?)null);
+
+            var service = CreateService();
+            #endregion
+
+            #region Act & Assert
+            await Assert.ThrowsAsync<KeyNotFoundException>(() => service.CancelBetAsync(betId, "Bet not found."));
+            #endregion
+        }
+
+        [Fact]
+        public async Task CancelBetAsync_InvalidBetStatus_Throws()
+        {
+            #region Arrange
+            var betId = Guid.NewGuid();
+            var bet = new Bet { Id = betId, StatusId = (int)BetStatusEnum.Settled };
+            _betRepo.Setup(r => r.GetByIdAsync(betId)).ReturnsAsync(bet);
+
+            var service = CreateService();
+            #endregion
+
+            #region Act & Assert
+            await Assert.ThrowsAsync<InvalidOperationException>(() => service.CancelBetAsync(betId, "Invalid status."));
+            #endregion
+        }
+
+        [Fact]
+        public async Task CancelBetAsync_SuccessfulCancellation_RefundsWalletAndUpdatesBet()
+        {
+            #region Arrange
+            var betId = Guid.NewGuid();
+            var walletId = Guid.NewGuid();
+            var gameId = Guid.NewGuid();
+            var bet = new Bet { Id = betId, StatusId = (int)BetStatusEnum.Created, Amount = 100, WalletId = walletId, GameId = gameId };
+            var wallet = new Wallet { Id = walletId, Balance = 200 };
+            var game = new Game { Id = gameId, CancelTaxPercentage = 10 };
+
+            _betRepo.Setup(r => r.GetByIdAsync(betId)).ReturnsAsync(bet);
+            _walletService.Setup(s => s.GetWalletByIdAsync(walletId)).ReturnsAsync(wallet);
+            _gameService.Setup(s => s.GetGameByIdAsync(gameId)).ReturnsAsync(game);
+            _walletService.Setup(s => s.CreditWalletAsync(wallet, 90, betId)).ReturnsAsync(new WalletTransaction());
+            _betRepo.Setup(r => r.UpdateAsync(It.IsAny<Bet>())).ReturnsAsync(bet);
+
+            var service = CreateService();
+            #endregion
+
+            #region Act
+            await service.CancelBetAsync(betId, "User requested cancellation.");
+            #endregion
+
+            #region Assert
+            _walletService.Verify(s => s.CreditWalletAsync(wallet, 90, betId), Times.Once);
+            _betRepo.Verify(r => r.UpdateAsync(It.Is<Bet>(b => b.StatusId == (int)BetStatusEnum.Cancelled && b.Note == "User requested cancellation.")), Times.Once);
+            #endregion
+        }
+
+        [Fact]
+        public async Task CancelBetAsync_RefundAmountZero_DoesNotCreditWallet()
+        {
+            #region Arrange
+            var betId = Guid.NewGuid();
+            var walletId = Guid.NewGuid();
+            var gameId = Guid.NewGuid();
+            var bet = new Bet { Id = betId, StatusId = (int)BetStatusEnum.Created, Amount = 100, WalletId = walletId, GameId = gameId };
+            var wallet = new Wallet { Id = walletId, Balance = 200 };
+            var game = new Game { Id = gameId, CancelTaxPercentage = 100 };
+
+            _betRepo.Setup(r => r.GetByIdAsync(betId)).ReturnsAsync(bet);
+            _walletService.Setup(s => s.GetWalletByIdAsync(walletId)).ReturnsAsync(wallet);
+            _gameService.Setup(s => s.GetGameByIdAsync(gameId)).ReturnsAsync(game);
+            _betRepo.Setup(r => r.UpdateAsync(It.IsAny<Bet>())).ReturnsAsync(bet);
+
+            var service = CreateService();
+            #endregion
+
+            #region Act
+            await service.CancelBetAsync(betId, "High tax percentage.");
+            #endregion
+
+            #region Assert
+            _walletService.Verify(s => s.CreditWalletAsync(It.IsAny<Wallet>(), It.IsAny<decimal>(), It.IsAny<Guid>()), Times.Never);
+            _betRepo.Verify(r => r.UpdateAsync(It.Is<Bet>(b => b.StatusId == (int)BetStatusEnum.Cancelled)), Times.Once);
+            #endregion
+        }
+
+        [Fact]
+        public async Task SettleBetAsync_MissingWallet_Throws()
+        {
+            #region Arrange
+            var betId = Guid.NewGuid();
+            var walletId = Guid.NewGuid();
+            var gameId = Guid.NewGuid();
+            var bet = new Bet { Id = betId, StatusId = (int)BetStatusEnum.Created, Amount = 50, WalletId = walletId, GameId = gameId };
+            var game = new Game { Id = gameId };
+
+            _betRepo.Setup(r => r.GetByIdAsync(betId)).ReturnsAsync(bet);
+            _gameService.Setup(s => s.GetGameByIdAsync(gameId)).ReturnsAsync(game);
+            _walletService.Setup(s => s.GetWalletByIdAsync(walletId)).ReturnsAsync((Wallet?)null);
+            _randomService.Setup(s => s.GetRandomBoolean()).Returns(true);
+
+            var service = CreateService();
+            #endregion
+
+            #region Act & Assert
+            await Assert.ThrowsAsync<InvalidOperationException>(() => service.SettleBetAsync(betId));
+            #endregion
+        }
+
+        [Fact]
+        public async Task PlaceBetAsync_WalletRefreshFails_Throws()
+        {
+            #region Arrange
+            var walletId = Guid.NewGuid();
+            var playerId = Guid.NewGuid();
+            var gameId = Guid.NewGuid();
+            var betId = Guid.NewGuid();
+
+            var wallet = new Wallet { Id = walletId, Balance = 100, CurrencyId = 1 };
+            var game = new Game { Id = gameId, MinimalBetAmount = 10, MinimalBetCurrencyId = 1 };
+            var betDTO = new PlaceBetDTO { WalletId = walletId, Amount = 20, CurrencyId = 1, GameId = gameId };
+            var betEntity = new Bet { Id = betId, WalletId = walletId, Amount = 20, StatusId = (int)BetStatusEnum.Created, GameId = gameId };
+            var newBetEntity = new Bet { Id = betId, WalletId = walletId, Amount = 20, StatusId = (int)BetStatusEnum.Created, GameId = gameId };
+
+            _walletService.Setup(s => s.GetPlayerByWalletIdAsync(walletId)).ReturnsAsync(playerId);
+            _walletService.Setup(s => s.GetWalletsByPlayerIdAsync(playerId)).ReturnsAsync(new List<Wallet> { wallet });
+            _walletService.Setup(s => s.GetWalletByIdAsync(walletId)).ReturnsAsync(wallet);
+            _walletService.Setup(s => s.WalletExistsAsync(walletId)).ReturnsAsync(true);
+            _gameService.Setup(s => s.GetGameByIdAsync(gameId)).ReturnsAsync(game);
+            _mapper.Setup(m => m.Map<Bet>(betDTO)).Returns(betEntity);
+            _betRepo.Setup(r => r.AddAsync(It.IsAny<Bet>())).ReturnsAsync(newBetEntity);
+            _walletService.Setup(s => s.DebitWalletAsync(wallet, betDTO.Amount, betId))
+                      .ReturnsAsync(new WalletTransaction { WalletId = walletId, Amount = betDTO.Amount });
+            _walletService.Setup(s => s.GetWalletByIdAsync(wallet.Id)).ReturnsAsync((Wallet?)null);
+
+            var service = CreateService();
+            #endregion
+
+            #region Act & Assert
+            await Assert.ThrowsAsync<InvalidOperationException>(() => service.PlaceBetAsync(betDTO));
             #endregion
         }
     }
