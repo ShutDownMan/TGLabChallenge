@@ -12,6 +12,7 @@ namespace Application.Interfaces.Services
         Task<Wallet?> GetWalletByIdAsync(Guid walletId);
         Task<bool> WalletExistsAsync(Guid walletId);
         Task UpdateWalletAsync(Wallet wallet);
+        Task CreateWalletAsync(Wallet wallet);
 
         Task<WalletTransaction> DebitWalletAsync(Wallet wallet, decimal amount, Guid? betId = null);
         Task<WalletTransaction> CreditWalletAsync(Wallet wallet, decimal amount, Guid? betId = null);

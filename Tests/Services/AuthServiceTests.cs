@@ -24,13 +24,13 @@ namespace Tests.Services
             var playerService = new Mock<IPlayerService>();
             var currencyService = new Mock<ICurrencyService>();
             var jwtGen = new Mock<IJwtTokenGenerator>();
-            var walletRepo = new Mock<IWalletRepository>();
+            var walletService = new Mock<IWalletService>();
             var walletTxService = new Mock<IWalletTransactionService>();
             var logger = new Mock<ILogger<AuthService>>();
             var user = new Player { Id = Guid.NewGuid(), Username = "test", Email = "test@email.com", PasswordHash = BCrypt.Net.BCrypt.HashPassword("pass") };
             playerService.Setup(s => s.GetByUsernameAsync("test")).ReturnsAsync(user);
             jwtGen.Setup(j => j.GenerateToken(user)).Returns("token");
-            var service = new AuthService(playerService.Object, currencyService.Object, jwtGen.Object, walletRepo.Object, walletTxService.Object, logger.Object);
+            var service = new AuthService(playerService.Object, currencyService.Object, jwtGen.Object, walletService.Object, walletTxService.Object, logger.Object);
             #endregion
 
             #region Act
@@ -49,14 +49,14 @@ namespace Tests.Services
             var playerService = new Mock<IPlayerService>();
             var currencyService = new Mock<ICurrencyService>();
             var jwtGen = new Mock<IJwtTokenGenerator>();
-            var walletRepo = new Mock<IWalletRepository>();
+            var walletService = new Mock<IWalletService>();
             var walletTxService = new Mock<IWalletTransactionService>();
             var logger = new Mock<ILogger<AuthService>>();
             var user = new Player { Id = Guid.NewGuid(), Username = "test", Email = "test@email.com", PasswordHash = BCrypt.Net.BCrypt.HashPassword("pass") };
             playerService.Setup(s => s.GetByUsernameAsync("test@email.com")).ReturnsAsync((Player?)null);
             playerService.Setup(s => s.GetByEmailAsync("test@email.com")).ReturnsAsync(user);
             jwtGen.Setup(j => j.GenerateToken(user)).Returns("token");
-            var service = new AuthService(playerService.Object, currencyService.Object, jwtGen.Object, walletRepo.Object, walletTxService.Object, logger.Object);
+            var service = new AuthService(playerService.Object, currencyService.Object, jwtGen.Object, walletService.Object, walletTxService.Object, logger.Object);
             #endregion
 
             #region Act
@@ -75,12 +75,12 @@ namespace Tests.Services
             var playerService = new Mock<IPlayerService>();
             var currencyService = new Mock<ICurrencyService>();
             var jwtGen = new Mock<IJwtTokenGenerator>();
-            var walletRepo = new Mock<IWalletRepository>();
+            var walletService = new Mock<IWalletService>();
             var walletTxService = new Mock<IWalletTransactionService>();
             var logger = new Mock<ILogger<AuthService>>();
             playerService.Setup(s => s.GetByUsernameAsync("test")).ReturnsAsync((Player?)null);
             playerService.Setup(s => s.GetByEmailAsync("test")).ReturnsAsync((Player?)null);
-            var service = new AuthService(playerService.Object, currencyService.Object, jwtGen.Object, walletRepo.Object, walletTxService.Object, logger.Object);
+            var service = new AuthService(playerService.Object, currencyService.Object, jwtGen.Object, walletService.Object, walletTxService.Object, logger.Object);
             #endregion
 
             #region Act & Assert
@@ -95,11 +95,11 @@ namespace Tests.Services
             var playerService = new Mock<IPlayerService>();
             var currencyService = new Mock<ICurrencyService>();
             var jwtGen = new Mock<IJwtTokenGenerator>();
-            var walletRepo = new Mock<IWalletRepository>();
+            var walletService = new Mock<IWalletService>();
             var walletTxService = new Mock<IWalletTransactionService>();
             var logger = new Mock<ILogger<AuthService>>();
             playerService.Setup(s => s.UsernameExistsAsync("test")).ReturnsAsync(true);
-            var service = new AuthService(playerService.Object, currencyService.Object, jwtGen.Object, walletRepo.Object, walletTxService.Object, logger.Object);
+            var service = new AuthService(playerService.Object, currencyService.Object, jwtGen.Object, walletService.Object, walletTxService.Object, logger.Object);
             #endregion
 
             #region Act & Assert
@@ -114,28 +114,27 @@ namespace Tests.Services
             var playerService = new Mock<IPlayerService>();
             var currencyService = new Mock<ICurrencyService>();
             var jwtGen = new Mock<IJwtTokenGenerator>();
-            var walletRepo = new Mock<IWalletRepository>();
+            var walletService = new Mock<IWalletService>();
             var walletTxService = new Mock<IWalletTransactionService>();
             var logger = new Mock<ILogger<AuthService>>();
+
             playerService.Setup(s => s.UsernameExistsAsync("newuser")).ReturnsAsync(false);
             playerService.Setup(s => s.EmailExistsAsync("new@email.com")).ReturnsAsync(false);
+
             Player? addedPlayer = null;
             playerService.Setup(s => s.AddAsync(It.IsAny<Player>()))
                 .Callback<Player>(p => addedPlayer = p)
                 .Returns(Task.CompletedTask);
 
-            // Setup currencyRepo to accept any currencyId
             currencyService.Setup(s => s.CurrencyExistsAsync(It.IsAny<int>())).ReturnsAsync(true);
             currencyService.Setup(s => s.GetDefaultCurrencyAsync()).ReturnsAsync(new Currency { Id = 1 });
 
-            // Setup walletRepo to accept any wallet
-            walletRepo.Setup(r => r.AddAsync(It.IsAny<Wallet>())).Returns(Task.CompletedTask);
+            walletService.Setup(s => s.CreateWalletAsync(It.IsAny<Wallet>())).Returns(Task.CompletedTask);
 
-            // Setup walletTxService to accept any checkpoint
             walletTxService.Setup(s => s.CheckpointWalletAsync(It.IsAny<Wallet>(), It.IsAny<decimal>(), null))
                 .ReturnsAsync(new WalletTransaction());
 
-            var service = new AuthService(playerService.Object, currencyService.Object, jwtGen.Object, walletRepo.Object, walletTxService.Object, logger.Object);
+            var service = new AuthService(playerService.Object, currencyService.Object, jwtGen.Object, walletService.Object, walletTxService.Object, logger.Object);
             #endregion
 
             #region Act

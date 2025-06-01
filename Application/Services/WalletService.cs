@@ -215,5 +215,14 @@ namespace Application.Services
         {
             return await _walletRepository.GetBetsByWalletIdAsync(walletId);
         }
+
+        /// <summary>
+        /// Creates a new wallet asynchronously.
+        /// </summary>
+        /// <param name="wallet">The wallet to create.</param>
+        public async Task CreateWalletAsync(Wallet wallet)
+        {
+            await _walletRepository.AddAsync(wallet);
+        }
     }
 }

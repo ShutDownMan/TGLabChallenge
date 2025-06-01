@@ -19,7 +19,7 @@ namespace Application.Services
         private readonly IPlayerService _playerService;
         private readonly ICurrencyService _currencyService;
         private readonly IJwtTokenGenerator _jwtTokenGenerator;
-        private readonly IWalletRepository _walletRepository;
+        private readonly IWalletService _walletService;
         private readonly IWalletTransactionService _walletTransactionService;
         private readonly ILogger<AuthService> _logger;
 
@@ -27,14 +27,14 @@ namespace Application.Services
             IPlayerService playerService,
             ICurrencyService currencyService,
             IJwtTokenGenerator jwtTokenGenerator,
-            IWalletRepository walletRepository,
+            IWalletService walletService,
             IWalletTransactionService walletTransactionService,
             ILogger<AuthService> logger)
         {
             _playerService = playerService;
             _currencyService = currencyService;
             _jwtTokenGenerator = jwtTokenGenerator;
-            _walletRepository = walletRepository;
+            _walletService = walletService;
             _walletTransactionService = walletTransactionService;
             _logger = logger;
         }
@@ -136,7 +136,7 @@ namespace Application.Services
                     Balance = initialBalance ?? 0m,
                     CreatedAt = DateTime.UtcNow
                 };
-                await _walletRepository.AddAsync(wallet);
+                await _walletService.CreateWalletAsync(wallet);
                 _logger.LogDebug("Wallet created with ID: {WalletId} for PlayerId: {PlayerId}", wallet.Id, player.Id);
 
                 // Create initial checkpoint transaction for the wallet
