@@ -287,7 +287,7 @@ namespace Application.Services
                     _logger.LogDebug("Settling bet with ID: {BetId}, Player lost, no payout.", betId);
                     await _betRepository.UpdateAsync(bet);
 
-                    await TrackLostBetAsync(bet.WalletId, bet.Amount);
+                    await TrackLostBetAsync(bet.WalletId, bet.Amount, bet.GameId);
 
                     // Notify the user about the settled bet
                     var playerId = await _walletService.GetPlayerByWalletIdAsync(bet.WalletId);
@@ -472,7 +472,9 @@ namespace Application.Services
         private async Task<int> GetConsecutiveLostBetCountAsync(Guid walletId)
         {
             var bets = await _walletService.GetBetsByWalletIdAsync(walletId);
-            return bets.TakeWhile(bet => !bet.IsWon).Count();
+            return bets
+                .TakeWhile(bet => bet.StatusId == (int)BetStatusEnum.Settled && !bet.IsWon)
+                .Count();
         }
 
         /// <summary>
@@ -480,18 +482,19 @@ namespace Application.Services
         /// </summary>
         /// <param name="walletId">The ID of the wallet.</param>
         /// <param name="amount">The bet amount.</param>
-        private async Task TrackLostBetAsync(Guid walletId, decimal amount)
+        private async Task TrackLostBetAsync(Guid walletId, decimal amount, Guid gameId)
         {
             var lostBetCount = await GetConsecutiveLostBetCountAsync(walletId);
 
-            if (lostBetCount >= 5)
+            var game = await _gameService.GetGameByIdAsync(gameId);
+            if (game?.ConsecutiveLossBonusThreshold.HasValue == true && lostBetCount == game.ConsecutiveLossBonusThreshold.Value)
             {
                 var bonusAmount = Math.Round(amount * 0.10m, 2);
                 var wallet = await _walletService.GetWalletByIdAsync(walletId);
                 if (wallet != null)
                 {
                     await _walletService.CreditWalletAsync(wallet, bonusAmount, Guid.NewGuid());
-                    _logger.LogInformation("Awarded bonus of {BonusAmount} to WalletId: {WalletId} after 5 consecutive losses.", bonusAmount, walletId);
+                    _logger.LogInformation("Awarded bonus of {BonusAmount} to WalletId: {WalletId} at the {Threshold}th consecutive loss.", bonusAmount, walletId, game.ConsecutiveLossBonusThreshold);
                 }
             }
         }

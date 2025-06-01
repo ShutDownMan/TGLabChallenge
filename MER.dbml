@@ -61,4 +61,5 @@ Table Game {
   MinimalBetCurrencyId int [ref: > Currency.Id, not null]
   CancelTaxPercentage decimal(5,2) [not null, default: 0.00]
   CreatedAt datetime [not null]
+  ConsecutiveLossBonusThreshold int [default: null]
 }

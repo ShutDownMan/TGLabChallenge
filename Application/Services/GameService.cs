@@ -31,5 +31,18 @@ namespace Application.Services
         {
             return await _gameRepository.GetByIdAsync(gameId);
         }
+
+        /// <summary>
+        /// Retrieves the consecutive loss bonus threshold for a game.
+        /// </summary>
+        /// <param name="gameId">The unique identifier of the game.</param>
+        /// <returns>The consecutive loss bonus threshold, or null if not set.</returns>
+        public async Task<int?> GetConsecutiveLossBonusThresholdAsync(Guid gameId)
+        {
+            var game = await _gameRepository.GetByIdAsync(gameId);
+            if (game == null)
+                throw new KeyNotFoundException($"Game with ID {gameId} not found.");
+            return game.ConsecutiveLossBonusThreshold;
+        }
     }
 }

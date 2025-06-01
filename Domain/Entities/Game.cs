@@ -12,6 +12,7 @@ namespace Domain.Entities
         public int MinimalBetCurrencyId { get; set; }
         public decimal CancelTaxPercentage { get; set; } = 0.00m;
         public DateTime CreatedAt { get; set; }
+        public int? ConsecutiveLossBonusThreshold { get; set; }
 
         public List<Bet> Bets { get; set; } = new();
     }

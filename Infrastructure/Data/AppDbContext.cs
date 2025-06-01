@@ -56,7 +56,10 @@ namespace Infrastructure.Data
                     Name = "Placeholder Game",
                     Description = "This is a placeholder game for testing purposes.",
                     MinimalBetAmount = 100,
-                    MinimalBetCurrencyId = 1
+                    MinimalBetCurrencyId = 1,
+                    ConsecutiveLossBonusThreshold = 5,
+                    CancelTaxPercentage = 0.05m,
+                    CreatedAt = DateTime.UtcNow
                 }
             );
         }
