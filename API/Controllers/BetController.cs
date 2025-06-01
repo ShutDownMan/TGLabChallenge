@@ -18,12 +18,14 @@ namespace API.Controllers
         private readonly IBetService _betService;
         private readonly IValidator<PlaceBetDTO> _betDTOValidator;
         private readonly IValidator<CancelBetDTO> _cancelBetDTOValidator;
+        private readonly IWalletService _walletService;
 
-        public BetController(IBetService betService, IValidator<PlaceBetDTO> betDTOValidator, IValidator<CancelBetDTO> cancelBetDTOValidator)
+        public BetController(IBetService betService, IValidator<PlaceBetDTO> betDTOValidator, IValidator<CancelBetDTO> cancelBetDTOValidator, IWalletService walletService)
         {
             _betService = betService;
             _betDTOValidator = betDTOValidator;
             _cancelBetDTOValidator = cancelBetDTOValidator;
+            _walletService = walletService;
         }
 
         [HttpPost]
@@ -38,6 +40,7 @@ namespace API.Controllers
         [SwaggerResponse(400, "Validation failed or insufficient wallet balance")]
         public async Task<IActionResult> PlaceBet([FromBody] PlaceBetDTO placeBetDTO)
         {
+            // <see cref="Application.Models.PlaceBetDTOValidator"/>
             ValidationResult validationResult = await _betDTOValidator.ValidateAsync(placeBetDTO);
             if (!validationResult.IsValid)
             {
@@ -60,6 +63,7 @@ namespace API.Controllers
         [SwaggerResponse(404, "Bet not found")]
         public async Task<IActionResult> CancelBet(Guid id, [FromBody] CancelBetDTO cancelBetDTO)
         {
+            // <see cref="Application.Models.CancelBetDTOValidator"/>
             var validationResult = await _cancelBetDTOValidator.ValidateAsync(cancelBetDTO);
             if (!validationResult.IsValid)
             {
@@ -92,10 +96,18 @@ namespace API.Controllers
         [SwaggerResponse(404, "Bet not found")]
         public async Task<IActionResult> GetBet(Guid id)
         {
-            // FIXME: Ensure bet is from the authenticated user's wallet or JWT is from a valid application client
+            var playerIdClaim = User.FindFirst(System.Security.Claims.ClaimTypes.NameIdentifier)?.Value;
+            if (string.IsNullOrEmpty(playerIdClaim) || !Guid.TryParse(playerIdClaim, out var playerId))
+                return Unauthorized();
+
             var betDTO = await _betService.GetBetByIdAsync(id);
             if (betDTO == null)
                 return NotFound();
+
+            var walletPlayerId = await _walletService.GetPlayerByWalletIdAsync(betDTO.WalletId);
+            if (walletPlayerId == null || walletPlayerId != playerId)
+                return Unauthorized(new { message = "Quit snooping! This bet is not yours." });
+
             return Ok(betDTO);
         }
 

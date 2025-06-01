@@ -21,6 +21,7 @@ Table Bet {
   CreatedAt datetime [not null]
   Note varchar(255)
   LastUpdatedAt datetime
+  WalletId UUID [ref: > Wallet.Id]
 }
 
 Table WalletTransaction {

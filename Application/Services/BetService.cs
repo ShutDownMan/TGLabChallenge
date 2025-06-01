@@ -233,7 +233,6 @@ namespace Application.Services
         public async Task<BetDTO?> GetBetByIdAsync(Guid id)
         {
             var bet = await _betRepository.GetByIdAsync(id);
-
             return bet == null ? null : _mapper.Map<BetDTO>(bet);
         }
 

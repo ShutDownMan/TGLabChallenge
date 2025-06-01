@@ -21,6 +21,8 @@ namespace Infrastructure.Security
             _config = config;
         }
 
+        // TODO: add Application Client Token generation
+
         public string GenerateToken(Player user)
         {
             var claims = new[]
