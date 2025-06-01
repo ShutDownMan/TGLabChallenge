@@ -4,6 +4,7 @@ using Application.Services;
 using FluentValidation;
 using FluentValidation.Results;
 using Microsoft.AspNetCore.Mvc;
+using Swashbuckle.AspNetCore.Annotations;
 using System;
 using System.Linq;
 using System.Threading.Tasks;
@@ -26,6 +27,15 @@ namespace API.Controllers
         }
 
         [HttpPost]
+        [SwaggerOperation(
+            Summary = "Place a bet",
+            Description = "Places a new bet with the provided details.\n" +
+                          "The bet amount must meet the game's minimum requirements,\n" +
+                          "and the wallet must have sufficient balance.",
+            OperationId = "PlaceBet"
+        )]
+        [SwaggerResponse(200, "Bet placed successfully", typeof(BetDTO))]
+        [SwaggerResponse(400, "Validation failed or insufficient wallet balance")]
         public async Task<IActionResult> PlaceBet([FromBody] PlaceBetDTO placeBetDTO)
         {
             ValidationResult validationResult = await _betDTOValidator.ValidateAsync(placeBetDTO);
@@ -39,6 +49,15 @@ namespace API.Controllers
         }
 
         [HttpPost("{id}/cancel")]
+        [SwaggerOperation(
+            Summary = "Cancel a bet",
+            Description = "Cancels an existing bet with the provided reason.\n" +
+                          "A cancellation tax may apply, reducing the refund amount.",
+            OperationId = "CancelBet"
+        )]
+        [SwaggerResponse(200, "Bet cancelled successfully", typeof(object))]
+        [SwaggerResponse(400, "Validation failed or invalid operation")]
+        [SwaggerResponse(404, "Bet not found")]
         public async Task<IActionResult> CancelBet(Guid id, [FromBody] CancelBetDTO cancelBetDTO)
         {
             var validationResult = await _cancelBetDTOValidator.ValidateAsync(cancelBetDTO);
@@ -63,8 +82,17 @@ namespace API.Controllers
         }
 
         [HttpGet("{id}")]
+        [SwaggerOperation(
+            Summary = "Get bet details",
+            Description = "Retrieves details of a specific bet by its ID.\n" +
+                          "Returns null if the bet is not found.",
+            OperationId = "GetBet"
+        )]
+        [SwaggerResponse(200, "Bet details retrieved successfully", typeof(BetDTO))]
+        [SwaggerResponse(404, "Bet not found")]
         public async Task<IActionResult> GetBet(Guid id)
         {
+            // FIXME: Ensure bet is from the authenticated user's wallet or JWT is from a valid application client
             var betDTO = await _betService.GetBetByIdAsync(id);
             if (betDTO == null)
                 return NotFound();
@@ -72,6 +100,16 @@ namespace API.Controllers
         }
 
         [HttpPost("{id}/settle")]
+        [SwaggerOperation(
+            Summary = "Settle a bet",
+            Description = "Settles a specific bet by its ID.\n" +
+                          "Determines whether the player wins or loses based on random logic.\n" +
+                          "If the player wins, the payout is credited to their wallet.",
+            OperationId = "SettleBet"
+        )]
+        [SwaggerResponse(200, "Bet settled successfully", typeof(BetDTO))]
+        [SwaggerResponse(400, "Invalid operation")]
+        [SwaggerResponse(404, "Bet not found")]
         public async Task<IActionResult> SettleBet(Guid id)
         {
             try

@@ -69,6 +69,8 @@ namespace API
                 {
                     { jwtSecurityScheme, Array.Empty<string>() }
                 });
+
+                setup.EnableAnnotations();
             });
 
             builder.Services.AddDbContext<AppDbContext>(options =>
@@ -115,6 +117,7 @@ namespace API
             builder.Services.AddScoped<IGameService, GameService>();
             builder.Services.AddScoped<IUserNotificationService, UserNotificationService<UserHub>>();
             builder.Services.AddScoped<IRandomService, RandomService>();
+            builder.Services.AddScoped<ICurrencyService, CurrencyService>();
             #endregion
 
             #region Authentication

@@ -10,36 +10,45 @@ using System.Transactions;
 
 namespace Application.Services
 {
+    /// <summary>
+    /// Service responsible for handling authentication-related operations.
+    /// </summary>
     public class AuthService : IAuthService
     {
-        private readonly IPlayerRepository _userRepository;
-        private readonly ICurrencyRepository _currencyRepository;
+        private readonly IPlayerService _playerService;
+        private readonly ICurrencyService _currencyService;
         private readonly IJwtTokenGenerator _jwtTokenGenerator;
         private readonly IWalletRepository _walletRepository;
         private readonly IWalletTransactionService _walletTransactionService;
 
-        // FIXME: use services instead of repositories directly
         public AuthService(
-            IPlayerRepository userRepository,
-            ICurrencyRepository currencyRepository,
+            IPlayerService playerService,
+            ICurrencyService currencyService,
             IJwtTokenGenerator jwtTokenGenerator,
             IWalletRepository walletRepository,
             IWalletTransactionService walletTransactionService)
         {
-            _userRepository = userRepository;
+            _playerService = playerService;
+            _currencyService = currencyService;
             _jwtTokenGenerator = jwtTokenGenerator;
-            _currencyRepository = currencyRepository;
             _walletRepository = walletRepository;
             _walletTransactionService = walletTransactionService;
         }
 
+        /// <summary>
+        /// Logs in a user using their identifier (username or email) and password.
+        /// </summary>
+        /// <param name="identifier">The username or email of the user.</param>
+        /// <param name="password">The password of the user.</param>
+        /// <returns>A JWT token if authentication is successful.</returns>
+        /// <exception cref="UnauthorizedAccessException">Thrown if the credentials are invalid.</exception>
         public async Task<string> LoginAsync(string identifier, string password)
         {
-            Player? user = await _userRepository.GetByUsernameAsync(identifier);
+            Player? user = await _playerService.GetByUsernameAsync(identifier);
             if (user == null)
             {
                 // Try by email if not found by username
-                user = await _userRepository.GetByEmailAsync(identifier);
+                user = await _playerService.GetByEmailAsync(identifier);
             }
             if (user == null || !BCrypt.Net.BCrypt.Verify(password, user.PasswordHash))
             {
@@ -49,16 +58,26 @@ namespace Application.Services
             return _jwtTokenGenerator.GenerateToken(user);
         }
 
+        /// <summary>
+        /// Registers a new user with the provided details.
+        /// </summary>
+        /// <param name="username">The username of the new user.</param>
+        /// <param name="password">The password of the new user.</param>
+        /// <param name="email">The email of the new user.</param>
+        /// <param name="currencyId">The ID of the currency for the user's wallet. Defaults to the system's default currency if null.</param>
+        /// <param name="initialBalance">The initial balance for the user's wallet. Defaults to 0 if null.</param>
+        /// <exception cref="UserAlreadyExistsException">Thrown if the username or email is already registered.</exception>
+        /// <exception cref="InvalidOperationException">Thrown if the provided currency ID is invalid.</exception>
         public async Task RegisterAsync(string username, string password, string email, int? currencyId, decimal? initialBalance)
         {
             // Check if username is already taken
-            if (await _userRepository.UsernameExistsAsync(username))
+            if (await _playerService.UsernameExistsAsync(username))
             {
                 throw new UserAlreadyExistsException("Username already exists.");
             }
 
             // check if email is already registered
-            if (await _userRepository.EmailExistsAsync(email))
+            if (await _playerService.EmailExistsAsync(email))
             {
                 throw new UserAlreadyExistsException("Email already registered.");
             }
@@ -66,10 +85,10 @@ namespace Application.Services
             // Validate currency ID
             if (currencyId == null)
             {
-                var defaultCurrency = await _currencyRepository.GetDefaultCurrencyAsync();
+                var defaultCurrency = await _currencyService.GetDefaultCurrencyAsync();
                 currencyId = defaultCurrency.Id;
             }
-            else if (!await _currencyRepository.CurrencyExistsAsync(currencyId.Value))
+            else if (!await _currencyService.CurrencyExistsAsync(currencyId.Value))
             {
                 throw new InvalidOperationException("Invalid currency ID.");
             }
@@ -90,7 +109,7 @@ namespace Application.Services
                     Email = email,
                     CreatedAt = DateTime.UtcNow
                 };
-                await _userRepository.AddAsync(player);
+                await _playerService.AddAsync(player);
 
                 // Create wallet for the user with initial balance
                 var wallet = new Wallet
@@ -121,6 +140,11 @@ namespace Application.Services
             }
         }
 
+        /// <summary>
+        /// Validates a given JWT token.
+        /// </summary>
+        /// <param name="token">The JWT token to validate.</param>
+        /// <returns>True if the token is valid; otherwise, false.</returns>
         public async Task<bool> ValidateTokenAsync(string token)
         {
             return _jwtTokenGenerator.ValidateToken(token);

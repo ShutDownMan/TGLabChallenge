@@ -8,6 +8,9 @@ using System.Threading.Tasks;
 
 namespace Application.Services
 {
+    /// <summary>
+    /// Service responsible for handling player-related operations.
+    /// </summary>
     public class PlayerService : IPlayerService
     {
         private readonly IPlayerRepository _playerRepository;
@@ -16,6 +19,14 @@ namespace Application.Services
         private readonly IWalletTransactionService _walletTransactionService;
         private readonly ILogger<PlayerService> _logger;
 
+        /// <summary>
+        /// Initializes a new instance of the <see cref="PlayerService"/> class.
+        /// </summary>
+        /// <param name="playerRepository">The repository for accessing player data.</param>
+        /// <param name="walletService">The service for handling wallet operations.</param>
+        /// <param name="betService">The service for handling bet operations.</param>
+        /// <param name="walletTransactionService">The service for handling wallet transaction operations.</param>
+        /// <param name="logger">The logger instance for logging.</param>
         public PlayerService(
             IPlayerRepository playerRepository,
             IWalletService walletService,
@@ -30,6 +41,11 @@ namespace Application.Services
             _logger = logger;
         }
 
+        /// <summary>
+        /// Retrieves the profile of a player by their unique identifier.
+        /// </summary>
+        /// <param name="playerId">The unique identifier of the player.</param>
+        /// <returns>A <see cref="PlayerProfileDTO"/> containing the player's profile information, or null if the player is not found.</returns>
         public async Task<PlayerProfileDTO?> GetProfileAsync(Guid playerId)
         {
             _logger.LogInformation("Starting GetProfileAsync for playerId: {PlayerId}", playerId);
@@ -78,12 +94,22 @@ namespace Application.Services
             return profile;
         }
 
+        /// <summary>
+        /// Retrieves all bets made by a player.
+        /// </summary>
+        /// <param name="playerId">The unique identifier of the player.</param>
+        /// <returns>A collection of <see cref="BetDTO"/> representing the player's bets.</returns>
         public async Task<IEnumerable<BetDTO>> GetBetsAsync(Guid playerId)
         {
             // You may want to validate the player exists, or just delegate to the bet service
             return await _betService.GetBetsByUserAsync(playerId);
         }
 
+        /// <summary>
+        /// Retrieves all wallet transactions for a player.
+        /// </summary>
+        /// <param name="playerId">The unique identifier of the player.</param>
+        /// <returns>A collection of <see cref="WalletTransactionDTO"/> representing the player's wallet transactions.</returns>
         public async Task<IEnumerable<WalletTransactionDTO>> GetWalletTransactionsAsync(Guid playerId)
         {
             var wallets = await _walletService.GetWalletsByPlayerIdAsync(playerId);
@@ -95,6 +121,31 @@ namespace Application.Services
             }
 
             return allTransactions;
+        }
+
+        public async Task<Player?> GetByUsernameAsync(string username)
+        {
+            return await _playerRepository.GetByUsernameAsync(username);
+        }
+
+        public async Task<Player?> GetByEmailAsync(string email)
+        {
+            return await _playerRepository.GetByEmailAsync(email);
+        }
+
+        public async Task<bool> UsernameExistsAsync(string username)
+        {
+            return await _playerRepository.UsernameExistsAsync(username);
+        }
+
+        public async Task<bool> EmailExistsAsync(string email)
+        {
+            return await _playerRepository.EmailExistsAsync(email);
+        }
+
+        public async Task AddAsync(Player player)
+        {
+            await _playerRepository.AddAsync(player);
         }
     }
 }

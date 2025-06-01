@@ -2,6 +2,7 @@ using System.Threading.Tasks;
 using Application.Models;
 using System;
 using System.Collections.Generic;
+using Domain.Entities;
 
 namespace Application.Interfaces.Services
 {
@@ -10,5 +11,10 @@ namespace Application.Interfaces.Services
         Task<PlayerProfileDTO?> GetProfileAsync(Guid playerId);
         Task<IEnumerable<BetDTO>> GetBetsAsync(Guid playerId);
         Task<IEnumerable<WalletTransactionDTO>> GetWalletTransactionsAsync(Guid playerId);
+        Task<Player?> GetByUsernameAsync(string username);
+        Task<Player?> GetByEmailAsync(string email);
+        Task<bool> UsernameExistsAsync(string username);
+        Task<bool> EmailExistsAsync(string email);
+        Task AddAsync(Player player);
     }
 }
