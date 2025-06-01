@@ -1,5 +1,6 @@
 using Application.Interfaces.Repositories;
 using Application.Interfaces.Services;
+using Application.Models;
 using Domain.Entities;
 using Domain.Enums;
 using System;
@@ -14,11 +15,13 @@ namespace Application.Services
     {
         private readonly IWalletRepository _walletRepository;
         private readonly IWalletTransactionService _walletTransactionService;
+        private readonly IUserNotificationService _userNotificationService;
 
-        public WalletService(IWalletRepository walletRepository, IWalletTransactionService walletTransactionService)
+        public WalletService(IWalletRepository walletRepository, IWalletTransactionService walletTransactionService, IUserNotificationService userNotificationService)
         {
             _walletRepository = walletRepository;
             _walletTransactionService = walletTransactionService;
+            _userNotificationService = userNotificationService;
         }
 
         public async Task<List<Wallet>> GetWalletsByPlayerIdAsync(Guid playerId)
@@ -54,6 +57,23 @@ namespace Application.Services
             {
                 wallet.DebitWallet(amount);
                 var transaction = await _walletTransactionService.DebitWalletAsync(wallet, amount, betId);
+
+                // Notify user about wallet debit
+                var playerId = await GetPlayerByWalletIdAsync(wallet.Id);
+                if (playerId != null)
+                {
+                    var transactionDto = new WalletTransactionDTO
+                    {
+                        Id = transaction.Id,
+                        WalletId = transaction.WalletId,
+                        Amount = transaction.Amount,
+                        TypeId = transaction.TransactionTypeId,
+                        CreatedAt = transaction.CreatedAt,
+                        BetId = transaction.BetId,
+                    };
+                    await _userNotificationService.NotifyWalletTransactionUpdateAsync(playerId.Value, transactionDto);
+                }
+
                 scope.Complete();
                 return transaction;
             }
@@ -75,6 +95,23 @@ namespace Application.Services
             {
                 wallet.CreditWallet(amount);
                 var transaction = await _walletTransactionService.CreditWalletAsync(wallet, amount, betId);
+
+                // Notify user about wallet credit
+                var playerId = await GetPlayerByWalletIdAsync(wallet.Id);
+                if (playerId != null)
+                {
+                    var transactionDto = new WalletTransactionDTO
+                    {
+                        Id = transaction.Id,
+                        WalletId = transaction.WalletId,
+                        Amount = transaction.Amount,
+                        TypeId = transaction.TransactionTypeId,
+                        CreatedAt = transaction.CreatedAt,
+                        BetId = transaction.BetId,
+                    };
+                    await _userNotificationService.NotifyWalletTransactionUpdateAsync(playerId.Value, transactionDto);
+                }
+
                 scope.Complete();
                 return transaction;
             }
@@ -107,6 +144,15 @@ namespace Application.Services
             {
                 scope.Dispose();
             }
+        }
+
+        public async Task<Currency?> GetCurrencyByWalletIdAsync(Guid walletId)
+        {
+            var wallet = await _walletRepository.GetByIdAsync(walletId);
+            if (wallet == null)
+                return null;
+
+            return wallet.Currency;
         }
     }
 }

@@ -27,9 +27,17 @@ namespace Tests.Services
         private readonly Mock<IWalletTransactionService> _walletTxService = new();
         private readonly Mock<IGameService> _gameService = new();
         private readonly Mock<ILogger<BetService>> _logger = new();
+        private readonly Mock<IUserNotificationService> _userNotificationService = new();
 
         private BetService CreateService() =>
-            new BetService(_betRepo.Object, _mapper.Object, _walletService.Object, _walletTxService.Object, _gameService.Object, _logger.Object);
+            new BetService(
+                _betRepo.Object,
+                _mapper.Object,
+                _walletService.Object,
+                _walletTxService.Object,
+                _gameService.Object,
+                _logger.Object,
+                _userNotificationService.Object);
 
         [Fact]
         public async Task PlaceBetAsync_WithValidData_PlacesBetAndDebitsWallet()

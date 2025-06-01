@@ -14,6 +14,7 @@ using Microsoft.OpenApi.Models;
 using System.Text;
 using FluentValidation;
 using Serilog;
+using API.Hubs;
 
 namespace API
 {
@@ -41,6 +42,7 @@ namespace API
             builder.Services.AddFluentValidationClientsideAdapters();
             builder.Services.AddValidatorsFromAssemblyContaining<RegisterRequest>();
             builder.Services.AddEndpointsApiExplorer();
+            builder.Services.AddSignalR();
             builder.Services.AddSwaggerGen(setup =>
             {
                 // 'SecurityScheme' to use JWT Authentication
@@ -91,6 +93,7 @@ namespace API
             builder.Services.AddScoped<IWalletTransactionService, WalletTransactionService>();
             builder.Services.AddScoped<IBetService, BetService>();
             builder.Services.AddScoped<IGameService, GameService>();
+            builder.Services.AddScoped<IUserNotificationService, UserNotificationService<UserHub>>();
             #endregion
 
             #region Authentication
@@ -113,6 +116,8 @@ namespace API
 
             #region AppPipeline
             var app = builder.Build();
+
+            app.MapHub<UserHub>("/hubs/user");
 
             if (app.Environment.IsDevelopment())
             {

@@ -1,5 +1,5 @@
-@API_HostAddress = https://localhost:44354
-@JWTToken = eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJodHRwOi8vc2NoZW1hcy54bWxzb2FwLm9yZy93cy8yMDA1LzA1L2lkZW50aXR5L2NsYWltcy9uYW1laWRlbnRpZmllciI6IjBmNDYzODIxLTRiM2ItNGMzZC1iZDJiLTMyOThkYTU5YWFjZSIsImh0dHA6Ly9zY2hlbWFzLnhtbHNvYXAub3JnL3dzLzIwMDUvMDUvaWRlbnRpdHkvY2xhaW1zL25hbWUiOiJqZXN1aXNqZWRpIiwiZXhwIjoxNzQ4NzMwNjk2LCJpc3MiOiJ5b3VySXNzdWVyIiwiYXVkIjoieW91ckF1ZGllbmNlIn0.CB0D9J-K4-U87pyT5JXV5an4B_XDkiF3C5mbTXtPtzw
+@API_HostAddress = http://localhost:5156
+@JWTToken = eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJodHRwOi8vc2NoZW1hcy54bWxzb2FwLm9yZy93cy8yMDA1LzA1L2lkZW50aXR5L2NsYWltcy9uYW1laWRlbnRpZmllciI6IjBmNDYzODIxLTRiM2ItNGMzZC1iZDJiLTMyOThkYTU5YWFjZSIsImh0dHA6Ly9zY2hlbWFzLnhtbHNvYXAub3JnL3dzLzIwMDUvMDUvaWRlbnRpdHkvY2xhaW1zL25hbWUiOiJqZXN1aXNqZWRpIiwiZXhwIjoxNzQ4NzM5NjI3LCJpc3MiOiJ5b3VySXNzdWVyIiwiYXVkIjoieW91ckF1ZGllbmNlIn0.5-s6pxMi7DC_TzdkvtSD7XFavaYEf7dqsnA8jnCwlO4
 
 // --- Auth endpoints ---
 
@@ -78,7 +78,7 @@ Content-Type: application/json
 
 ###
 
-@BetId = 3a715eb0-3ea8-49b3-b543-05b692f51d0b
+@BetId = 2b960ef7-90ef-423c-b63f-8ac1abd32235
 
 // Cancel a bet
 POST {{API_HostAddress}}/api/Bet/{{BetId}}/cancel
@@ -91,6 +91,13 @@ Content-Type: application/json
 
 ###
 
+// Settle a bet
+POST {{API_HostAddress}}/api/Bet/{{BetId}}/settle
+Authorization: Bearer {{JWTToken}}
+Accept: application/json
+
+###
+
 // Get a bet by id
 GET {{API_HostAddress}}/api/Bet/{{BetId}}
 Authorization: Bearer {{JWTToken}}
@@ -98,9 +105,3 @@ Accept: application/json
 
 ###
 
-// Settle a bet
-POST {{API_HostAddress}}/api/Bet/{{BetId}}/settle
-Authorization: Bearer {{JWTToken}}
-Accept: application/json
-
-###

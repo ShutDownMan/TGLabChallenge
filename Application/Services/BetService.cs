@@ -24,6 +24,7 @@ namespace Application.Services
         private readonly IWalletTransactionService _walletTransactionService;
         private readonly IGameService _gameService;
         private readonly ILogger<BetService> _logger;
+        private readonly IUserNotificationService _userNotificationService;
 
         public BetService(
             IBetRepository betRepository,
@@ -31,7 +32,8 @@ namespace Application.Services
             IWalletService walletService,
             IWalletTransactionService walletTransactionService,
             IGameService gameService,
-            ILogger<BetService> logger)
+            ILogger<BetService> logger,
+            IUserNotificationService userNotificationService)
         {
             _betRepository = betRepository;
             _mapper = mapper;
@@ -39,6 +41,7 @@ namespace Application.Services
             _walletTransactionService = walletTransactionService;
             _gameService = gameService;
             _logger = logger;
+            _userNotificationService = userNotificationService;
         }
 
         public async Task<BetDTO> PlaceBetAsync(PlaceBetDTO betDTO)
@@ -78,11 +81,9 @@ namespace Application.Services
 
                 _logger.LogDebug("Fetched refreshed wallet. WalletId: {WalletId}, Balance: {Balance}", refreshedWallet.Id, refreshedWallet.Balance);
 
-                scope.Complete();
-
                 _logger.LogInformation("PlaceBetAsync completed successfully for BetId: {BetId}", betEntity.Id);
 
-                return new BetDTO
+                var betDto = new BetDTO
                 {
                     Id = newBetEntity.Id,
                     WalletId = newBetEntity.WalletId,
@@ -95,6 +96,17 @@ namespace Application.Services
                     Note = newBetEntity.Note,
                     LastUpdatedAt = newBetEntity.LastUpdatedAt
                 };
+
+                // Notify the user about the updated bet
+                var playerId = await _walletService.GetPlayerByWalletIdAsync(betDTO.WalletId);
+                if (playerId != null)
+                {
+                    await _userNotificationService.NotifyBetUpdateAsync(playerId.Value, betDto);
+                }
+
+                scope.Complete();
+
+                return betDto;
             }
             catch (Exception ex)
             {
@@ -243,6 +255,14 @@ namespace Application.Services
 
                 await _betRepository.UpdateAsync(bet);
 
+                // Notify the user about the cancelled bet
+                var playerId = await _walletService.GetPlayerByWalletIdAsync(bet.WalletId);
+                if (playerId != null)
+                {
+                    var betDto = _mapper.Map<BetDTO>(bet);
+                    await _userNotificationService.NotifyBetCancelledAsync(playerId.Value, betDto);
+                }
+
                 scope.Complete();
             }
             finally
@@ -285,6 +305,15 @@ namespace Application.Services
                     bet.Note = "Bet settled: player lost, no payout.";
                     _logger.LogDebug("Settling bet with ID: {BetId}, Player lost, no payout.", betId);
                     await _betRepository.UpdateAsync(bet);
+
+                    // Notify the user about the settled bet
+                    var playerId = await _walletService.GetPlayerByWalletIdAsync(bet.WalletId);
+                    if (playerId != null)
+                    {
+                        var betDto = _mapper.Map<BetDTO>(bet);
+                        await _userNotificationService.NotifyBetSettledAsync(playerId.Value, betDto);
+                    }
+
                     scope.Complete();
                     return _mapper.Map<BetDTO>(bet);
                 }
@@ -302,11 +331,23 @@ namespace Application.Services
                 bet.StatusId = (int)BetStatusEnum.Settled;
                 bet.Payout = payout;
                 bet.LastUpdatedAt = DateTime.UtcNow;
-                bet.Note = $"Bet settled: player won, payout {payout}.";
+                var currency = await _walletService.GetCurrencyByWalletIdAsync(bet.WalletId);
+                if (currency == null)
+                    throw new InvalidOperationException("Currency not found for wallet.");
+
+                bet.Note = $"Bet settled: player won, payout {payout.ToString("F2", System.Globalization.CultureInfo.InvariantCulture)} {currency.Code}.";
 
                 _logger.LogDebug("Settling bet with ID: {BetId}, Payout: {Payout}", betId, payout);
 
                 await _betRepository.UpdateAsync(bet);
+
+                // Notify the user about the settled bet
+                var playerIdWin = await _walletService.GetPlayerByWalletIdAsync(bet.WalletId);
+                if (playerIdWin != null)
+                {
+                    var betDto = _mapper.Map<BetDTO>(bet);
+                    await _userNotificationService.NotifyBetSettledAsync(playerIdWin.Value, betDto);
+                }
 
                 scope.Complete();
 

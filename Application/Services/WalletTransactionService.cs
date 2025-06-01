@@ -39,7 +39,7 @@ namespace Application.Services
                 Id = tx.Id,
                 WalletId = tx.WalletId,
                 CreatedAt = tx.CreatedAt,
-                Type = tx.TransactionType?.Name ?? tx.TransactionTypeId.ToString(),
+                TypeId = tx.TransactionTypeId,
                 Amount = tx.Amount
             });
         }

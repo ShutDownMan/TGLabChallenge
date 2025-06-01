@@ -1,3 +1,5 @@
+using System;
+
 namespace Application.Models
 {
     public class WalletTransactionDTO
@@ -5,7 +7,8 @@ namespace Application.Models
         public Guid Id { get; set; }
         public Guid WalletId { get; set; }
         public DateTime CreatedAt { get; set; }
-        public string Type { get; set; } = string.Empty;
+        public int TypeId { get; set; }
         public decimal Amount { get; set; }
+        public Guid? BetId { get; set; }
     }
 }
