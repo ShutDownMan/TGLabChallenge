@@ -276,6 +276,8 @@ namespace Application.Services
                     throw new InvalidOperationException("Game not found for bet.");
 
                 bool playerWon = DeterminePlayerWin();
+                bet.IsWon = playerWon;
+
                 if (!playerWon)
                 {
                     bet.StatusId = (int)BetStatusEnum.Settled;
@@ -284,6 +286,8 @@ namespace Application.Services
                     bet.Note = "Bet settled: player lost, no payout.";
                     _logger.LogDebug("Settling bet with ID: {BetId}, Player lost, no payout.", betId);
                     await _betRepository.UpdateAsync(bet);
+
+                    await TrackLostBetAsync(bet.WalletId, bet.Amount);
 
                     // Notify the user about the settled bet
                     var playerId = await _walletService.GetPlayerByWalletIdAsync(bet.WalletId);
@@ -463,6 +467,33 @@ namespace Application.Services
         private bool DeterminePlayerWin()
         {
             return _randomService.GetRandomBoolean();
+        }
+
+        private async Task<int> GetConsecutiveLostBetCountAsync(Guid walletId)
+        {
+            var bets = await _walletService.GetBetsByWalletIdAsync(walletId);
+            return bets.TakeWhile(bet => !bet.IsWon).Count();
+        }
+
+        /// <summary>
+        /// Tracks the number of consecutive lost bets for a wallet and awards a bonus after every 5 losses.
+        /// </summary>
+        /// <param name="walletId">The ID of the wallet.</param>
+        /// <param name="amount">The bet amount.</param>
+        private async Task TrackLostBetAsync(Guid walletId, decimal amount)
+        {
+            var lostBetCount = await GetConsecutiveLostBetCountAsync(walletId);
+
+            if (lostBetCount >= 5)
+            {
+                var bonusAmount = Math.Round(amount * 0.10m, 2);
+                var wallet = await _walletService.GetWalletByIdAsync(walletId);
+                if (wallet != null)
+                {
+                    await _walletService.CreditWalletAsync(wallet, bonusAmount, Guid.NewGuid());
+                    _logger.LogInformation("Awarded bonus of {BonusAmount} to WalletId: {WalletId} after 5 consecutive losses.", bonusAmount, walletId);
+                }
+            }
         }
     }
 }

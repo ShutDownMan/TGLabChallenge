@@ -205,5 +205,15 @@ namespace Application.Services
 
             return wallet.Currency;
         }
+
+        /// <summary>
+        /// Retrieves bets associated with a specific wallet asynchronously.
+        /// </summary>
+        /// <param name="walletId">The ID of the wallet.</param>
+        /// <returns>A list of bets.</returns>
+        public async Task<IEnumerable<Bet>> GetBetsByWalletIdAsync(Guid walletId)
+        {
+            return await _walletRepository.GetBetsByWalletIdAsync(walletId);
+        }
     }
 }

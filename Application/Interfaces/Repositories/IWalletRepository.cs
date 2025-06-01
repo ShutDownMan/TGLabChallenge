@@ -12,5 +12,6 @@ namespace Application.Interfaces.Repositories
         Task UpdateAsync(Wallet wallet);
         Task<Guid?> GetPlayerByWalletIdAsync(Guid walletId);
         Task<Wallet?> GetByIdAsync(Guid walletId);
+        Task<IEnumerable<Bet>> GetBetsByWalletIdAsync(Guid walletId);
     }
 }

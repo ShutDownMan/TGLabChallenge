@@ -460,5 +460,82 @@ namespace Tests.Services
             await Assert.ThrowsAsync<InvalidOperationException>(() => service.PlaceBetAsync(betDTO));
             #endregion
         }
+
+        [Fact]
+        public async Task SettleBetAsync_AwardsBonusAfterFiveConsecutiveLosses()
+        {
+            #region Arrange
+            var betId = Guid.NewGuid();
+            var walletId = Guid.NewGuid();
+            var gameId = Guid.NewGuid();
+            var bet = new Bet { Id = betId, StatusId = (int)BetStatusEnum.Created, Amount = 50, WalletId = walletId, GameId = gameId };
+            var game = new Game { Id = gameId };
+            var wallet = new Wallet { Id = walletId, Balance = 100 };
+            var bets = new List<Bet>
+            {
+                new Bet { IsWon = false },
+                new Bet { IsWon = false },
+                new Bet { IsWon = false },
+                new Bet { IsWon = false },
+                new Bet { IsWon = false }
+            };
+
+            _betRepo.Setup(r => r.GetByIdAsync(betId)).ReturnsAsync(bet);
+            _gameService.Setup(s => s.GetGameByIdAsync(gameId)).ReturnsAsync(game);
+            _walletService.Setup(s => s.GetWalletByIdAsync(walletId)).ReturnsAsync(wallet);
+            _walletService.Setup(s => s.GetBetsByWalletIdAsync(walletId)).ReturnsAsync(bets);
+            _walletService.Setup(s => s.CreditWalletAsync(wallet, It.IsAny<decimal>(), It.IsAny<Guid>()))
+                          .ReturnsAsync(new WalletTransaction());
+            _randomService.Setup(s => s.GetRandomBoolean()).Returns(false);
+            _betRepo.Setup(r => r.UpdateAsync(It.IsAny<Bet>())).ReturnsAsync(bet);
+
+            var service = CreateService();
+            #endregion
+
+            #region Act
+            await service.SettleBetAsync(betId);
+            #endregion
+
+            #region Assert
+            _walletService.Verify(s => s.CreditWalletAsync(wallet, 5, It.IsAny<Guid>()), Times.Once);
+            #endregion
+        }
+
+        [Fact]
+        public async Task SettleBetAsync_NoBonusIfLessThanFiveConsecutiveLosses()
+        {
+            #region Arrange
+            var betId = Guid.NewGuid();
+            var walletId = Guid.NewGuid();
+            var gameId = Guid.NewGuid();
+            var bet = new Bet { Id = betId, StatusId = (int)BetStatusEnum.Created, Amount = 50, WalletId = walletId, GameId = gameId };
+            var game = new Game { Id = gameId };
+            var wallet = new Wallet { Id = walletId, Balance = 100 };
+            var bets = new List<Bet>
+            {
+                new Bet { IsWon = false },
+                new Bet { IsWon = false },
+                new Bet { IsWon = true },
+                new Bet { IsWon = false }
+            };
+
+            _betRepo.Setup(r => r.GetByIdAsync(betId)).ReturnsAsync(bet);
+            _gameService.Setup(s => s.GetGameByIdAsync(gameId)).ReturnsAsync(game);
+            _walletService.Setup(s => s.GetWalletByIdAsync(walletId)).ReturnsAsync(wallet);
+            _walletService.Setup(s => s.GetBetsByWalletIdAsync(walletId)).ReturnsAsync(bets);
+            _randomService.Setup(s => s.GetRandomBoolean()).Returns(false);
+            _betRepo.Setup(r => r.UpdateAsync(It.IsAny<Bet>())).ReturnsAsync(bet);
+
+            var service = CreateService();
+            #endregion
+
+            #region Act
+            await service.SettleBetAsync(betId);
+            #endregion
+
+            #region Assert
+            _walletService.Verify(s => s.CreditWalletAsync(It.IsAny<Wallet>(), It.IsAny<decimal>(), It.IsAny<Guid>()), Times.Never);
+            #endregion
+        }
     }
 }

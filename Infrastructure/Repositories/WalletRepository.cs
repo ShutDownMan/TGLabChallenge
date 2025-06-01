@@ -55,5 +55,13 @@ namespace Infrastructure.Repositories
                 .Include(w => w.Currency)
                 .FirstOrDefaultAsync(w => w.Id == walletId);
         }
+
+        public async Task<IEnumerable<Bet>> GetBetsByWalletIdAsync(Guid walletId)
+        {
+            return await _context.Bets
+                .Where(b => b.WalletId == walletId)
+                .OrderByDescending(b => b.CreatedAt)
+                .ToListAsync();
+        }
     }
 }

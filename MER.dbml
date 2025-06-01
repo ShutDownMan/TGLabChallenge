@@ -22,6 +22,7 @@ Table Bet {
   Note varchar(255)
   LastUpdatedAt datetime
   WalletId UUID [ref: > Wallet.Id]
+  IsWon boolean [not null, default: false]
 }
 
 Table WalletTransaction {

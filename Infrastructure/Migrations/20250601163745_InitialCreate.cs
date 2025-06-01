@@ -122,6 +122,7 @@ namespace Infrastructure.Migrations
                     GameId = table.Column<Guid>(type: "uuid", nullable: false),
                     Note = table.Column<string>(type: "text", nullable: true),
                     LastUpdatedAt = table.Column<DateTime>(type: "timestamp with time zone", nullable: false),
+                    IsWon = table.Column<bool>(type: "boolean", nullable: false),
                     PlayerId = table.Column<Guid>(type: "uuid", nullable: true)
                 },
                 constraints: table =>

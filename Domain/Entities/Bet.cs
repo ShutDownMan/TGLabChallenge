@@ -18,6 +18,7 @@ namespace Domain.Entities
         public Guid GameId { get; set; }
         public string? Note { get; set; }
         public DateTime LastUpdatedAt { get; set; }
+        public bool IsWon { get; set; }
 
         public Wallet? Wallet { get; set; }
         public BetStatus? Status { get; set; }

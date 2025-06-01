@@ -63,5 +63,15 @@ namespace Infrastructure.Repositories
 
             await _context.SaveChangesAsync();
         }
+
+        public async Task<int> GetConsecutiveLostBetCountAsync(Guid walletId)
+        {
+            var bets = await _context.Bets
+                .Where(b => b.WalletId == walletId)
+                .OrderByDescending(b => b.CreatedAt)
+                .ToListAsync();
+
+            return bets.TakeWhile(bet => !bet.IsWon).Count();
+        }
     }
 }
