@@ -37,9 +37,9 @@ namespace Tests.Services
                 _walletService.Object,
                 _walletTxService.Object,
                 _gameService.Object,
-                _logger.Object,
                 _userNotificationService.Object,
-                _randomService.Object);
+                _randomService.Object,
+                _logger.Object);
 
         [Fact]
         public async Task PlaceBetAsync_WithValidData_PlacesBetAndDebitsWallet()
