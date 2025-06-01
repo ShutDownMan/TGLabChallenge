@@ -30,9 +30,16 @@ WORKDIR /app
 COPY --from=publish /app/publish .
 
 # Set environment variables for HTTPS
-ENV ASPNETCORE_Kestrel__Certificates__Default__Path=/https/aspnetapp.pfx
-ENV ASPNETCORE_Kestrel__Certificates__Default__Password=123456Sete
+ENV ASPNETCORE_Kestrel__Certificates__Default__Path=/https/certificate.pfx
+ENV ASPNETCORE_Kestrel__Certificates__Default__Password=${CERTIFICATE_PASSWORD}
 
-# dummy entrypoint to allow for debugging
-# ENTRYPOINT ["tail", "-f", "/dev/null"]
-ENTRYPOINT ["dotnet", "API.dll"]
+RUN printenv
+
+# Copy entrypoint script
+COPY ./API/entrypoint.sh /app/entrypoint.sh
+RUN chmod +x /app/entrypoint.sh
+
+# Use entrypoint script
+ENTRYPOINT ["/app/entrypoint.sh"]
+
+# ENTRYPOINT ["dotnet", "API.dll"]

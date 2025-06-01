@@ -79,6 +79,19 @@ dotnet test
 
 A aplicação utiliza autenticação JWT para proteger as APIs. Certifique-se de configurar as chaves e parâmetros JWT no arquivo `appsettings.json`.
 
+### Certificado HTTPS para Produção
+
+Para testes de deploy em produção, o arquivo `localhost.pfx` é utilizado como certificado HTTPS. O caminho e a senha do certificado são configurados por meio de variáveis de ambiente no arquivo `.env`:
+
+```env
+CERTIFICATE_PATH=./localhost.pfx
+CERTIFICATE_PASSWORD=123456Sete
+```
+
+Certifique-se de substituir essas variáveis por valores seguros antes de realizar o deploy em produção real. Além disso, configure o uso do certificado no pipeline da aplicação no arquivo `Program.cs`.
+
+Certifique-se de armazenar o certificado e a senha em um local seguro e configurar variáveis de ambiente apropriadas para produção.
+
 ## 📚 Documentação da API
 
 A documentação da API pode ser acessada em `/swagger` quando a aplicação estiver em execução (no modo de desenvolvimento).

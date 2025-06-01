@@ -18,10 +18,11 @@ services:
       POSTGRES_DB: ${POSTGRES_DB}
       POSTGRES_HOST: ${POSTGRES_HOST}
       POSTGRES_PORT: ${POSTGRES_PORT}
+      CERTIFICATE_PASSWORD: ${CERTIFICATE_PASSWORD}
     volumes:
       - ./API/appsettings.json:/app/appsettings.json:ro
       - ./Infrastructure/appsettings.Infrastructure.json:/app/appsettings.Infrastructure.json:ro
-      - ./aspnetapp.pfx:/https/aspnetapp.pfx:ro
+      - ${CERTIFICATE_PATH}:/https/certificate.pfx:ro
     depends_on:
       - db
       - migrations

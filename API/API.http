@@ -1,5 +1,5 @@
-@API_HostAddress = http://localhost:5156
-@JWTToken = eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJodHRwOi8vc2NoZW1hcy54bWxzb2FwLm9yZy93cy8yMDA1LzA1L2lkZW50aXR5L2NsYWltcy9uYW1laWRlbnRpZmllciI6IjBmNDYzODIxLTRiM2ItNGMzZC1iZDJiLTMyOThkYTU5YWFjZSIsImh0dHA6Ly9zY2hlbWFzLnhtbHNvYXAub3JnL3dzLzIwMDUvMDUvaWRlbnRpdHkvY2xhaW1zL25hbWUiOiJqZXN1aXNqZWRpIiwiZXhwIjoxNzQ4NzM5NjI3LCJpc3MiOiJ5b3VySXNzdWVyIiwiYXVkIjoieW91ckF1ZGllbmNlIn0.5-s6pxMi7DC_TzdkvtSD7XFavaYEf7dqsnA8jnCwlO4
+@API_HostAddress = http://localhost:8080
+@JWTToken = eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJodHRwOi8vc2NoZW1hcy54bWxzb2FwLm9yZy93cy8yMDA1LzA1L2lkZW50aXR5L2NsYWltcy9uYW1laWRlbnRpZmllciI6IjQ0MTYyZGFjLTMzODAtNDEwMC05MzZiLTQ0M2Y3NGM0NTA4MiIsImh0dHA6Ly9zY2hlbWFzLnhtbHNvYXAub3JnL3dzLzIwMDUvMDUvaWRlbnRpdHkvY2xhaW1zL25hbWUiOiJqZXN1aXNqZWRpIiwiZXhwIjoxNzQ4Nzk0ODIwLCJpc3MiOiJ5b3VySXNzdWVyIiwiYXVkIjoieW91ckF1ZGllbmNlIn0.TOiGRl4hcDdWNBWRkirklRBEbmhT31vZbOdrkvYcm2c
 
 // --- Auth endpoints ---
 
@@ -69,7 +69,7 @@ Authorization: Bearer {{JWTToken}}
 Content-Type: application/json
 
 {
-  "walletId": "dbeb174e-fa26-47ea-8122-3c2b2cc8f3b9",
+  "walletId": "40b720ad-ee8c-429f-8331-88c18b5675e3",
   "gameId": "7558398b-a987-4b88-9010-c026306d3535",
   "amount": 100,
   "currencyId": 1,
@@ -78,7 +78,7 @@ Content-Type: application/json
 
 ###
 
-@BetId = 2b960ef7-90ef-423c-b63f-8ac1abd32235
+@BetId = 0bebf269-b589-4487-a651-60a23a61579e
 
 // Cancel a bet
 POST {{API_HostAddress}}/api/Bet/{{BetId}}/cancel
