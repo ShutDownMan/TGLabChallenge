@@ -11,7 +11,7 @@ namespace Application.Interfaces.Services
         Task AddAsync(WalletTransaction transaction);
         Task<IEnumerable<WalletTransaction>> GetByWalletIdAsync(Guid walletId);
 
-        Task<IEnumerable<WalletTransactionDTO>> GetTransactionInfosByWalletIdAsync(Guid walletId);
+        Task<IEnumerable<WalletTransactionDTO>> GetTransactionInfosByWalletIdAsync(Guid walletId, int pageNumber, int pageSize);
 
         Task<WalletTransaction> DebitWalletAsync(Wallet wallet, decimal amount, Guid? betId = null);
         Task<WalletTransaction> CreditWalletAsync(Wallet wallet, decimal amount, Guid? betId = null);

@@ -99,10 +99,10 @@ namespace Application.Services
         /// </summary>
         /// <param name="playerId">The unique identifier of the player.</param>
         /// <returns>A collection of <see cref="BetDTO"/> representing the player's bets.</returns>
-        public async Task<IEnumerable<BetDTO>> GetBetsAsync(Guid playerId)
+        public async Task<IEnumerable<BetDTO>> GetBetsAsync(Guid playerId, int pageNumber, int pageSize)
         {
-            // You may want to validate the player exists, or just delegate to the bet service
-            return await _betService.GetBetsByUserAsync(playerId);
+            var bets = await _betService.GetBetsByUserAsync(playerId, pageNumber, pageSize);
+            return bets;
         }
 
         /// <summary>
@@ -110,17 +110,17 @@ namespace Application.Services
         /// </summary>
         /// <param name="playerId">The unique identifier of the player.</param>
         /// <returns>A collection of <see cref="WalletTransactionDTO"/> representing the player's wallet transactions.</returns>
-        public async Task<IEnumerable<WalletTransactionDTO>> GetWalletTransactionsAsync(Guid playerId)
+        public async Task<IEnumerable<WalletTransactionDTO>> GetWalletTransactionsAsync(Guid playerId, int pageNumber, int pageSize)
         {
             var wallets = await _walletService.GetWalletsByPlayerIdAsync(playerId);
             var allTransactions = new List<WalletTransactionDTO>();
             foreach (var wallet in wallets)
             {
-                var transactions = await _walletTransactionService.GetTransactionInfosByWalletIdAsync(wallet.Id);
+                var transactions = await _walletTransactionService.GetTransactionInfosByWalletIdAsync(wallet.Id, pageNumber, pageSize);
                 allTransactions.AddRange(transactions);
             }
 
-            return allTransactions;
+            return allTransactions.Skip((pageNumber - 1) * pageSize).Take(pageSize);
         }
 
         public async Task<Player?> GetByUsernameAsync(string username)

@@ -47,11 +47,17 @@ namespace Application.Services
         /// Retrieves transaction information for a specific wallet asynchronously.
         /// </summary>
         /// <param name="walletId">The ID of the wallet.</param>
+        /// <param name="pageNumber">The page number for pagination.</param>
+        /// <param name="pageSize">The number of items per page for pagination.</param>
         /// <returns>A collection of wallet transaction DTOs.</returns>
-        public async Task<IEnumerable<WalletTransactionDTO>> GetTransactionInfosByWalletIdAsync(Guid walletId)
+        public async Task<IEnumerable<WalletTransactionDTO>> GetTransactionInfosByWalletIdAsync(Guid walletId, int pageNumber, int pageSize)
         {
             var transactions = await _walletTransactionRepository.GetByWalletIdAsync(walletId);
-            return transactions.Select(tx => new WalletTransactionDTO
+            var paginatedTransactions = transactions
+                .Skip((pageNumber - 1) * pageSize)
+                .Take(pageSize);
+
+            return paginatedTransactions.Select(tx => new WalletTransactionDTO
             {
                 Id = tx.Id,
                 WalletId = tx.WalletId,

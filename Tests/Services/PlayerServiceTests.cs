@@ -9,6 +9,7 @@ using Microsoft.Extensions.Logging;
 using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
+using System.Linq;
 
 namespace Tests.Services
 {
@@ -100,7 +101,7 @@ namespace Tests.Services
             {
                 new BetDTO { Id = Guid.NewGuid(), Amount = 100, Status = "Created", CreatedAt = DateTime.UtcNow }
             };
-            betService.Setup(b => b.GetBetsByUserAsync(playerId)).ReturnsAsync(bets);
+            betService.Setup(b => b.GetBetsByUserAsync(playerId, 1, 10)).ReturnsAsync(bets);
 
             var service = new PlayerService(
                 playerRepo.Object,
@@ -112,7 +113,45 @@ namespace Tests.Services
             #endregion
 
             #region Act
-            var result = await service.GetBetsAsync(playerId);
+            var result = await service.GetBetsAsync(playerId, 1, 10);
+            #endregion
+
+            #region Assert
+            Assert.NotNull(result);
+            Assert.Single(result);
+            Assert.Equal(100, result.First().Amount);
+            #endregion
+        }
+
+        [Fact]
+        public async Task GetBetsAsync_WithExistingPlayer_ReturnsPaginatedBets()
+        {
+            #region Arrange
+            var playerId = Guid.NewGuid();
+            var playerRepo = new Mock<IPlayerRepository>();
+            var walletService = new Mock<IWalletService>();
+            var betService = new Mock<IBetService>();
+            var walletTransactionService = new Mock<IWalletTransactionService>();
+            var logger = new Mock<ILogger<PlayerService>>();
+
+            var bets = new List<BetDTO>
+            {
+                new BetDTO { Id = Guid.NewGuid(), Amount = 100, Status = "Created", CreatedAt = DateTime.UtcNow },
+                new BetDTO { Id = Guid.NewGuid(), Amount = 200, Status = "Created", CreatedAt = DateTime.UtcNow }
+            };
+            betService.Setup(b => b.GetBetsByUserAsync(playerId, 1, 1)).ReturnsAsync(bets.Take(1));
+
+            var service = new PlayerService(
+                playerRepo.Object,
+                walletService.Object,
+                betService.Object,
+                walletTransactionService.Object,
+                logger.Object
+            );
+            #endregion
+
+            #region Act
+            var result = await service.GetBetsAsync(playerId, 1, 1);
             #endregion
 
             #region Assert
@@ -143,7 +182,7 @@ namespace Tests.Services
             {
                 new WalletTransactionDTO { Id = Guid.NewGuid(), Amount = 50, CreatedAt = DateTime.UtcNow }
             };
-            walletTransactionService.Setup(w => w.GetTransactionInfosByWalletIdAsync(wallets.First().Id)).ReturnsAsync(transactions);
+            walletTransactionService.Setup(w => w.GetTransactionInfosByWalletIdAsync(wallets.First().Id, 1, 10)).ReturnsAsync(transactions);
 
             var service = new PlayerService(
                 playerRepo.Object,
@@ -155,7 +194,51 @@ namespace Tests.Services
             #endregion
 
             #region Act
-            var result = await service.GetWalletTransactionsAsync(playerId);
+            var result = await service.GetWalletTransactionsAsync(playerId, 1, 10);
+            #endregion
+
+            #region Assert
+            Assert.NotNull(result);
+            Assert.Single(result);
+            Assert.Equal(50, result.First().Amount);
+            #endregion
+        }
+
+        [Fact]
+        public async Task GetWalletTransactionsAsync_WithExistingPlayer_ReturnsPaginatedTransactions()
+        {
+            #region Arrange
+            var playerId = Guid.NewGuid();
+            var playerRepo = new Mock<IPlayerRepository>();
+            var walletService = new Mock<IWalletService>();
+            var betService = new Mock<IBetService>();
+            var walletTransactionService = new Mock<IWalletTransactionService>();
+            var logger = new Mock<ILogger<PlayerService>>();
+
+            var wallets = new List<Wallet>
+            {
+                new Wallet { Id = Guid.NewGuid(), CurrencyId = 100, Balance = 100, CreatedAt = DateTime.UtcNow }
+            };
+            walletService.Setup(w => w.GetWalletsByPlayerIdAsync(playerId)).ReturnsAsync(wallets);
+
+            var transactions = new List<WalletTransactionDTO>
+            {
+                new WalletTransactionDTO { Id = Guid.NewGuid(), Amount = 50, CreatedAt = DateTime.UtcNow },
+                new WalletTransactionDTO { Id = Guid.NewGuid(), Amount = 100, CreatedAt = DateTime.UtcNow }
+            };
+            walletTransactionService.Setup(w => w.GetTransactionInfosByWalletIdAsync(wallets.First().Id, 1, 1)).ReturnsAsync(transactions.Take(1));
+
+            var service = new PlayerService(
+                playerRepo.Object,
+                walletService.Object,
+                betService.Object,
+                walletTransactionService.Object,
+                logger.Object
+            );
+            #endregion
+
+            #region Act
+            var result = await service.GetWalletTransactionsAsync(playerId, 1, 1);
             #endregion
 
             #region Assert

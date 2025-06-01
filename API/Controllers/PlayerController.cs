@@ -44,36 +44,36 @@ namespace API.Controllers
         [HttpGet("bets")]
         [SwaggerOperation(
             Summary = "Get player bets",
-            Description = "Retrieves all bets placed by the authenticated player."
+            Description = "Retrieves paginated bets placed by the authenticated player."
         )]
         [SwaggerResponse(200, "Player bets retrieved successfully", typeof(IEnumerable<BetDTO>))]
         [SwaggerResponse(401, "Unauthorized")]
-        public async Task<IActionResult> GetBets()
+        public async Task<IActionResult> GetBets([FromQuery] int pageNumber = 1, [FromQuery] int pageSize = 10)
         {
             // Extract player id from JWT claims
             var playerIdClaim = User.FindFirst(System.Security.Claims.ClaimTypes.NameIdentifier)?.Value;
             if (string.IsNullOrEmpty(playerIdClaim) || !Guid.TryParse(playerIdClaim, out var playerId))
                 return Unauthorized();
 
-            var bets = await _playerService.GetBetsAsync(playerId);
+            var bets = await _playerService.GetBetsAsync(playerId, pageNumber, pageSize);
             return Ok(bets);
         }
 
         [HttpGet("wallet-transactions")]
         [SwaggerOperation(
             Summary = "Get wallet transactions",
-            Description = "Retrieves all wallet transactions of the authenticated player."
+            Description = "Retrieves paginated wallet transactions of the authenticated player."
         )]
         [SwaggerResponse(200, "Wallet transactions retrieved successfully", typeof(IEnumerable<WalletTransactionDTO>))]
         [SwaggerResponse(401, "Unauthorized")]
-        public async Task<IActionResult> GetWalletTransactions()
+        public async Task<IActionResult> GetWalletTransactions([FromQuery] int pageNumber = 1, [FromQuery] int pageSize = 10)
         {
             // Extract player id from JWT claims
             var playerIdClaim = User.FindFirst(System.Security.Claims.ClaimTypes.NameIdentifier)?.Value;
             if (string.IsNullOrEmpty(playerIdClaim) || !Guid.TryParse(playerIdClaim, out var playerId))
                 return Unauthorized();
 
-            var transactions = await _playerService.GetWalletTransactionsAsync(playerId);
+            var transactions = await _playerService.GetWalletTransactionsAsync(playerId, pageNumber, pageSize);
             return Ok(transactions);
         }
     }

@@ -140,7 +140,7 @@ namespace Application.Services
         /// </summary>
         /// <param name="userId">The ID of the user.</param>
         /// <returns>A collection of bets placed by the user.</returns>
-        public async Task<IEnumerable<BetDTO>> GetBetsByUserAsync(Guid userId)
+        public async Task<IEnumerable<BetDTO>> GetBetsByUserAsync(Guid userId, int pageNumber, int pageSize)
         {
             _logger.LogDebug("Starting GetBetsByUserAsync for UserId: {UserId}", userId);
 
@@ -148,7 +148,9 @@ namespace Application.Services
 
             _logger.LogDebug("Found {BetCount} bets for UserId: {UserId}", bets.Count(), userId);
 
-            var result = bets.Select(bet => new BetDTO
+            var paginatedBets = bets.Skip((pageNumber - 1) * pageSize).Take(pageSize);
+
+            var result = paginatedBets.Select(bet => new BetDTO
             {
                 Id = bet.Id,
                 WalletId = bet.WalletId,

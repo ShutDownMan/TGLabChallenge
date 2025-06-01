@@ -10,7 +10,7 @@ namespace Application.Interfaces.Services
         Task<BetDTO> PlaceBetAsync(PlaceBetDTO betDto);
         Task CancelBetAsync(Guid betId, string? cancelReason);
         Task<BetDTO?> GetBetByIdAsync(Guid id);
-        Task<IEnumerable<BetDTO>> GetBetsByUserAsync(Guid userId);
+        Task<IEnumerable<BetDTO>> GetBetsByUserAsync(Guid userId, int pageNumber, int pageSize);
         Task<BetDTO> SettleBetAsync(Guid betId);
     }
 }
