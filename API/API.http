@@ -8,11 +8,11 @@ POST {{API_HostAddress}}/api/Auth/register
 Content-Type: application/json
 
 {
-  "username": "jesuisjedi",
-  "password": "123456Sete",
-  "email": "jedson@teste.com",
+  "username": "testuser",
+  "password": "password123",
+  "email": "testuser@example.com",
   "currencyId": 1,
-  "initialBalance": "2345.00"
+  "initialBalance": "1000.00"
 }
 
 ###
@@ -22,8 +22,8 @@ POST {{API_HostAddress}}/api/Auth/login
 Content-Type: application/json
 
 {
-  "identifier": "jesuisjedi",
-  "password": "123456Sete"
+  "identifier": "testuser",
+  "password": "password123"
 }
 
 ###
@@ -77,8 +77,6 @@ Content-Type: application/json
 }
 
 ###
-
-@BetId = 0bebf269-b589-4487-a651-60a23a61579e
 
 // Cancel a bet
 POST {{API_HostAddress}}/api/Bet/{{BetId}}/cancel

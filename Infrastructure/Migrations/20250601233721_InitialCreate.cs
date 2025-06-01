@@ -49,7 +49,8 @@ namespace Infrastructure.Migrations
                     CancelTaxPercentage = table.Column<decimal>(type: "numeric", nullable: false),
                     CreatedAt = table.Column<DateTime>(type: "timestamp with time zone", nullable: false),
                     ConsecutiveLossBonusThreshold = table.Column<int>(type: "integer", nullable: true),
-                    ConsecutiveLossBonusPercentage = table.Column<decimal>(type: "numeric", nullable: false)
+                    ConsecutiveLossBonusPercentage = table.Column<decimal>(type: "numeric", nullable: false),
+                    Odds = table.Column<decimal>(type: "numeric", nullable: false)
                 },
                 constraints: table =>
                 {
@@ -211,8 +212,8 @@ namespace Infrastructure.Migrations
 
             migrationBuilder.InsertData(
                 table: "Games",
-                columns: new[] { "Id", "CancelTaxPercentage", "ConsecutiveLossBonusPercentage", "ConsecutiveLossBonusThreshold", "CreatedAt", "Description", "MinimalBetAmount", "MinimalBetCurrencyId", "Name" },
-                values: new object[] { new Guid("7558398b-a987-4b88-9010-c026306d3535"), 0.05m, 0.10m, 5, new DateTime(2025, 6, 1, 21, 47, 34, 519, DateTimeKind.Utc).AddTicks(6950), "This is a placeholder game for testing purposes.", 100m, 1, "Placeholder Game" });
+                columns: new[] { "Id", "CancelTaxPercentage", "ConsecutiveLossBonusPercentage", "ConsecutiveLossBonusThreshold", "CreatedAt", "Description", "MinimalBetAmount", "MinimalBetCurrencyId", "Name", "Odds" },
+                values: new object[] { new Guid("7558398b-a987-4b88-9010-c026306d3535"), 0.05m, 0.10m, 5, new DateTime(2025, 6, 1, 23, 37, 21, 569, DateTimeKind.Utc).AddTicks(2520), "This is a placeholder game for testing purposes.", 100m, 1, "Placeholder Game", 0.50m });
 
             migrationBuilder.InsertData(
                 table: "TransactionTypes",

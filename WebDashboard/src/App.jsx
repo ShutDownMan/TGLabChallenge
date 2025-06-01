@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { Container, Grid, TextField, Typography } from '@mui/material';
 import AuthEndpoints from './components/AuthEndpoints';
 import PlayerEndpoints from './components/PlayerEndpoints';
 import BetEndpoints from './components/BetEndpoints';
@@ -7,23 +8,30 @@ function App() {
   const [jwtToken, setJwtToken] = useState('');
 
   return (
-    <div style={{ padding: '20px', fontFamily: 'Arial, sans-serif' }}>
-      <h1>API Testing Dashboard</h1>
-      <div style={{ marginBottom: '20px' }}>
-        <label>
-          JWT Token:
-          <input
-            type="text"
+    <Container style={{ padding: '20px', fontFamily: 'Arial, sans-serif' }}>
+      <Typography variant="h4" gutterBottom>
+        API Testing Dashboard
+      </Typography>
+      <Grid container spacing={3}>
+        <Grid item xs={12}>
+          <TextField
+            label="JWT Token"
+            fullWidth
             value={jwtToken}
             onChange={(e) => setJwtToken(e.target.value)}
-            style={{ marginLeft: '10px', width: '400px' }}
           />
-        </label>
-      </div>
-      <AuthEndpoints jwtToken={jwtToken} setJwtToken={setJwtToken} />
-      <PlayerEndpoints jwtToken={jwtToken} />
-      <BetEndpoints jwtToken={jwtToken} />
-    </div>
+        </Grid>
+        <Grid item xs={12} md={4}>
+          <AuthEndpoints jwtToken={jwtToken} setJwtToken={setJwtToken} />
+        </Grid>
+        <Grid item xs={12} md={4}>
+          <PlayerEndpoints jwtToken={jwtToken} />
+        </Grid>
+        <Grid item xs={12} md={4}>
+          <BetEndpoints jwtToken={jwtToken} />
+        </Grid>
+      </Grid>
+    </Container>
   );
 }
 
