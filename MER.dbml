@@ -15,14 +15,14 @@ Table Currency {
 Table Bet {
   Id UUID [pk]
   GameId UUID [ref: > Game.Id]
+  WalletId UUID [ref: > Wallet.Id]
   Amount decimal(18,2) [not null]
-  StatusId int [ref: > BetStatus.Id]
   Payout decimal(18,2)
   CreatedAt datetime [not null]
   Note varchar(255)
   LastUpdatedAt datetime
-  WalletId UUID [ref: > Wallet.Id]
   IsWon boolean [not null, default: false]
+  StatusId int [ref: > BetStatus.Id]
 }
 
 Table WalletTransaction {
