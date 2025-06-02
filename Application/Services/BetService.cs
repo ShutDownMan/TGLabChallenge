@@ -13,6 +13,7 @@ using System.Transactions;
 
 using TransactionTypeEnum = Domain.Enums.TransactionType;
 using BetStatusEnum = Domain.Enums.BetStatus;
+using Application.Exceptions;
 
 namespace Application.Services
 {
@@ -55,6 +56,7 @@ namespace Application.Services
         /// </summary>
         /// <param name="betDTO">The details of the bet to be placed.</param>
         /// <returns>The placed bet details.</returns>
+        /// <exception cref="BetValidationException">Thrown if the bet amount is below the game's minimum requirement.</exception>
         /// <exception cref="InvalidOperationException">Thrown if validation fails or the bet cannot be placed.</exception>
         public async Task<BetDTO> PlaceBetAsync(PlaceBetDTO betDTO)
         {
@@ -413,7 +415,7 @@ namespace Application.Services
                     game.MinimalBetAmount,
                     betDTO.Amount
                 );
-                throw new InvalidOperationException($"Bet amount must be at least {game.MinimalBetAmount}.");
+                throw new BetValidationException($"Bet amount must be at least {game.MinimalBetAmount}.");
             }
             if (betDTO.CurrencyId != game.MinimalBetCurrencyId)
             {

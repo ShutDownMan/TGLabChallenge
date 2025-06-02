@@ -60,7 +60,7 @@ namespace Infrastructure.Data
                     ConsecutiveLossBonusThreshold = 5,
                     ConsecutiveLossBonusPercentage = 0.10m,
                     CancelTaxPercentage = 0.05m,
-                    Odds = 0.50m,
+                    Odds = 2.00m,
                     CreatedAt = DateTime.UtcNow
                 }
             );

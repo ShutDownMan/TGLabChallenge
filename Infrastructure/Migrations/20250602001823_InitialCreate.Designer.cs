@@ -12,7 +12,7 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace Infrastructure.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-    [Migration("20250601233721_InitialCreate")]
+    [Migration("20250602001823_InitialCreate")]
     partial class InitialCreate
     {
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -193,12 +193,12 @@ namespace Infrastructure.Migrations
                             CancelTaxPercentage = 0.05m,
                             ConsecutiveLossBonusPercentage = 0.10m,
                             ConsecutiveLossBonusThreshold = 5,
-                            CreatedAt = new DateTime(2025, 6, 1, 23, 37, 21, 569, DateTimeKind.Utc).AddTicks(2520),
+                            CreatedAt = new DateTime(2025, 6, 2, 0, 18, 23, 591, DateTimeKind.Utc).AddTicks(8448),
                             Description = "This is a placeholder game for testing purposes.",
                             MinimalBetAmount = 100m,
                             MinimalBetCurrencyId = 1,
                             Name = "Placeholder Game",
-                            Odds = 0.50m
+                            Odds = 2.00m
                         });
                 });
 

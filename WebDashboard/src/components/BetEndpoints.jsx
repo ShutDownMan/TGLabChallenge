@@ -154,7 +154,7 @@ function BetEndpoints({ jwtToken }) {
                 handleRequest('/api/Bet', 'POST', {
                   walletId: selectedWallet,
                   gameId: selectedGame,
-                  amount: betAmount,
+                  amount: Number(betAmount),
                   currencyId: 1,
                 })
               }

@@ -1,5 +1,6 @@
 using Application.Interfaces.Services;
 using Microsoft.AspNetCore.SignalR;
+using Microsoft.Extensions.Logging;
 using System;
 using System.Threading.Tasks;
 
@@ -12,14 +13,22 @@ namespace Application.Services
     public class UserNotificationService<THub> : IUserNotificationService where THub : Hub
     {
         private readonly IHubContext<THub> _hubContext;
+        private readonly ILogger<UserNotificationService<THub>> _logger;
 
         /// <summary>
         /// Initializes a new instance of the <see cref="UserNotificationService{THub}"/> class.
         /// </summary>
         /// <param name="hubContext">The SignalR hub context for sending notifications.</param>
-        public UserNotificationService(IHubContext<THub> hubContext)
+        /// <param name="logger">The logger for logging toast notifications.</param>
+        public UserNotificationService(IHubContext<THub> hubContext, ILogger<UserNotificationService<THub>> logger)
         {
             _hubContext = hubContext;
+            _logger = logger;
+        }
+
+        private void ShowToastNotification(string message)
+        {
+            _logger.LogInformation($"Toast Notification: {message}");
         }
 
         /// <summary>
@@ -31,6 +40,7 @@ namespace Application.Services
         {
             await _hubContext.Clients.User(playerId.ToString())
                 .SendAsync("bet-update", betDto);
+            ShowToastNotification("Bet updated successfully.");
         }
 
         /// <summary>
@@ -42,6 +52,7 @@ namespace Application.Services
         {
             await _hubContext.Clients.User(playerId.ToString())
                 .SendAsync("bet-cancelled", betDto);
+            ShowToastNotification("Bet cancelled successfully.");
         }
 
         /// <summary>
@@ -53,6 +64,7 @@ namespace Application.Services
         {
             await _hubContext.Clients.User(playerId.ToString())
                 .SendAsync("bet-settled", betDto);
+            ShowToastNotification("Bet settled successfully.");
         }
 
         /// <summary>
@@ -64,6 +76,7 @@ namespace Application.Services
         {
             await _hubContext.Clients.User(playerId.ToString())
                 .SendAsync("wallet-transaction-update", transaction);
+            ShowToastNotification("Wallet transaction updated successfully.");
         }
     }
 }

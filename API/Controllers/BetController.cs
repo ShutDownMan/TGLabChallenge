@@ -1,3 +1,4 @@
+using Application.Exceptions;
 using Application.Interfaces.Services;
 using Application.Models;
 using Application.Services;
@@ -33,7 +34,8 @@ namespace API.Controllers
             Summary = "Place a bet",
             Description = "Places a new bet with the provided details.\n" +
                           "The bet amount must meet the game's minimum requirements,\n" +
-                          "and the wallet must have sufficient balance.",
+                          "and the wallet must have sufficient balance.\n" +
+                          "Throws a validation error if the bet amount is below the minimum.",
             OperationId = "PlaceBet"
         )]
         [SwaggerResponse(200, "Bet placed successfully", typeof(BetDTO))]
@@ -47,8 +49,15 @@ namespace API.Controllers
                 return BadRequest(validationResult.Errors);
             }
 
-            var result = await _betService.PlaceBetAsync(placeBetDTO);
-            return Ok(result);
+            try
+            {
+                var result = await _betService.PlaceBetAsync(placeBetDTO);
+                return Ok(result);
+            }
+            catch (BetValidationException ex)
+            {
+                return BadRequest(new { message = ex.Message });
+            }
         }
 
         [HttpPost("{id}/cancel")]

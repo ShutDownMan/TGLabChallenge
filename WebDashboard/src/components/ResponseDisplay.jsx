@@ -17,7 +17,9 @@ function ResponseDisplay({ response, status, responseTime }) {
         <Typography variant="body1" style={{ marginTop: '10px' }}>
           <strong>Data:</strong>
         </Typography>
-        <pre>{JSON.stringify(response, null, 2)}</pre>
+        <pre style={{ whiteSpace: 'pre-wrap', wordWrap: 'break-word' }}>
+          {JSON.stringify(response, null, 2)}
+        </pre>
       </CardContent>
     </Card>
   );

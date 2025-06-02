@@ -1,11 +1,36 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Container, Grid, TextField, Typography } from '@mui/material';
+import { HubConnectionBuilder } from '@microsoft/signalr';
 import AuthEndpoints from './components/AuthEndpoints';
 import PlayerEndpoints from './components/PlayerEndpoints';
 import BetEndpoints from './components/BetEndpoints';
 
 function App() {
   const [jwtToken, setJwtToken] = useState('');
+  const [connection, setConnection] = useState(null);
+
+  const initializeSignalRConnection = (token) => {
+    const newConnection = new HubConnectionBuilder()
+      .withUrl('http://localhost:8080/hubs/user', {
+        headers: { Authorization: `Bearer ${token}` },
+      })
+      .withAutomaticReconnect()
+      .build();
+
+    newConnection
+      .start()
+      .then(() => {
+        console.log('Connected to SignalR hub');
+        setConnection(newConnection);
+      })
+      .catch((err) => console.error('SignalR connection failed:', err));
+  };
+
+  useEffect(() => {
+    if (jwtToken && !connection) {
+      initializeSignalRConnection(jwtToken);
+    }
+  }, [jwtToken]);
 
   return (
     <Container style={{ padding: '20px', fontFamily: 'Arial, sans-serif' }}>

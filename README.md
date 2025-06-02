@@ -89,7 +89,7 @@ The `WebDashboard` is a React application that serves as a dashboard for testing
 
 #### Prerequisites
 
-- [Node.js](https://nodejs.org/)
+- [Node.js 24.x or later](https://nodejs.org/)
 - [npm](https://www.npmjs.com/)
 
 #### How to Run
