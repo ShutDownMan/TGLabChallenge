@@ -135,6 +135,22 @@ namespace API
                             Encoding.UTF8.GetBytes(builder.Configuration["Jwt:Key"]!)
                         )
                     };
+
+                    options.Events = new JwtBearerEvents
+                    {
+                        OnMessageReceived = context =>
+                        {
+                            var accessToken = context.Request.Query["access_token"];
+
+                            var path = context.HttpContext.Request.Path;
+                            if (!string.IsNullOrEmpty(accessToken) &&
+                                (path.StartsWithSegments("/hubs/user")))
+                            {
+                                context.Token = accessToken;
+                            }
+                            return Task.CompletedTask;
+                        }
+                    };
                 });
             #endregion
 
@@ -146,6 +162,7 @@ namespace API
                     .AllowAnyHeader()
                     .AllowAnyMethod()
                     .AllowCredentials()
+                    .SetIsOriginAllowed(_ => true) // Allow any origin for WebSocket
                 );
             });
             #endregion
@@ -153,19 +170,25 @@ namespace API
             #region AppPipeline
             var app = builder.Build();
 
-            app.MapHub<UserHub>("/hubs/user");
+            // Order matters for middleware
+            app.UseCors();
+
+            app.UseRouting();
+            app.UseWebSockets();
+
+            app.UseAuthentication();
+            app.UseAuthorization();
+
+            app.UseEndpoints(endpoints => {
+                endpoints.MapHub<UserHub>("/hubs/user");
+                endpoints.MapControllers();
+            });
 
             if (app.Environment.IsDevelopment())
             {
                 app.UseSwagger();
                 app.UseSwaggerUI();
             }
-
-            app.UseCors();
-            app.UseAuthentication();
-            app.UseAuthorization();
-
-            app.MapControllers();
 
             // Redirection is causing CORS issues
             // app.UseHttpsRedirection();

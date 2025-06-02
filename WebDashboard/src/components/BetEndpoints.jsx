@@ -17,6 +17,8 @@ function BetEndpoints({ jwtToken }) {
     { id: '7558398b-a987-4b88-9010-c026306d3535', name: 'Default Game' }
   ]);
   const [betAmount, setBetAmount] = useState(100);
+  const [currentPage, setCurrentPage] = useState(1);
+  const [pageSize, setPageSize] = useState(10000); // Increased to 100 to fetch more bets at once
 
   const fetchProfile = async () => {
     try {
@@ -36,8 +38,13 @@ function BetEndpoints({ jwtToken }) {
     try {
       const res = await axios.get(`${API_HOST}/api/Player/bets`, {
         headers: { Authorization: `Bearer ${jwtToken}` },
+        params: {
+          pageNumber: 1, // Always fetch the first page
+          pageSize: pageSize // Use a large page size to get more bets
+        }
       });
       setAvailableBets(res.data);
+      
       if (res.data.length > 0) {
         setBetId(res.data[0].id);
       }
@@ -52,7 +59,7 @@ function BetEndpoints({ jwtToken }) {
 
   useEffect(() => {
     fetchBets();
-  }, [jwtToken]);
+  }, [jwtToken, pageSize]);
 
   useEffect(() => {
     const fetchGames = async () => {
@@ -113,6 +120,14 @@ function BetEndpoints({ jwtToken }) {
               value={selectedWallet}
               onChange={(e) => setSelectedWallet(e.target.value)}
               displayEmpty
+              MenuProps={{
+                PaperProps: {
+                  style: {
+                    maxHeight: 300,
+                    overflow: 'auto'
+                  }
+                }
+              }}
             >
               <MenuItem value="">Select Wallet</MenuItem>
               {playerProfile?.wallets?.map((wallet) => (
@@ -128,6 +143,14 @@ function BetEndpoints({ jwtToken }) {
               value={selectedGame}
               onChange={(e) => setSelectedGame(e.target.value)}
               displayEmpty
+              MenuProps={{
+                PaperProps: {
+                  style: {
+                    maxHeight: 300,
+                    overflow: 'auto'
+                  }
+                }
+              }}
             >
               <MenuItem value="">Select Game</MenuItem>
               {availableGames?.map((game) => (
@@ -174,6 +197,14 @@ function BetEndpoints({ jwtToken }) {
               value={betId}
               onChange={(e) => setBetId(e.target.value)}
               displayEmpty
+              MenuProps={{
+                PaperProps: {
+                  style: {
+                    maxHeight: 300,
+                    overflow: 'auto'
+                  }
+                }
+              }}
             >
               <MenuItem value="">Select Bet</MenuItem>
               {availableBets?.map((bet) => (
