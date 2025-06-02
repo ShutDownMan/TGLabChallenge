@@ -2,8 +2,7 @@ import React, { useState } from 'react';
 import axios from 'axios';
 import { Card, CardContent, Typography, TextField, Button, Grid } from '@mui/material';
 import ResponseDisplay from './ResponseDisplay';
-
-const API_HOST = 'http://localhost:8080';
+import { API_HOST } from '../config/api';
 
 function AuthEndpoints({ jwtToken, setJwtToken }) {
   const [response, setResponse] = useState(null);

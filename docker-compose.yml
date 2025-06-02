@@ -74,11 +74,8 @@ services:
     ports:
       - "3000:3000"
     environment:
-      NODE_ENV: ${NODE_ENV}
-    volumes:
-      - ./WebDashboard:/app:ro
-    # depends_on:
-    #   - api
+      - REACT_APP_API_URL=http://api:${ASPNETCORE_HTTP_PORTS}
+      - NODE_ENV=production
 
 volumes:
   db-data:
