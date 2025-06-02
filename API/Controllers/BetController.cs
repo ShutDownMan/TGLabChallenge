@@ -42,7 +42,6 @@ namespace API.Controllers
         [SwaggerResponse(400, "Validation failed or insufficient wallet balance")]
         public async Task<IActionResult> PlaceBet([FromBody] PlaceBetDTO placeBetDTO)
         {
-            // <see cref="Application.Models.PlaceBetDTOValidator"/>
             ValidationResult validationResult = await _betDTOValidator.ValidateAsync(placeBetDTO);
             if (!validationResult.IsValid)
             {
@@ -54,9 +53,20 @@ namespace API.Controllers
                 var result = await _betService.PlaceBetAsync(placeBetDTO);
                 return Ok(result);
             }
-            catch (BetValidationException ex)
+            catch (Exception ex) when (
+                ex is BetValidationException ||
+                ex is WalletNotFoundException ||
+                ex is GameNotFoundException ||
+                ex is PlayerNotFoundException ||
+                ex is InsufficientBalanceException ||
+                ex is InvalidCurrencyException
+            )
             {
                 return BadRequest(new { message = ex.Message });
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, new { message = "An unexpected error occurred.", details = ex.Message });
             }
         }
 

@@ -1,4 +1,5 @@
-﻿using Application.Interfaces.Repositories;
+﻿using Application.Exceptions;
+using Application.Interfaces.Repositories;
 using Application.Interfaces.Services;
 using Application.Models;
 using AutoMapper;
@@ -13,7 +14,6 @@ using System.Transactions;
 
 using TransactionTypeEnum = Domain.Enums.TransactionType;
 using BetStatusEnum = Domain.Enums.BetStatus;
-using Application.Exceptions;
 
 namespace Application.Services
 {
@@ -358,26 +358,17 @@ namespace Application.Services
         {
             var walletExists = await _walletService.WalletExistsAsync(betDTO.WalletId);
             if (!walletExists)
-            {
-                _logger.LogWarning("Wallet does not exist. WalletId: {WalletId}", betDTO.WalletId);
-                throw new InvalidOperationException("Wallet does not exist.");
-            }
+                throw new WalletNotFoundException($"Wallet with ID {betDTO.WalletId} does not exist.");
 
             var playerId = await _walletService.GetPlayerByWalletIdAsync(betDTO.WalletId);
             if (playerId == null)
-            {
-                _logger.LogWarning("Player not found for WalletId: {WalletId}", betDTO.WalletId);
-                throw new InvalidOperationException("Player not found.");
-            }
+                throw new PlayerNotFoundException($"Player not found for Wallet ID {betDTO.WalletId}.");
 
             var wallets = await _walletService.GetWalletsByPlayerIdAsync(playerId.Value);
             var wallet = wallets.FirstOrDefault(w => w.Id == betDTO.WalletId);
 
             if (wallet == null)
-            {
-                _logger.LogWarning("Wallet not found. WalletId: {WalletId}", betDTO.WalletId);
-                throw new InvalidOperationException("Wallet not found.");
-            }
+                throw new WalletNotFoundException($"Wallet with ID {betDTO.WalletId} not found.");
 
             return wallet;
         }
@@ -392,10 +383,7 @@ namespace Application.Services
         {
             var game = await _gameService.GetGameByIdAsync(betDTO.GameId);
             if (game == null)
-            {
-                _logger.LogWarning("Game not found. GameId: {GameId}", betDTO.GameId);
-                throw new InvalidOperationException("Game not found.");
-            }
+                throw new GameNotFoundException($"Game with ID {betDTO.GameId} not found.");
             return game;
         }
 
@@ -408,26 +396,10 @@ namespace Application.Services
         private void ValidateBetAmountAndCurrency(PlaceBetDTO betDTO, Game game)
         {
             if (betDTO.Amount < game.MinimalBetAmount)
-            {
-                _logger.LogWarning(
-                    "Bet amount below minimum. GameId: {GameId}, MinimalBetAmount: {MinimalBetAmount}, BetAmount: {BetAmount}",
-                    betDTO.GameId,
-                    game.MinimalBetAmount,
-                    betDTO.Amount
-                );
                 throw new BetValidationException($"Bet amount must be at least {game.MinimalBetAmount}.");
-            }
+
             if (betDTO.CurrencyId != game.MinimalBetCurrencyId)
-            {
-                _logger.LogWarning(
-                    "Bet currency does not match game's minimal bet currency. " +
-                    "GameId: {GameId}, GameCurrencyId: {GameCurrencyId}, BetCurrencyId: {BetCurrencyId}",
-                    betDTO.GameId,
-                    game.MinimalBetCurrencyId,
-                    betDTO.CurrencyId
-                );
-                throw new InvalidOperationException("Bet currency does not match game's minimal bet currency.");
-            }
+                throw new InvalidCurrencyException("Bet currency does not match game's minimal bet currency.");
         }
 
         /// <summary>
@@ -439,15 +411,7 @@ namespace Application.Services
         private void ValidateWalletBalance(Domain.Entities.Wallet wallet, decimal amount)
         {
             if (wallet.Balance < amount)
-            {
-                _logger.LogWarning(
-                    "Insufficient wallet balance. WalletId: {WalletId}, Balance: {Balance}, BetAmount: {Amount}",
-                    wallet.Id,
-                    wallet.Balance,
-                    amount
-                );
-                throw new InvalidOperationException("Insufficient wallet balance.");
-            }
+                throw new InsufficientBalanceException("Insufficient wallet balance.");
         }
 
         /// <summary>
