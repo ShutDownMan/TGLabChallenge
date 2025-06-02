@@ -89,7 +89,7 @@ The `WebDashboard` is a React application that serves as a dashboard for testing
 
 #### Prerequisites
 
-- [Node.js 24.x or later](https://nodejs.org/)
+- [Node.js 20.x](https://nodejs.org/)
 - [npm](https://www.npmjs.com/)
 
 #### How to Run
@@ -113,19 +113,13 @@ The `WebDashboard` is a React application that serves as a dashboard for testing
 
 #### Docker
 
-The application can also be run using Docker. Make sure Docker is installed and run the following commands:
+The WebDashboard is already included in the Docker Compose configuration. When you run:
 
-1. Build the Docker image:
-   ```bash
-   docker build -t web-dashboard .
-   ```
+```bash
+docker compose up -d
+```
 
-2. Run the container:
-   ```bash
-   docker run -p 80:80 web-dashboard
-   ```
-
-Access the dashboard in the browser at `http://localhost`.
+The WebDashboard will be automatically built and deployed, available at `http://localhost:3000`.
 
 ## 🛡️ Security
 
@@ -167,6 +161,41 @@ The `docker-compose.yml` file configures the services required for production ex
 - **API**: Main application service.
 - **Migrations**: Service for applying database migrations.
 - **PostgreSQL**: Relational database.
+- **WebDashboard**: React application for testing API endpoints.
+
+To start all services with Docker Compose:
+
+```bash
+docker compose up -d
+```
+
+After starting the services:
+- The API will be available at `http://localhost:8080`
+- The WebDashboard will be available at `http://localhost:3000`
+
+### Environment Configuration
+
+The application uses environment variables defined in the `.env` file:
+
+```env
+# Database settings
+POSTGRES_USER=prod-user
+POSTGRES_PASSWORD=prod-password
+POSTGRES_DB=prod-db
+POSTGRES_HOST=postgres-db
+POSTGRES_PORT=5432
+
+# API settings
+ASPNETCORE_ENVIRONMENT=Production
+ASPNETCORE_HTTPS_PORTS=8081
+ASPNETCORE_HTTP_PORTS=8080
+
+# Certificate settings
+CERTIFICATE_PATH=./localhost.pfx
+CERTIFICATE_PASSWORD=123456Sete
+```
+
+Make sure to modify these values for your production environment.
 
 ## 📝 License
 

@@ -6,6 +6,7 @@ import 'react-toastify/dist/ReactToastify.css';
 import AuthEndpoints from './components/AuthEndpoints';
 import PlayerEndpoints from './components/PlayerEndpoints';
 import BetEndpoints from './components/BetEndpoints';
+import { API_HOST } from './config/api';
 
 function App() {
   const [jwtToken, setJwtToken] = useState('');
@@ -16,7 +17,7 @@ function App() {
     console.log('Initializing SignalR connection with token:', token);
     try {
       const newConnection = new HubConnectionBuilder()
-        .withUrl('http://localhost:8080/hubs/user', {
+        .withUrl(`${API_HOST}/hubs/user`, {
           accessTokenFactory: () => token,
           transport: HttpTransportType.WebSockets,
           skipNegotiation: true

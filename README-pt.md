@@ -89,7 +89,7 @@ O `WebDashboard` é uma aplicação React que serve como um painel para testar o
 
 #### Pré-requisitos
 
-- [Node.js](https://nodejs.org/)
+- [Node.js 20.x](https://nodejs.org/)
 - [npm](https://www.npmjs.com/)
 
 #### Como executar
@@ -113,19 +113,13 @@ O `WebDashboard` é uma aplicação React que serve como um painel para testar o
 
 #### Docker
 
-A aplicação também pode ser executada usando Docker. Certifique-se de ter o Docker instalado e execute os seguintes comandos:
+O WebDashboard já está incluído na configuração do Docker Compose. Quando você executa:
 
-1. Construa a imagem Docker:
-   ```bash
-   docker build -t web-dashboard .
-   ```
+```bash
+docker compose up -d
+```
 
-2. Execute o container:
-   ```bash
-   docker run -p 80:80 web-dashboard
-   ```
-
-Acesse o painel no navegador em `http://localhost`.
+O WebDashboard será automaticamente construído e implantado, disponível em `http://localhost:3000`.
 
 ## 🛡️ Segurança
 
@@ -167,6 +161,41 @@ O arquivo `docker-compose.yml` configura os serviços necessários para execuç�
 - **API**: Serviço principal da aplicação.
 - **Migrations**: Serviço para aplicar migrações no banco de dados.
 - **PostgreSQL**: Banco de dados relacional.
+- **WebDashboard**: Aplicação React para testar os endpoints da API.
+
+Para iniciar todos os serviços com Docker Compose:
+
+```bash
+docker compose up -d
+```
+
+Após iniciar os serviços:
+- A API estará disponível em `http://localhost:8080`
+- O WebDashboard estará disponível em `http://localhost:3000`
+
+### Configuração de Ambiente
+
+A aplicação utiliza variáveis de ambiente definidas no arquivo `.env`:
+
+```env
+# Configurações do banco de dados
+POSTGRES_USER=prod-user
+POSTGRES_PASSWORD=prod-password
+POSTGRES_DB=prod-db
+POSTGRES_HOST=postgres-db
+POSTGRES_PORT=5432
+
+# Configurações da API
+ASPNETCORE_ENVIRONMENT=Production
+ASPNETCORE_HTTPS_PORTS=8081
+ASPNETCORE_HTTP_PORTS=8080
+
+# Configurações do certificado
+CERTIFICATE_PATH=./localhost.pfx
+CERTIFICATE_PASSWORD=123456Sete
+```
+
+Certifique-se de modificar esses valores para seu ambiente de produção.
 
 ## 📝 Licença
 
